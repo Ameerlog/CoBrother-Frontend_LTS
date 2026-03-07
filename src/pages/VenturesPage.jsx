@@ -253,6 +253,30 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
               </Section>
             )}
 
+            {/* Venture stage + looking for */}
+            <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+              
+              {(detail || venture).stage && (
+                <Section title="Current Stage">
+                  <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(200,169,110,0.1)', border: '1px solid rgba(200,169,110,0.2)', borderRadius: 6, fontSize: '0.8rem', color: '#c8a96e' }}>
+                    {{ IDEA: '💡 Idea', MVP: '🛠 MVP', REVENUE_GENERATING: '💰 Revenue Generating', SCALING: '🚀 Scaling' }[(detail || venture).stage]}
+                  </span>
+                </Section>
+              )}
+            </div>
+
+            {(detail || venture).lookingFor && (
+              <Section title="Looking For">
+                <p style={{ color: '#c0c0d0', lineHeight: 1.6, fontSize: '0.9rem', margin: 0 }}>{(detail || venture).lookingFor}</p>
+              </Section>
+            )}
+
+            {(detail || venture).currentProblem && (
+              <Section title="Current Challenge">
+                <p style={{ color: '#c0c0d0', lineHeight: 1.6, fontSize: '0.9rem', margin: 0 }}>{(detail || venture).currentProblem}</p>
+              </Section>
+            )}
+
             {/* Listed by */}
             {detail?.listedBy && (
               <Section title="Listed By">

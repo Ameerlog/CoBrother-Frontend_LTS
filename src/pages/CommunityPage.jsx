@@ -292,6 +292,14 @@ function CommunityDetailModal({ profile, isMe, onClose, onEdit }) {
               </div>
             )}
 
+            {p.whyImHere && (
+              <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.6rem' }}>Why I'm Here</div>
+                <p style={{ color: '#c0c0d0', lineHeight: 1.7, fontSize: '0.875rem', margin: 0 }}>{p.whyImHere}</p>
+              </div>
+            )}
+
+
             {/* Actions */}
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
               {isMe && (
@@ -314,6 +322,7 @@ function CommunityProfileForm({ initial, onSaved, onCancel }) {
     skills:   initial?.skills   || '',
     industry: initial?.industry || '',
     location: initial?.location || '',
+    whyImHere: initial?.whyImHere || '',  // ✅
   });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
@@ -395,6 +404,17 @@ function CommunityProfileForm({ initial, onSaved, onCancel }) {
             value={form.location}
             onChange={handleChange}
             placeholder="e.g. Bengaluru, India"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Why I'm Here <span className="optional">(optional)</span></label>
+          <textarea
+            name="whyImHere"
+            value={form.whyImHere}
+            onChange={handleChange}
+            placeholder="e.g. Looking to co-found a SaaS product, open to advisory roles in fintech, seeking a tech co-founder for my D2C brand..."
+            rows={3}
           />
         </div>
 

@@ -86,7 +86,7 @@ function IncomingApplications() {
 
   const exportCSV = () => {
     const rows = [
-      ['Applicant Name', 'Phone', 'Location', 'GST No', 'Venture', 'Status', 'Applied For'],
+      ['Applicant Name', 'Phone', 'Location', 'GST No', 'Venture', 'Status', 'Applied For', 'How can the User Help?'],
       ...applications.map(a => [
         a.fullName || '',
         a.phone || '',
@@ -95,6 +95,7 @@ function IncomingApplications() {
         a.venture?.brandDetails?.brandName || '',
         a.status || '',
         TYPE_LABELS[a.venture?.brandDetails?.ventureType] || '',
+        a.description || '',
       ])
     ];
     const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
@@ -230,6 +231,7 @@ function ApplicationCard({ app, expanded, onToggle, onApprove, onReject, actionL
             <Detail label="Phone" value={app.phone} />
             <Detail label="Location" value={app.location} />
             <Detail label="GST No" value={app.gstNo || 'Not provided'} />
+            <Detail label="How can the User Help?" value={app.description} />
           </div>
 
           {app.status === 'PENDING' && (

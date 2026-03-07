@@ -7,8 +7,10 @@ const STATUS_LABEL = {
   REJECTED: { text: 'Application Rejected', color: '#c86e6e', bg: 'rgba(200,110,110,0.1)',  border: 'rgba(200,110,110,0.3)',  icon: '✕'  },
 };
 
+
+
 export default function CoVentureModal({ venture, onClose }) {
-  const [form, setForm]       = useState({ fullName: '', phone: '', location: '', gstNo: '' });
+  const [form, setForm]       = useState({ fullName: '', phone: '', location: '', gstNo: '', description: ''  });
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true); // checking prior application on mount
   const [error, setError]     = useState('');
@@ -154,6 +156,18 @@ export default function CoVentureModal({ venture, onClose }) {
                   onChange={handleChange}
                   placeholder="22AAAAA0000A1Z5"
                   maxLength={15}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>How can you help? <span className="required">*</span></label>
+                <textarea
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  placeholder="Describe how you can contribute to this venture — your skills, experience, network, or how you'd solve their current challenge..."
+                  rows={4}
+                  required
                 />
               </div>
 

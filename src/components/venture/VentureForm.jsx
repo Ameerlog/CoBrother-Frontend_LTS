@@ -10,6 +10,13 @@ const VENTURE_TYPES = [
   { value: 'NEGOTIABLE', label: 'Negotiable — Custom Structure' },
 ];
 
+const STAGES = [
+  { value: 'IDEA',               label: '💡 Idea — Concept stage, not yet built' },
+  { value: 'MVP',                label: '🛠 MVP — Built, testing with early users' },
+  { value: 'REVENUE_GENERATING', label: '💰 Revenue Generating — Paying customers' },
+  { value: 'SCALING',            label: '🚀 Scaling — Growing fast, need fuel' },
+];
+
 const EMPTY = {
   brandDetails: {
     brandName: '', description: '', website: '', videoUrl: '',
@@ -18,7 +25,11 @@ const EMPTY = {
   contactInfo: { email: '', phoneNumber: '' },
   agreement: { terms: true },
   status: true,
+  stage: '',
+  lookingFor: '',
+  currentProblem: '',
 };
+
 
 export default function VentureForm({ initialData, onSubmit, loading, error, submitLabel = 'Submit' }) {
   const [form, setForm] = useState(() => initialData || EMPTY);
@@ -28,6 +39,9 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
 
   const setContact = (key, value) =>
     setForm((f) => ({ ...f, contactInfo: { ...f.contactInfo, [key]: value } }));
+
+  const setField = (key, value) => setForm(f => ({ ...f, [key]: value }));
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -105,6 +119,40 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
             <label>Phone Number</label>
             <input value={form.contactInfo.phoneNumber} onChange={(e) => setContact('phoneNumber', e.target.value)} placeholder="10-digit number" maxLength={10} />
           </div>
+        </div>
+      </section>
+
+      
+
+      <section className="form-section">
+        <h3>Venture Status</h3>
+
+        <div className="form-group">
+          <label>Current Stage <span className="required">*</span></label>
+          <select value={form.stage} onChange={e => setField('stage', e.target.value)} required>
+            <option value="">Select stage</option>
+            {STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Looking For <span className="required">*</span></label>
+          <input
+            value={form.lookingFor}
+            onChange={e => setField('lookingFor', e.target.value)}
+            placeholder="e.g. Marketing co-founder, Angel investor, Tech lead"
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Current Challenge <span className="optional">(optional)</span></label>
+          <textarea
+            value={form.currentProblem}
+            onChange={e => setField('currentProblem', e.target.value)}
+            placeholder="What's the biggest problem you're facing right now? e.g. Struggling with user acquisition, need help with GTM strategy..."
+            rows={3}
+          />
         </div>
       </section>
 
