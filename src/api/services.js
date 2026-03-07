@@ -32,10 +32,12 @@ export const ventureAPI = {
 
 // ─── CoVenture ───────────────────────────────────────────────────────────────
 export const coVentureAPI = {
-  apply:        (ventureId, data) => api.post(`/api/v1/coventure/${ventureId}`, data),
-  checkApplied: (ventureId)       => api.get(`/api/v1/coventure/${ventureId}/my-status`),
+  apply:                  (ventureId, data) => api.post(`/api/v1/coventure/${ventureId}`, data),
+  checkApplied:           (ventureId)       => api.get(`/api/v1/coventure/${ventureId}/my-status`),
+  getMyApplications:      ()                => api.get('/api/v1/coventure/my-applications'),
+  getMyVentureApplications: (status)        => api.get('/api/v1/coventure/my-venture-applications', { params: { status } }),
+  updateStatus:           (id, status)      => api.put(`/api/v1/coventure/${id}/status`, { status }),
 };
-
 // ─── Community ───────────────────────────────────────────────────────────────
 export const communityAPI = {
   getAll:           ()        => api.get('/api/v1/community/all'),

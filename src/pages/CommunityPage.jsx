@@ -64,6 +64,7 @@ export default function CommunityPage() {
     }
   }, []); // run once on mount
 
+
   // ── Load all community profiles ───────────────────────────────────────────
   useEffect(() => {
     communityAPI.getAll()
@@ -80,17 +81,40 @@ export default function CommunityPage() {
   // ── Click "Connect with LinkedIn" ─────────────────────────────────────────
   const handleConnectLinkedIn = async () => {
     setLinkedInError('');
+    setLinkedInLoading(true);
     try {
       const { data } = await communityAPI.linkedInAuthUrl();
-      // Backend returns JSON: { "url": "https://linkedin.com/oauth/..." }
       const parsed = typeof data === 'string' ? JSON.parse(data) : data;
       const url    = parsed?.url ?? parsed?.authUrl ?? parsed;
       if (!url || typeof url !== 'string') throw new Error('Invalid auth URL');
       window.location.href = url;
     } catch (e) {
+      setLinkedInLoading(false);
       setLinkedInError('Could not get LinkedIn auth URL. Please try again.');
     }
   };
+
+  if (linkedInLoading) {
+    return (
+      <AppLayout>
+        <div style={{
+          minHeight: '60vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '1rem'
+        }}>
+          <div className="spinner" style={{ width: 48, height: 48 }} />
+          <p style={{ color: '#a0a0b0', fontSize: '0.95rem' }}>
+            Connecting your LinkedIn profile…
+          </p>
+        </div>
+      </AppLayout>
+    );
+  }
+  
+  
 
   const handleProfileSaved = (saved) => {
     setMyProfile(saved);

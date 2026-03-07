@@ -11,6 +11,7 @@ import VenturesPage from './pages/VenturesPage';
 import NewVenturePage from './pages/NewVenturePage';
 import EditVenturePage from './pages/EditVenturePage';
 import CommunityPage from './pages/CommunityPage';
+import VentureDashboardPage from './pages/VentureDashboardPage';
 
 export default function App() {
   return (
@@ -63,6 +64,14 @@ export default function App() {
             element={
               <ProfileGuard>
                 <EditVenturePage />
+              </ProfileGuard>
+            }
+          />
+          <Route
+            path="/ventures/dashboard"
+            element={
+              <ProfileGuard>
+                <VentureDashboardPage />
               </ProfileGuard>
             }
           />

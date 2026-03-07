@@ -40,13 +40,18 @@ export default function VenturesPage() {
   return (
     <AppLayout>
       <div className="ventures-page">
-        <div className="page-header">
-          <div>
-            <h1>Ventures</h1>
-            <p>Discover and co-venture on exciting opportunities.</p>
-          </div>
-          <Link to="/ventures/new" className="btn-primary">+ List Venture</Link>
-        </div>
+      <div className="page-header">
+      <div>
+        <h1>Ventures</h1>
+        <p>Discover and co-venture on exciting opportunities.</p>
+      </div>
+      <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <button className="btn-secondary" onClick={() => navigate('/ventures/dashboard')}>
+          📊 Dashboard
+        </button>
+        <Link to="/ventures/new" className="btn-primary">+ List Venture</Link>
+      </div>
+    </div>
 
         {/* Filter tabs */}
         <div className="filter-tabs">
