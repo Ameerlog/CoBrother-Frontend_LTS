@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { communityAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../components/layout/AppLayout';
@@ -14,9 +14,12 @@ const INDUSTRIES = [
 ];
 
 export default function CommunityPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [detailProfile, setDetailProfile] = useState(null);
 
+  
   const [profiles, setProfiles]             = useState([]);
   const [loading, setLoading]               = useState(true);
   const [showForm, setShowForm]             = useState(false);
@@ -94,6 +97,8 @@ export default function CommunityPage() {
     }
   };
 
+// ─── Community Detail Modal ───────────────────────────────────────────────────
+
   if (linkedInLoading) {
     return (
       <AppLayout>
@@ -137,9 +142,14 @@ export default function CommunityPage() {
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
             {myProfile ? (
-              <button className="btn-secondary" onClick={() => setShowForm(v => !v)}>
-                ✏ Edit Profile
-              </button>
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button className="btn-secondary" onClick={() => navigate('/profile/analytics')}>
+                  📈 Analytics
+                </button>
+                <button className="btn-secondary" onClick={() => setShowForm(v => !v)}>
+                  ✏ Edit Profile
+                </button>
+              </div>
             ) : (
               <button className="btn-linkedin" onClick={handleConnectLinkedIn} disabled={linkedInLoading}>
                 {linkedInLoading
@@ -190,15 +200,112 @@ export default function CommunityPage() {
                 key={p.id}
                 profile={p}
                 isMe={p.appUser?.id === user?.id}
+                onView={() => setDetailProfile(p)}        // ✅ add this
                 onEdit={() => { setMyProfile(p); setShowForm(true); }}
               />
             ))}
           </div>
         )}
       </div>
+      {detailProfile && (
+        <CommunityDetailModal
+          profile={detailProfile}
+          isMe={detailProfile.appUser?.id === user?.id}
+          onClose={() => setDetailProfile(null)}
+          onEdit={() => { setMyProfile(detailProfile); setShowForm(true); setDetailProfile(null); }}
+        />
+      )}
     </AppLayout>
   );
 }
+
+function CommunityDetailModal({ profile, isMe, onClose, onEdit }) {
+  const [detail, setDetail]   = useState(null);
+  const [loading, setLoading] = useState(true);
+  const p = detail || profile;
+  const skills = p.skills?.split(',').map(s => s.trim()).filter(Boolean) || [];
+
+  // Fetch full profile + trigger view tracking
+  useEffect(() => {
+    communityAPI.getOne(profile.id)
+      .then(({ data }) => setDetail(data?.data ?? data))
+      .catch(() => setDetail(profile))
+      .finally(() => setLoading(false));
+  }, [profile.id]);
+
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal-card" style={{ maxWidth: 560, maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="modal-glow" />
+        <button className="modal-close" onClick={onClose}>✕</button>
+
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
+            <div className="spinner" />
+          </div>
+        ) : (
+          <>
+            {/* Avatar + name */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+              {p.imageUrl
+                ? <img src={p.imageUrl} alt={p.name} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(110,158,200,0.3)' }} />
+                : <div style={{
+                    width: 64, height: 64, borderRadius: '50%',
+                    background: 'rgba(110,158,200,0.12)', border: '1px solid rgba(110,158,200,0.2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.5rem', fontWeight: 700, color: '#6e9ec8'
+                  }}>{p.name?.[0]?.toUpperCase() || '?'}</div>
+              }
+              <div>
+                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem', fontWeight: 600 }}>{p.name || 'Anonymous'}</h2>
+                {p.role && (
+                  <div className="community-role-badge" style={{ marginTop: '0.3rem', display: 'inline-block' }}>
+                    {p.role.replace(/_/g, ' ')}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+              {p.industry && <span className="community-tag industry-tag">{p.industry.replace(/_/g, ' ')}</span>}
+              {p.location && <span className="community-tag location-tag">📍 {p.location}</span>}
+            </div>
+
+            {/* Skills */}
+            {skills.length > 0 && (
+              <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.6rem' }}>Skills</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                  {skills.map(s => <span key={s} className="skill-chip">{s}</span>)}
+                </div>
+              </div>
+            )}
+
+            {/* LinkedIn */}
+            {p.linkedInProfileUrl && (
+              <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.6rem' }}>LinkedIn</div>
+                <a href={p.linkedInProfileUrl} target="_blank" rel="noreferrer" className="community-linkedin" style={{ fontSize: '0.875rem' }}>
+                  <LinkedInIcon size={14} /> View Profile ↗
+                </a>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+              {isMe && (
+                <button className="btn-secondary" onClick={onEdit}>✏ Edit Profile</button>
+              )}
+              <button className="btn-ghost" onClick={onClose}>Close</button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 // ─── Community Profile Form ───────────────────────────────────────────────────
 function CommunityProfileForm({ initial, onSaved, onCancel }) {
@@ -305,13 +412,18 @@ function CommunityProfileForm({ initial, onSaved, onCancel }) {
 }
 
 // ─── Community Card ───────────────────────────────────────────────────────────
-function CommunityCard({ profile, isMe, onEdit }) {
+function CommunityCard({ profile, isMe, onView, onEdit }) {
   const skills = profile.skills?.split(',').map(s => s.trim()).filter(Boolean) || [];
 
   return (
-    <div className={`community-card${isMe ? ' is-me' : ''}`}>
+    
+    <div
+      className={`community-card${isMe ? ' is-me' : ''}`}
+      onClick={onView}
+      style={{ cursor: 'pointer' }}
+    >
       {isMe && (
-        <button className="me-edit-btn" onClick={onEdit} title="Edit profile">✏</button>
+        <button className="me-edit-btn" onClick={e => { e.stopPropagation(); onEdit(); }} title="Edit profile">✏</button>
       )}
       <div className="community-card-top">
         {profile.imageUrl

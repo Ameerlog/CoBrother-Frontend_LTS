@@ -55,3 +55,8 @@ export const domainAPI = {
   delete: (id)       => api.delete(`/api/v1/domain/${id}`),
 };
 
+export const analyticsAPI = {
+  getVentureAnalytics: (id) => api.get(`/api/v1/analytics/venture/${id}`),
+  getProfileAnalytics: ()    => api.get('/api/v1/analytics/profile'),
+  getMyVentures:       ()    => api.get('/api/v1/venture/my'),
+};

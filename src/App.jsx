@@ -12,6 +12,8 @@ import NewVenturePage from './pages/NewVenturePage';
 import EditVenturePage from './pages/EditVenturePage';
 import CommunityPage from './pages/CommunityPage';
 import VentureDashboardPage from './pages/VentureDashboardPage';
+import VentureAnalyticsPage from './pages/VentureAnalyticsPage';
+import ProfileAnalyticsPage from './pages/ProfileAnalyticsPage';
 
 export default function App() {
   return (
@@ -33,6 +35,9 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/ventures/analytics" element={<ProfileGuard><VentureAnalyticsPage /></ProfileGuard>} />
+          <Route path="/profile/analytics"  element={<ProfileGuard><ProfileAnalyticsPage /></ProfileGuard>} />
+
 
           {/* Authenticated + profile complete required */}
           <Route
