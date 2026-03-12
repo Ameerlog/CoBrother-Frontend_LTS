@@ -14,6 +14,8 @@ import CommunityPage from './pages/CommunityPage';
 import VentureDashboardPage from './pages/VentureDashboardPage';
 import VentureAnalyticsPage from './pages/VentureAnalyticsPage';
 import ProfileAnalyticsPage from './pages/ProfileAnalyticsPage';
+import DomainsPage from './pages/DomainsPage';
+import DomainsDashboardPage from './pages/DomainsDashboardPage';
 
 export default function App() {
   return (
@@ -37,6 +39,9 @@ export default function App() {
           />
           <Route path="/ventures/analytics" element={<ProfileGuard><VentureAnalyticsPage /></ProfileGuard>} />
           <Route path="/profile/analytics"  element={<ProfileGuard><ProfileAnalyticsPage /></ProfileGuard>} />
+
+          <Route path="/domains" element={<ProfileGuard><DomainsPage /></ProfileGuard>} />
+          <Route path="/domains/dashboard" element={<ProfileGuard><DomainsDashboardPage /></ProfileGuard>} />
 
 
           {/* Authenticated + profile complete required */}

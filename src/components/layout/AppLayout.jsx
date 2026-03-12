@@ -11,6 +11,7 @@ export default function AppLayout({ children }) {
   const navLinks = [
     { to: '/dashboard', label: 'Dashboard', icon: '⬡' },
     { to: '/ventures', label: 'Ventures', icon: '◈' },
+    { to: '/domains',    label: 'Domains',   icon: '◇' },
     { to: '/community', label: 'Community', icon: '◉' },
   ];
 

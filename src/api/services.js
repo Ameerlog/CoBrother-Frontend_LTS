@@ -57,12 +57,17 @@ export const communityAPI = {
 
 
 
-// ─── Domain ──────────────────────────────────────────────────────────────────
 export const domainAPI = {
-  get:    (id)       => api.get(`/api/v1/domain/${id}`),
-  create: (data)     => api.post('/api/v1/domain', data),
-  update: (id, data) => api.put(`/api/v1/domain/${id}`, data),
-  delete: (id)       => api.delete(`/api/v1/domain/${id}`),
+  getAll:          ()        => api.get('/api/v1/domain/all'),
+  getMyListings:   ()        => api.get('/api/v1/domain/my-listings'),
+  getMyPurchases:  ()        => api.get('/api/v1/domain/my-purchases'),
+  get:             (id)      => api.get(`/api/v1/domain/${id}`),
+  create:          (data)    => api.post('/api/v1/domain', data),
+  update:          (id, data)=> api.put(`/api/v1/domain/${id}`, data),
+  delete:          (id)      => api.delete(`/api/v1/domain/${id}`),
+  createOrder:     (id)      => api.post(`/api/v1/domain/${id}/purchase/create-order`),
+  verifyPayment:   (id, data)=> api.post(`/api/v1/domain/${id}/purchase/verify`, data),
+  handleFailure:   (id)      => api.post(`/api/v1/domain/${id}/purchase/failure`),
 };
 
 export const analyticsAPI = {

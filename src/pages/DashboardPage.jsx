@@ -8,7 +8,7 @@ export default function DashboardPage() {
   const cards = [
     {
       icon: '◈',
-      title: 'My Ventures',
+      title: 'Co-Ventures',
       desc: 'List, manage and attract co-venturers for your ventures.',
       to: '/ventures',
       cta: 'Manage Ventures',
@@ -16,12 +16,20 @@ export default function DashboardPage() {
     },
     {
       icon: '◉',
-      title: 'Community',
+      title: 'Co-Humanity',
       desc: 'Connect with founders, investors, and operators.',
       to: '/community',
       cta: 'Explore Community',
       accent: '#6e9ec8',
     },
+    {
+      icon: '◇',
+      title: 'Co-Branding',
+      desc: 'List, manage and resell your domain',
+      to: '/domains',
+      cta: 'Manage Domains',
+      accent: '#6e9ec8',
+    }
   ];
 
   return (
@@ -67,6 +75,9 @@ export default function DashboardPage() {
             </Link>
             <Link to="/community" className="quick-action">
               <span>◉</span> View Community
+            </Link>
+            <Link to="/domains" className="quick-action">
+              <span>◇</span> Manage Domains
             </Link>
           </div>
         </div>
