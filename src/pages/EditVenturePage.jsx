@@ -19,14 +19,19 @@ export default function EditVenturePage() {
       .finally(() => setFetching(false));
   }, [id]);
 
-  const handleSubmit = async (form) => {
+  const handleSubmit = async (form, imageFile) => {
     setLoading(true); setError('');
     try {
-      await ventureAPI.update(id, form);
-      navigate('/ventures');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to update venture.');
-    } finally { setLoading(false); }
+        await ventureAPI.update(id, form);
+
+        if (imageFile) {
+            await ventureAPI.uploadImage(id, imageFile);
+        }
+
+        navigate('/ventures');
+      } catch (err) {
+          setError(err.response?.data?.error || 'Failed to update venture.');
+      } finally { setLoading(false); }
   };
 
   if (fetching) return (

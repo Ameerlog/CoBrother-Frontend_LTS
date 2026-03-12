@@ -114,8 +114,8 @@ function VentureCard({ venture, isOwner, onView, onApply, onEdit, onDelete }) {
   return (
     <div className="venture-card" onClick={onView} style={{ cursor: 'pointer' }}>
       <div className="venture-card-top">
-        {b.logoUrl
-          ? <img src={b.logoUrl} alt={b.brandName} className="venture-logo" />
+        {b.ventureImageUrl
+          ? <img src={b.ventureImageUrl} alt={b.brandName} className="venture-logo" />
           : <div className="venture-logo-placeholder">{b.brandName?.[0] || '?'}</div>
         }
         <div className="venture-card-meta">
@@ -191,8 +191,8 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
           <>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-              {b.logoUrl
-                ? <img src={b.logoUrl} alt={b.brandName} style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
+              {b.ventureImageUrl
+                ? <img src={b.ventureImageUrl} alt={b.brandName} style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
                 : <div style={{
                     width: 56, height: 56, borderRadius: 12,
                     background: 'rgba(200,169,110,0.12)', border: '1px solid rgba(200,169,110,0.2)',

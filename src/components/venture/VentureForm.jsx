@@ -20,7 +20,7 @@ const STAGES = [
 const EMPTY = {
   brandDetails: {
     brandName: '', description: '', website: '', videoUrl: '',
-    industry: '', dealValue: '', logoUrl: '', ventureType: '',
+    industry: '', dealValue: '', referenceImageUrl: '', ventureType: '',
   },
   contactInfo: { email: '', phoneNumber: '' },
   agreement: { terms: true },
@@ -33,6 +33,9 @@ const EMPTY = {
 
 export default function VentureForm({ initialData, onSubmit, loading, error, submitLabel = 'Submit' }) {
   const [form, setForm] = useState(() => initialData || EMPTY);
+  const [imageFile, setImageFile]       = useState(null);
+  const [imagePreview, setImagePreview] = useState(form.brandDetails?.ventureImageUrl || null);
+  const [imageUploading, setImageUploading] = useState(false);
 
   const setBrand = (key, value) =>
     setForm((f) => ({ ...f, brandDetails: { ...f.brandDetails, [key]: value } }));
@@ -42,10 +45,16 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
 
   const setField = (key, value) => setForm(f => ({ ...f, [key]: value }));
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(form);
+    onSubmit(form, imageFile);
   };
 
   return (
@@ -97,9 +106,39 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
             </select>
           </div>
           <div className="form-group">
-            <label>Logo URL</label>
-            <input value={form.brandDetails.logoUrl} onChange={(e) => setBrand('logoUrl', e.target.value)} placeholder="https://..." />
-          </div>
+            <label>Venture Reference Image</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                {imagePreview && (
+                    <img
+                        src={imagePreview}
+                        alt="Preview"
+                        style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }}
+                    />
+                )}
+                <label style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                    padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8,
+                    cursor: 'pointer', fontSize: '0.875rem', color: '#c0c0d0'
+                }}>
+                    📷 {imagePreview ? 'Change Image' : 'Upload Image'}
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        style={{ display: 'none' }}
+                    />
+                </label>
+                {imagePreview && (
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => { setImageFile(null); setImagePreview(null); }}>
+                        Remove
+                    </button>
+                )}
+            </div>
+            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.4rem' }}>
+                JPG, PNG or WebP. Max 5MB. Uploaded on save.
+            </p>
+        </div>
         </div>
 
         <div className="form-group">

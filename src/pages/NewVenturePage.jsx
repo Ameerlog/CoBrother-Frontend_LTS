@@ -9,14 +9,21 @@ export default function NewVenturePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (form) => {
+  const handleSubmit = async (form, imageFile) => {
     setLoading(true); setError('');
     try {
-      await ventureAPI.create(form);
-      navigate('/ventures');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create venture.');
-    } finally { setLoading(false); }
+        const { data } = await ventureAPI.create(form);
+        const savedId = data?.id ?? data?.data?.id;
+
+        // Upload image after venture is created (we need the ID for S3 key)
+        if (imageFile && savedId) {
+            await ventureAPI.uploadImage(savedId, imageFile);
+        }
+
+        navigate('/ventures');
+      } catch (err) {
+          setError(err.response?.data?.error || 'Failed to create venture.');
+      } finally { setLoading(false); }
   };
 
   return (

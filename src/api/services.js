@@ -28,6 +28,14 @@ export const ventureAPI = {
   create:       (data)    => api.post('/api/v1/venture', data),
   update:       (id, data)=> api.put(`/api/v1/venture/${id}`, data),
   delete:       (id)      => api.delete(`/api/v1/venture/${id}`),
+  // Add to ventureAPI:
+  uploadImage: (id, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post(`api/v1/venture/${id}/image`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
 };
 
 // ─── CoVenture ───────────────────────────────────────────────────────────────
@@ -46,6 +54,8 @@ export const communityAPI = {
   linkedInAuthUrl:  ()        => api.get('/api/v1/community/linkedin/auth'),
   linkedInCallback: (code)    => api.get(`/api/v1/community/linkedin/callback?code=${code}`),
 };
+
+
 
 // ─── Domain ──────────────────────────────────────────────────────────────────
 export const domainAPI = {
