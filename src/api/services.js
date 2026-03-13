@@ -75,3 +75,26 @@ export const analyticsAPI = {
   getProfileAnalytics: ()    => api.get('/api/v1/analytics/profile'),
   getMyVentures:       ()    => api.get('/api/v1/venture/my'),
 };
+
+export const cocreationAPI = {
+  getAll:        ()          => api.get('/api/v1/cocreation/all'),
+  getMyListings: ()          => api.get('/api/v1/cocreation/my-listings'),
+  getMyPurchases:()          => api.get('/api/v1/cocreation/my-purchases'),
+  get:           (id)        => api.get(`/api/v1/cocreation/${id}`),
+  create:        (data)      => api.post('/api/v1/cocreation', data),
+  update:        (id, data)  => api.put(`/api/v1/cocreation/${id}`, data),
+  delete:        (id)        => api.delete(`/api/v1/cocreation/${id}`),
+  createOrder:   (id, data)  => api.post(`/api/v1/cocreation/${id}/purchase/create-order`, data),
+  verifyPayment: (id, data)  => api.post(`/api/v1/cocreation/${id}/purchase/verify`, data),
+  handleFailure: (id)        => api.post(`/api/v1/cocreation/${id}/purchase/failure`),
+  confirmPurchase:(id)       => api.post(`/api/v1/cocreation/${id}/purchase/confirm`),
+  getAnalytics:  (id)        => api.get(`/api/v1/cocreation/${id}/analytics`),
+};
+
+export const notificationAPI = {
+  getRecent:     () => api.get('/api/v1/notifications/recent'),
+  getAll:        () => api.get('/api/v1/notifications/all'),
+  getUnreadCount:() => api.get('/api/v1/notifications/unread-count'),
+  markAllRead:   () => api.put('/api/v1/notifications/mark-all-read'),
+  markOneRead:   (id)=> api.put(`/api/v1/notifications/${id}/read`),
+};

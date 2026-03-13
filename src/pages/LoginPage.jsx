@@ -117,7 +117,7 @@ export default function LoginPage() {
           </svg>
           Continue with Google
         </button>
-
+{/* 
         <div className="auth-divider"><span>or</span></div>
 
         <div className="auth-mode-toggle">
@@ -182,7 +182,7 @@ export default function LoginPage() {
         <div className="auth-links">
           <span>Don't have an account?</span>
           <Link to="/register">Register</Link>
-        </div>
+        </div> */}
       </div>
     </div>
   );

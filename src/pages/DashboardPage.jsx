@@ -29,6 +29,14 @@ export default function DashboardPage() {
       to: '/domains',
       cta: 'Manage Domains',
       accent: '#6e9ec8',
+    },
+    {
+      icon: '⟁',
+      title: 'Co-Creation',
+      desc: 'List, manage and distribute your software',
+      to: '/cocreation',
+      cta: 'Distribute Software',
+      accent: '#6e9ec8',
     }
   ];
 
@@ -71,13 +79,16 @@ export default function DashboardPage() {
           <h2>Quick Actions</h2>
           <div className="quick-actions">
             <Link to="/ventures/new" className="quick-action">
-              <span>+</span> List a Venture
+              <span>+</span> List Ventures
             </Link>
             <Link to="/community" className="quick-action">
-              <span>◉</span> View Community
+              <span>◉</span> View Communities
             </Link>
             <Link to="/domains" className="quick-action">
               <span>◇</span> Manage Domains
+            </Link>
+            <Link to="/cocreation" className="quick-action">
+              <span>⟁</span> Distribute Softwares
             </Link>
           </div>
         </div>

@@ -322,7 +322,8 @@ function CommunityProfileForm({ initial, onSaved, onCancel }) {
     skills:   initial?.skills   || '',
     industry: initial?.industry || '',
     location: initial?.location || '',
-    whyImHere: initial?.whyImHere || '',  // ✅
+    whyImHere: initial?.whyImHere || '',
+    linkedInProfileUrl: initial?.linkedInProfileUrl || '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
@@ -416,6 +417,20 @@ function CommunityProfileForm({ initial, onSaved, onCancel }) {
             placeholder="e.g. Looking to co-found a SaaS product, open to advisory roles in fintech, seeking a tech co-founder for my D2C brand..."
             rows={3}
           />
+        </div>
+
+        <div className="form-group">
+          <label>LinkedIn Profile URL<span className="required">*</span></label>
+          <input
+            name="linkedInProfileUrl"
+            value={form.linkedInProfileUrl}
+            onChange={handleChange}
+            placeholder="https://www.linkedin.com/in/your-username"
+            required
+          />
+          <span style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.3rem', display: 'block' }}>
+            Find it on your LinkedIn profile page — e.g. linkedin.com/in/johndoe
+          </span>
         </div>
 
         {error && <div className="form-error">{error}</div>}

@@ -16,6 +16,11 @@ import VentureAnalyticsPage from './pages/VentureAnalyticsPage';
 import ProfileAnalyticsPage from './pages/ProfileAnalyticsPage';
 import DomainsPage from './pages/DomainsPage';
 import DomainsDashboardPage from './pages/DomainsDashboardPage';
+import CoCreationDashboardPage from './pages/CoCreationDashboardPage';
+import CoCreationPage from './pages/CoCreationPage';
+import CoCreationAnalyticsPage from './pages/CoCreationAnalyticsPage';
+import NotificationsPage from './pages/NotificationsPage';
+
 
 export default function App() {
   return (
@@ -42,6 +47,11 @@ export default function App() {
 
           <Route path="/domains" element={<ProfileGuard><DomainsPage /></ProfileGuard>} />
           <Route path="/domains/dashboard" element={<ProfileGuard><DomainsDashboardPage /></ProfileGuard>} />
+
+          <Route path="/cocreation" element={<ProfileGuard><CoCreationPage /></ProfileGuard>} />
+          <Route path="/cocreation/dashboard" element={<ProfileGuard><CoCreationDashboardPage /></ProfileGuard>} />
+          <Route path="/cocreation/:id/analytics" element={<ProfileGuard><CoCreationAnalyticsPage /></ProfileGuard>} />
+          <Route path="/notifications" element={<ProfileGuard><NotificationsPage /></ProfileGuard>} />
 
 
           {/* Authenticated + profile complete required */}
