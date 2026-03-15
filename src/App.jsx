@@ -20,6 +20,10 @@ import CoCreationDashboardPage from './pages/CoCreationDashboardPage';
 import CoCreationPage from './pages/CoCreationPage';
 import CoCreationAnalyticsPage from './pages/CoCreationAnalyticsPage';
 import NotificationsPage from './pages/NotificationsPage';
+import AdminDashboardPage    from './pages/AdminDashboardPage';
+import CoBrotherDashboardPage from './pages/CoBrotherDashboardPage';
+import FeeRequestsPage       from './pages/FeeRequestsPage';
+import { AdminGuard, CoBrotherGuard } from './components/auth/ProtectedRoute';
 
 
 export default function App() {
@@ -52,7 +56,9 @@ export default function App() {
           <Route path="/cocreation/dashboard" element={<ProfileGuard><CoCreationDashboardPage /></ProfileGuard>} />
           <Route path="/cocreation/:id/analytics" element={<ProfileGuard><CoCreationAnalyticsPage /></ProfileGuard>} />
           <Route path="/notifications" element={<ProfileGuard><NotificationsPage /></ProfileGuard>} />
-
+          <Route path="/admin"      element={<AdminGuard><AdminDashboardPage /></AdminGuard>} />
+          <Route path="/cobrother"  element={<CoBrotherGuard><CoBrotherDashboardPage /></CoBrotherGuard>} />
+          <Route path="/fee-requests" element={<ProtectedRoute><FeeRequestsPage /></ProtectedRoute>} />
 
           {/* Authenticated + profile complete required */}
           <Route

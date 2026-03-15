@@ -3,6 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { communityAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../components/layout/AppLayout';
+import { useLikes } from '../hooks/useLikes';
+import LikeButton from '../components/common/LikeButton';
+
 
 const ROLES = [
   'FOUNDER','CO_FOUNDER','INVESTOR','MENTOR',
@@ -21,6 +24,8 @@ export default function CommunityPage() {
 
   
   const [profiles, setProfiles]             = useState([]);
+
+  const { toggle: toggleLike, get: getLike } = useLikes('COMMUNITY', profiles);
   const [loading, setLoading]               = useState(true);
   const [showForm, setShowForm]             = useState(false);
   const [myProfile, setMyProfile]           = useState(null);
@@ -200,7 +205,9 @@ export default function CommunityPage() {
                 key={p.id}
                 profile={p}
                 isMe={p.appUser?.id === user?.id}
-                onView={() => setDetailProfile(p)}        // ✅ add this
+                likeState={getLike(p.id)}
+                onLike={() => toggleLike(p.id)}
+                onView={() => setDetailProfile(p)}
                 onEdit={() => { setMyProfile(p); setShowForm(true); }}
               />
             ))}
@@ -447,7 +454,7 @@ function CommunityProfileForm({ initial, onSaved, onCancel }) {
 }
 
 // ─── Community Card ───────────────────────────────────────────────────────────
-function CommunityCard({ profile, isMe, onView, onEdit }) {
+function CommunityCard({ profile, isMe, onView, onEdit, likeState, onLike }) {
   const skills = profile.skills?.split(',').map(s => s.trim()).filter(Boolean) || [];
 
   return (
@@ -494,6 +501,11 @@ function CommunityCard({ profile, isMe, onView, onEdit }) {
           <LinkedInIcon size={13} /> LinkedIn ↗
         </a>
       )}
+
+      <div style={{ display: 'flex', justifyContent: 'space-between',
+                    alignItems: 'center', marginTop: '0.75rem' }}>
+        <LikeButton liked={likeState?.liked} count={likeState?.count} onToggle={onLike} />
+      </div>
     </div>
   );
 }

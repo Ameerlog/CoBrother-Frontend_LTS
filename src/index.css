@@ -2,8 +2,14 @@
    CoBrother Design System — Dark Luxury / Editorial
    ═══════════════════════════════════════════════════════ */
 
+
+   
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 /* ─── Variables ─────────────────────────────────────── */
 :root {
   --bg:        #0a0a0f;

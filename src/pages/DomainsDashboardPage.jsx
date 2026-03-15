@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { domainAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
+import DomainVerificationModal from './DomainVerificationModal';
+
 
 const STATUS_COLORS = {
   AVAILABLE: { color: '#6ec896', bg: 'rgba(110,200,150,0.1)', border: 'rgba(110,200,150,0.3)' },
@@ -16,11 +18,14 @@ const PAYMENT_COLORS = {
 };
 
 export default function DomainsDashboardPage() {
+  
   const navigate = useNavigate();
   const [tab, setTab]               = useState('listings');
   const [listings, setListings]     = useState([]);
   const [purchases, setPurchases]   = useState([]);
   const [loading, setLoading]       = useState(true);
+  const [verifyTarget, setVerifyTarget] = useState(null);
+
 
   useEffect(() => {
     Promise.all([domainAPI.getMyListings(), domainAPI.getMyPurchases()])
@@ -85,7 +90,14 @@ export default function DomainsDashboardPage() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {listings.map(d => <DomainRow key={d.id} domain={d} type="listing" />)}
+              {listings.map(d => (
+                <DomainRow
+                  key={d.id}
+                  domain={d}
+                  type="listing"
+                  onVerify={() => setVerifyTarget(d)}
+                />
+              ))}
             </div>
           )
         ) : (
@@ -103,6 +115,18 @@ export default function DomainsDashboardPage() {
           )
         )}
       </div>
+      {verifyTarget && (
+        <DomainVerificationModal
+          domain={verifyTarget}
+          onClose={() => setVerifyTarget(null)}
+          onVerified={() => {
+            setListings(prev => prev.map(d =>
+              d.id === verifyTarget.id ? { ...d, verified: true } : d
+            ));
+            setVerifyTarget(null);
+          }}
+        />
+      )}
     </AppLayout>
   );
 }
@@ -117,18 +141,21 @@ function StatCard({ label, value, icon, color = '#e0e0f0' }) {
   );
 }
 
-function DomainRow({ domain, type }) {
+function DomainRow({ domain, type, onVerify }) {
   const s = STATUS_COLORS[domain.domainStatus] || STATUS_COLORS.AVAILABLE;
   const p = domain.paymentStatus ? PAYMENT_COLORS[domain.paymentStatus] : null;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, flexWrap: 'wrap', gap: '0.5rem' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10,
+                  flexWrap: 'wrap', gap: '0.5rem' }}>
       <div>
         <div style={{ fontWeight: 600, fontSize: '1rem', color: '#e0e0f0' }}>
           {domain.domainName}{domain.domainExtension}
         </div>
         <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
-          {domain.domainCategory?.replace(/_/g, ' ')} · {domain.pricingDemand}
+          {domain.pricingDemand}
         </div>
       </div>
 
@@ -137,7 +164,9 @@ function DomainRow({ domain, type }) {
           ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
         </span>
 
-        <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.72rem', fontWeight: 600, color: s.color, background: s.bg, border: `1px solid ${s.border}` }}>
+        <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.72rem',
+                       fontWeight: 600, color: s.color, background: s.bg,
+                       border: `1px solid ${s.border}` }}>
           {domain.domainStatus}
         </span>
 
@@ -150,9 +179,24 @@ function DomainRow({ domain, type }) {
         )}
 
         {type === 'purchase' && domain.paymentStatus === 'COMPLETED' && (
-          <span style={{ fontSize: '0.75rem', color: '#c8a96e', background: 'rgba(200,169,110,0.1)', border: '1px solid rgba(200,169,110,0.2)', padding: '0.25rem 0.6rem', borderRadius: 6 }}>
+          <span style={{ fontSize: '0.75rem', color: '#c8a96e', background: 'rgba(200,169,110,0.1)',
+                         border: '1px solid rgba(200,169,110,0.2)', padding: '0.25rem 0.6rem',
+                         borderRadius: 6 }}>
             ⏳ Transfer within 24hrs
           </span>
+        )}
+
+        {type === 'listing' && domain.verified && (
+          <span style={{ fontSize: '0.75rem', color: '#6ec896', fontWeight: 600 }}>
+            ✓ Verified
+          </span>
+        )}
+
+        {type === 'listing' && !domain.verified && domain.domainStatus === 'AVAILABLE' && (
+          <button className="btn-secondary btn-sm" onClick={onVerify}
+            style={{ fontSize: '0.75rem' }}>
+            🔍 Verify
+          </button>
         )}
       </div>
     </div>

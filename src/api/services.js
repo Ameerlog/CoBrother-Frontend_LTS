@@ -68,6 +68,9 @@ export const domainAPI = {
   createOrder:     (id)      => api.post(`/api/v1/domain/${id}/purchase/create-order`),
   verifyPayment:   (id, data)=> api.post(`/api/v1/domain/${id}/purchase/verify`, data),
   handleFailure:   (id)      => api.post(`/api/v1/domain/${id}/purchase/failure`),
+  // Add inside domainAPI
+verifyInit:  (id, method) => api.post(`/api/v1/domain/${id}/verify/init?method=${method}`),
+verifyCheck: (id, code)   => api.post(`/api/v1/domain/${id}/verify/check`, code ? { code } : {}),
 };
 
 export const analyticsAPI = {
@@ -97,4 +100,36 @@ export const notificationAPI = {
   getUnreadCount:() => api.get('/api/v1/notifications/unread-count'),
   markAllRead:   () => api.put('/api/v1/notifications/mark-all-read'),
   markOneRead:   (id)=> api.put(`/api/v1/notifications/${id}/read`),
+};
+
+
+export const likeAPI = {
+  toggle:     (type, id)       => api.post(`/api/v1/likes/${type}/${id}/toggle`),
+  getStatus:  (type, id)       => api.get(`/api/v1/likes/${type}/${id}/status`),
+  bulkStatus: (type, ids)      => api.post(`/api/v1/likes/${type}/bulk-status`, ids),
+  whoLiked:   (type, id)       => api.get(`/api/v1/likes/${type}/${id}/who-liked`),
+  myLiked:    (type)           => api.get(`/api/v1/likes/${type}/my-liked`),
+};
+
+export const adminAPI = {
+  getCoVentures:        ()              => api.get('/api/v1/admin/coventures'),
+  getDomains:           ()              => api.get('/api/v1/admin/domains'),
+  getCoCreations:       ()              => api.get('/api/v1/admin/cocreations'),
+  getCoBrotherRequests: ()              => api.get('/api/v1/admin/cobrother-requests'),
+  getCoBrothers:        ()              => api.get('/api/v1/admin/cobrothers'),
+  forward:              (data)          => api.post('/api/v1/admin/forward', data),
+  listOfficialSoftware: (data)          => api.post('/api/v1/admin/cocreation', data),
+};
+
+export const coBrotherAPI = {
+  getRequests: ()                       => api.get('/api/v1/cobrother/requests'),
+  respond:     (id, accepted, note)     => api.put(`/api/v1/cobrother/requests/${id}/respond`,
+                                            { accepted, note }),
+};
+
+export const feeAPI = {
+  getMyRequests:  ()        => api.get('/api/v1/fee/my-requests'),
+  createOrder:    (id)      => api.post(`/api/v1/fee/requests/${id}/create-order`),
+  verify:         (id, data)=> api.post(`/api/v1/fee/requests/${id}/verify`, data),
+  cancel:         (id)      => api.post(`/api/v1/fee/requests/${id}/cancel`),
 };

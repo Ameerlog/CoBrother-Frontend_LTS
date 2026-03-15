@@ -41,6 +41,23 @@ export default function AppLayout({ children }) {
     { to: '/community', label: 'Community', icon: '◉' },
   ];
 
+  // Add after existing navLinks:
+  const coBrotherLinks = [
+    { to: '/cobrother', label: 'CoBrother', icon: '◆' },
+  ];
+  
+  // Admin sees everything + admin panel
+  const adminLinks = [
+    ...navLinks,
+    { to: '/admin', label: 'Admin', icon: '⚙' },
+  ];
+  
+  const visibleLinks = user?.role === 'COBROTHER'
+  ? coBrotherLinks
+  : user?.role === 'ADMIN'
+  ? adminLinks
+  : navLinks;
+
   useEffect(() => {
     const fetchCount = () =>
       notificationAPI.getUnreadCount()
@@ -102,7 +119,7 @@ export default function AppLayout({ children }) {
         </Link>
 
         <div className={`topnav-links ${mobileOpen ? 'open' : ''}`}>
-          {navLinks.map((l) => (
+          {visibleLinks.map((l) => (
             <Link
               key={l.to}
               to={l.to}

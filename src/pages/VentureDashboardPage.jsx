@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { coVentureAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
+import { likeAPI } from '../api/services';
 
 const STATUS_META = {
   PENDING:  { label: 'Pending',  color: '#c8a96e', bg: 'rgba(200,169,110,0.12)', icon: '⏳' },
@@ -32,6 +33,12 @@ export default function VentureDashboardPage() {
         </div>
 
         <div className="filter-tabs">
+        <button
+          className={`filter-tab ${tab === 'likes' ? 'active' : ''}`}
+          onClick={() => setTab('likes')}
+        >
+          ❤️ Likes Received
+        </button>
           <button
             className={`filter-tab ${tab === 'incoming' ? 'active' : ''}`}
             onClick={() => setTab('incoming')}
@@ -334,6 +341,66 @@ function Detail({ label, value }) {
     <div>
       <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.2rem' }}>{label}</div>
       <div style={{ fontSize: '0.9rem', color: '#d0d0e0' }}>{value || '—'}</div>
+    </div>
+  );
+}
+
+
+function LikesReceived() {
+  const [ventures, setVentures] = useState([]);
+  const [likeData, setLikeData] = useState({});
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    ventureAPI.getMyVentures()
+      .then(async ({ data }) => {
+        const list = Array.isArray(data) ? data : (data?.data ?? []);
+        setVentures(list);
+        if (list.length > 0) {
+          const ids = list.map(v => v.id);
+          const { data: likes } = await likeAPI.bulkStatus('VENTURE', ids);
+          setLikeData(likes);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="page-loading"><div className="spinner" /></div>;
+
+  if (ventures.length === 0) return (
+    <div className="empty-state">
+      <div className="empty-icon">❤️</div>
+      <h3>No ventures listed yet</h3>
+    </div>
+  );
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {ventures.map(v => {
+        const b = v.brandDetails || {};
+        const ls = likeData[String(v.id)] || { liked: false, count: 0 };
+        return (
+          <div key={v.id} style={{ display: 'flex', alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '1rem 1.25rem',
+                                    background: 'rgba(255,255,255,0.03)',
+                                    border: '1px solid rgba(255,255,255,0.08)',
+                                    borderRadius: 10, flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div>
+              <div style={{ fontWeight: 600, color: '#e0e0f0' }}>{b.brandName}</div>
+              <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+                {b.industry?.replace(/_/g, ' ')}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span style={{ fontSize: '0.875rem', color: '#c86e6e', fontWeight: 600 }}>
+                ❤️ {ls.count} like{ls.count !== 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
