@@ -169,6 +169,20 @@ function DomainRow({ domain, type, onVerify }) {
                        border: `1px solid ${s.border}` }}>
           {domain.domainStatus}
         </span>
+        
+        {domain.takenDown && (
+          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#c86e6e',
+                        background: 'rgba(200,110,110,0.1)',
+                        border: '1px solid rgba(200,110,110,0.25)',
+                        padding: '0.25rem 0.6rem', borderRadius: 6 }}>
+            ⚠ Taken Down
+          </span>
+        )}
+        {domain.takenDown && domain.takeDownReason && (
+          <span style={{ fontSize: '0.72rem', color: '#888', fontStyle: 'italic' }}>
+            Reason: {domain.takeDownReason}
+          </span>
+        )}
 
         {p && (
           <span style={{ fontSize: '0.72rem', color: p.color, fontWeight: 600 }}>

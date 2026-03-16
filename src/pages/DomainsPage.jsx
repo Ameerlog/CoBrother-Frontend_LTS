@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { domainAPI } from '../api/services';
+import { domainAPI, domainEnquiryAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../components/layout/AppLayout';
 import { useLikes } from '../hooks/useLikes';
@@ -10,7 +10,6 @@ import FilterBar from '../components/common/FilterBar';
 import Pagination from '../components/common/Pagination';
 import SkeletonCard from '../components/common/Skeleton';
 import ConfirmDialog from '../components/common/ConfirmDialog';
-import DomainVerificationModal from './DomainVerificationModal';
 
 const DOMAIN_PRICING_OPTIONS = [
   { value: 'FIXED',      label: 'Fixed Price' },
@@ -24,8 +23,8 @@ const STATUS_COLORS = {
 };
 
 export default function DomainsPage() {
-  const { user }   = useAuth();
-  const navigate   = useNavigate();
+  const { user }  = useAuth();
+  const navigate  = useNavigate();
 
   const [allDomains, setAllDomains]         = useState([]);
   const [loading, setLoading]               = useState(true);
@@ -34,11 +33,18 @@ export default function DomainsPage() {
   const [successDomain, setSuccessDomain]   = useState(null);
   const [detailTarget, setDetailTarget]     = useState(null);
   const [deleteTarget, setDeleteTarget]     = useState(null);
+  const [enquireTarget, setEnquireTarget]   = useState(null);
+  const [enquireSuccess, setEnquireSuccess] = useState(false);
   const [filterTab, setFilterTab]           = useState('all');
 
   const { toggle: toggleLike, get: getLike } = useLikes('DOMAIN', allDomains);
 
-  // ── Filter / sort / paginate ───────────────────────────────────────────────
+  // My listings tab shows owned domains including taken-down ones
+  // Public tab hides taken-down listings
+  const visibleDomains = filterTab === 'mine'
+    ? allDomains.filter(d => d.listedBy?.id === user?.id)
+    : allDomains.filter(d => !d.takenDown);
+
   const {
     paginated, totalCount,
     search, category, minPrice, maxPrice, sortBy,
@@ -46,9 +52,7 @@ export default function DomainsPage() {
     clearAll, activeFilterCount,
     page, totalPages, setPage,
   } = useFilterSort(
-    filterTab === 'mine'
-      ? allDomains.filter(d => d.listedBy?.id === user?.id)
-      : allDomains,
+    visibleDomains,
     {
       searchFields:  ['domainName', 'domainExtension'],
       priceField:    'askingPrice',
@@ -99,7 +103,6 @@ export default function DomainsPage() {
           </div>
         </div>
 
-        {/* ── Tabs ── */}
         <div className="filter-tabs">
           <button className={`filter-tab ${filterTab === 'all'  ? 'active' : ''}`}
             onClick={() => setFilterTab('all')}>All Domains</button>
@@ -107,7 +110,6 @@ export default function DomainsPage() {
             onClick={() => setFilterTab('mine')}>My Listings</button>
         </div>
 
-        {/* ── List form ── */}
         {showForm && (
           <div className="community-form-section">
             <DomainForm
@@ -117,7 +119,6 @@ export default function DomainsPage() {
           </div>
         )}
 
-        {/* ── Filter bar ── */}
         <FilterBar
           search={search}           onSearch={handleSearch}
           category={category}       onCategory={handleCategory}
@@ -129,14 +130,12 @@ export default function DomainsPage() {
           placeholder="Search domains by name or extension…"
         />
 
-        {/* ── Result count ── */}
         {!loading && allDomains.length > 0 && (
           <div style={{ fontSize: '0.78rem', color: '#666', marginBottom: '1rem' }}>
             {totalCount} domain{totalCount !== 1 ? 's' : ''} found
           </div>
         )}
 
-        {/* ── Content ── */}
         {loading ? (
           <div className="ventures-grid">
             {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
@@ -156,7 +155,9 @@ export default function DomainsPage() {
             </p>
             {activeFilterCount > 0
               ? <button className="btn-secondary" onClick={clearAll}>Clear Filters</button>
-              : <button className="btn-primary" onClick={() => setShowForm(true)}>List a Domain</button>
+              : <button className="btn-primary" onClick={() => setShowForm(true)}>
+                  List a Domain
+                </button>
             }
           </div>
         ) : (
@@ -171,19 +172,17 @@ export default function DomainsPage() {
                   onLike={() => toggleLike(d.id)}
                   onView={() => setDetailTarget(d)}
                   onBuy={() => setBuyTarget(d)}
+                  onEnquire={() => setEnquireTarget(d)}
                   onDelete={() => setDeleteTarget(d.id)}
                 />
               ))}
             </div>
-            <Pagination
-              page={page} totalPages={totalPages}
-              onPage={setPage} totalCount={totalCount} pageSize={20}
-            />
+            <Pagination page={page} totalPages={totalPages}
+              onPage={setPage} totalCount={totalCount} pageSize={20} />
           </>
         )}
       </div>
 
-      {/* ── Modals ── */}
       {buyTarget && (
         <BuyDomainModal
           domain={buyTarget}
@@ -197,10 +196,7 @@ export default function DomainsPage() {
       )}
 
       {successDomain && (
-        <PurchaseSuccessModal
-          domain={successDomain}
-          onClose={() => setSuccessDomain(null)}
-        />
+        <PurchaseSuccessModal domain={successDomain} onClose={() => setSuccessDomain(null)} />
       )}
 
       {detailTarget && (
@@ -211,7 +207,33 @@ export default function DomainsPage() {
           onLike={() => toggleLike(detailTarget.id)}
           onClose={() => { setDetailTarget(null); refreshDomains(); }}
           onBuy={() => { setBuyTarget(detailTarget); setDetailTarget(null); }}
+          onEnquire={() => { setEnquireTarget(detailTarget); setDetailTarget(null); }}
         />
+      )}
+
+      {enquireTarget && (
+        <DomainEnquiryModal
+          domain={enquireTarget}
+          user={user}
+          onClose={() => setEnquireTarget(null)}
+          onSuccess={() => { setEnquireTarget(null); setEnquireSuccess(true); }}
+        />
+      )}
+
+      {enquireSuccess && (
+        <div className="modal-overlay" onClick={() => setEnquireSuccess(false)}>
+          <div className="modal-card" style={{ maxWidth: 420, textAlign: 'center' }}>
+            <div className="modal-glow" />
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
+                         marginBottom: '0.5rem' }}>Enquiry Submitted!</h2>
+            <p style={{ color: '#a0a0b0', marginBottom: '1.5rem' }}>
+              Our team will review your request and get back to you shortly.
+            </p>
+            <button className="btn-primary" onClick={() => setEnquireSuccess(false)}
+              style={{ width: '100%' }}>Done</button>
+          </div>
+        </div>
       )}
 
       <ConfirmDialog
@@ -228,8 +250,11 @@ export default function DomainsPage() {
 }
 
 // ─── Domain Card ──────────────────────────────────────────────────────────────
-function DomainCard({ domain, isOwner, onView, onBuy, onDelete, likeState, onLike }) {
-  const s = STATUS_COLORS[domain.domainStatus] || STATUS_COLORS.AVAILABLE;
+function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onDelete,
+                       likeState, onLike }) {
+  const s           = STATUS_COLORS[domain.domainStatus] || STATUS_COLORS.AVAILABLE;
+  const isHighValue = domain.askingPrice >= 500000;
+
   return (
     <div className="venture-card" onClick={onView} style={{ cursor: 'pointer' }}>
       <div className="venture-card-top">
@@ -242,6 +267,13 @@ function DomainCard({ domain, isOwner, onView, onBuy, onDelete, likeState, onLik
           <span className="venture-type">{domain.pricingDemand}</span>
         </div>
         {isOwner && <div className="owner-badge">Owner</div>}
+        {domain.takenDown && (
+          <div style={{ padding: '0.2rem 0.5rem', background: 'rgba(200,110,110,0.15)',
+                        border: '1px solid rgba(200,110,110,0.3)', borderRadius: 4,
+                        fontSize: '0.68rem', fontWeight: 700, color: '#c86e6e' }}>
+            ⚠ Taken Down
+          </div>
+        )}
       </div>
 
       <div style={{ margin: '0.5rem 0 0.75rem', display: 'flex',
@@ -258,11 +290,17 @@ function DomainCard({ domain, isOwner, onView, onBuy, onDelete, likeState, onLik
             ✓ Verified
           </span>
         )}
+        {isHighValue && domain.domainStatus === 'AVAILABLE' && (
+          <span style={{ padding: '0.2rem 0.5rem', borderRadius: 4, fontSize: '0.68rem',
+                         fontWeight: 700, color: '#a06ec8',
+                         background: 'rgba(160,110,200,0.1)',
+                         border: '1px solid rgba(160,110,200,0.25)' }}>
+            Premium
+          </span>
+        )}
       </div>
 
-      <div className="venture-deal">
-        ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
-      </div>
+      <div className="venture-deal">₹{Number(domain.askingPrice).toLocaleString('en-IN')}</div>
 
       <div className="venture-card-footer">
         <div className="venture-stats">
@@ -272,14 +310,21 @@ function DomainCard({ domain, isOwner, onView, onBuy, onDelete, likeState, onLik
         <div className="venture-card-actions" onClick={e => e.stopPropagation()}>
           {isOwner ? (
             <button className="btn-danger btn-sm"
-              onClick={e => { e.stopPropagation(); onDelete(); }}>
-              Remove
-            </button>
+              onClick={e => { e.stopPropagation(); onDelete(); }}>Remove</button>
           ) : domain.domainStatus === 'AVAILABLE' ? (
-            <button className="btn-primary btn-sm"
-              onClick={e => { e.stopPropagation(); onBuy(); }}>
-              Buy Now →
-            </button>
+            isHighValue ? (
+              <button
+                onClick={e => { e.stopPropagation(); onEnquire(); }}
+                style={{ padding: '0.35rem 0.75rem', borderRadius: 8, fontSize: '0.78rem',
+                         fontWeight: 600, cursor: 'pointer',
+                         background: 'rgba(200,169,110,0.12)',
+                         border: '1px solid rgba(200,169,110,0.35)', color: '#c8a96e' }}>
+                Enquire Now →
+              </button>
+            ) : (
+              <button className="btn-primary btn-sm"
+                onClick={e => { e.stopPropagation(); onBuy(); }}>Buy Now →</button>
+            )
           ) : (
             <span style={{ fontSize: '0.8rem', color: '#888' }}>
               {domain.domainStatus === 'SOLD' ? 'Sold' : 'Pending'}
@@ -320,7 +365,6 @@ function DomainForm({ onSaved, onCancel }) {
     <div className="community-form-card">
       <h3>List Your Domain</h3>
       <p className="form-subtext">Fill in the details to list your domain for sale.</p>
-
       <form onSubmit={handleSubmit} className="venture-form" style={{ marginTop: '1.25rem' }}>
         <div className="form-group">
           <label>Domain Name <span className="required">*</span></label>
@@ -335,14 +379,12 @@ function DomainForm({ onSaved, onCancel }) {
                 setForm(f => ({ ...f, domainName: full, domainExtension: '' }));
               }
             }}
-            placeholder="e.g. mybrand.com"
-            required
+            placeholder="e.g. mybrand.com" required
           />
           <span style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.3rem', display: 'block' }}>
             Include the extension (e.g. .com, .in, .io)
           </span>
         </div>
-
         <div className="form-row">
           <div className="form-group">
             <label>Asking Price (₹) <span className="required">*</span></label>
@@ -360,7 +402,6 @@ function DomainForm({ onSaved, onCancel }) {
             </select>
           </div>
         </div>
-
         <div className="form-row">
           <div className="form-group">
             <label>Contact Email <span className="required">*</span></label>
@@ -375,16 +416,13 @@ function DomainForm({ onSaved, onCancel }) {
               placeholder="10-digit number" maxLength={10} />
           </div>
         </div>
-
         <label className="checkbox-label">
           <input type="checkbox" checked={form.agreement.terms}
             onChange={e => setForm(f => ({ ...f, agreement: { terms: e.target.checked } }))}
             required />
           <span>I confirm I own this domain and agree to the Terms & Conditions.</span>
         </label>
-
         {error && <div className="form-error">{error}</div>}
-
         <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? <span className="btn-spinner" /> : 'List Domain →'}
@@ -405,7 +443,6 @@ function BuyDomainModal({ domain, onClose, onSuccess }) {
     setLoading(true); setError('');
     try {
       const { data: orderData } = await domainAPI.createOrder(domain.id);
-
       const options = {
         key: orderData.keyId,
         amount: orderData.amount * 100,
@@ -426,16 +463,10 @@ function BuyDomainModal({ domain, onClose, onSuccess }) {
             setLoading(false);
           }
         },
-        modal: {
-          ondismiss: async () => {
-            await domainAPI.handleFailure(domain.id);
-            setLoading(false);
-          }
-        },
+        modal: { ondismiss: async () => { await domainAPI.handleFailure(domain.id); setLoading(false); } },
         prefill: {},
         theme: { color: '#c8a96e' },
       };
-
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', async () => {
         await domainAPI.handleFailure(domain.id);
@@ -454,13 +485,11 @@ function BuyDomainModal({ domain, onClose, onSuccess }) {
       <div className="modal-card" style={{ maxWidth: 480 }}>
         <div className="modal-glow" />
         <button className="modal-close" onClick={onClose}>✕</button>
-
         <div className="modal-header">
           <div className="modal-badge">Domain Purchase</div>
           <h2>{domain.domainName}{domain.domainExtension}</h2>
           <p>{domain.pricingDemand}</p>
         </div>
-
         <div style={{ margin: '1.5rem 0', padding: '1rem', background: 'rgba(110,200,150,0.08)',
                       border: '1px solid rgba(110,200,150,0.2)', borderRadius: 10 }}>
           <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.3rem' }}>Purchase Price</div>
@@ -469,15 +498,12 @@ function BuyDomainModal({ domain, onClose, onSuccess }) {
             ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
           </div>
         </div>
-
         <div style={{ padding: '0.875rem 1rem', background: 'rgba(200,169,110,0.08)',
                       border: '1px solid rgba(200,169,110,0.2)', borderRadius: 8,
                       marginBottom: '1.5rem', fontSize: '0.875rem', color: '#c8a96e' }}>
           ⏳ After payment, you will be updated within <strong>24 hours</strong> with transfer details.
         </div>
-
         {error && <div className="form-error" style={{ marginBottom: '1rem' }}>{error}</div>}
-
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button className="btn-primary" onClick={handleBuy} disabled={loading} style={{ flex: 1 }}>
             {loading ? <span className="btn-spinner" /> :
@@ -498,14 +524,10 @@ function PurchaseSuccessModal({ domain, onClose }) {
         <div className="modal-glow" />
         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
         <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
-                     marginBottom: '0.5rem' }}>
-          Purchase Successful!
-        </h2>
+                     marginBottom: '0.5rem' }}>Purchase Successful!</h2>
         <p style={{ color: '#a0a0b0', marginBottom: '1.5rem' }}>
           You've successfully purchased{' '}
-          <strong style={{ color: '#e0e0f0' }}>
-            {domain.domainName}{domain.domainExtension}
-          </strong>
+          <strong style={{ color: '#e0e0f0' }}>{domain.domainName}{domain.domainExtension}</strong>
         </p>
         <div style={{ padding: '1rem', background: 'rgba(200,169,110,0.08)',
                       border: '1px solid rgba(200,169,110,0.2)', borderRadius: 10,
@@ -520,7 +542,8 @@ function PurchaseSuccessModal({ domain, onClose }) {
 }
 
 // ─── Domain Detail Modal ──────────────────────────────────────────────────────
-function DomainDetailModal({ domain, isOwner, onClose, onBuy, likeState, onLike }) {
+function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
+                              likeState, onLike }) {
   const [detail, setDetail]   = useState(null);
   const [loading, setLoading] = useState(true);
   const hasFetched            = useRef(false);
@@ -534,9 +557,10 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, likeState, onLike 
       .finally(() => setLoading(false));
   }, [domain.id]);
 
-  const d = detail || domain;
-  const c = d.contactInfo || {};
-  const s = STATUS_COLORS[d.domainStatus] || STATUS_COLORS.AVAILABLE;
+  const d           = detail || domain;
+  const c           = d.contactInfo || {};
+  const s           = STATUS_COLORS[d.domainStatus] || STATUS_COLORS.AVAILABLE;
+  const isHighValue = d.askingPrice >= 500000;
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -559,6 +583,13 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, likeState, onLike 
                                  background: 'rgba(110,200,150,0.1)', padding: '0.2rem 0.5rem',
                                  borderRadius: 4, border: '1px solid rgba(110,200,150,0.3)' }}>
                     ✓ Verified
+                  </span>
+                )}
+                {isHighValue && (
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#a06ec8',
+                                 background: 'rgba(160,110,200,0.1)', padding: '0.2rem 0.5rem',
+                                 borderRadius: 4, border: '1px solid rgba(160,110,200,0.25)' }}>
+                    Premium
                   </span>
                 )}
               </div>
@@ -584,10 +615,19 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, likeState, onLike 
               </span>
             </div>
 
+            {isHighValue && !isOwner && d.domainStatus === 'AVAILABLE' && (
+              <div style={{ padding: '0.875rem 1rem', background: 'rgba(160,110,200,0.08)',
+                            border: '1px solid rgba(160,110,200,0.2)', borderRadius: 8,
+                            marginBottom: '1.25rem', fontSize: '0.83rem', color: '#a06ec8' }}>
+                ✦ This is a premium domain. Submit an enquiry and our team will facilitate
+                the transaction.
+              </div>
+            )}
+
             {(c.email || c.phoneNumber) && (
               <Section title="Contact">
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                  {c.email      && <DetailItem label="Email" value={c.email} />}
+                  {c.email       && <DetailItem label="Email" value={c.email} />}
                   {c.phoneNumber && <DetailItem label="Phone" value={c.phoneNumber} />}
                 </div>
               </Section>
@@ -603,10 +643,8 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, likeState, onLike 
                                 fontWeight: 700, color: '#c8a96e' }}>
                     {d.listedBy.firstname?.[0]?.toUpperCase() || '?'}
                   </div>
-                  <div>
-                    <div style={{ fontWeight: 500, color: '#e0e0f0', fontSize: '0.9rem' }}>
-                      {d.listedBy.firstname} {d.listedBy.lastname}
-                    </div>
+                  <div style={{ fontWeight: 500, color: '#e0e0f0', fontSize: '0.9rem' }}>
+                    {d.listedBy.firstname} {d.listedBy.lastname}
                   </div>
                 </div>
               </Section>
@@ -615,7 +653,18 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, likeState, onLike 
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem',
                           flexWrap: 'wrap', alignItems: 'center' }}>
               {!isOwner && d.domainStatus === 'AVAILABLE' && (
-                <button className="btn-primary" onClick={onBuy}>Buy Now →</button>
+                isHighValue ? (
+                  <button
+                    onClick={onEnquire}
+                    style={{ padding: '0.5rem 1.25rem', borderRadius: 8, fontSize: '0.875rem',
+                             fontWeight: 600, cursor: 'pointer',
+                             background: 'rgba(200,169,110,0.12)',
+                             border: '1px solid rgba(200,169,110,0.35)', color: '#c8a96e' }}>
+                    Enquire Now →
+                  </button>
+                ) : (
+                  <button className="btn-primary" onClick={onBuy}>Buy Now →</button>
+                )
               )}
               <LikeButton liked={likeState?.liked} count={likeState?.count}
                           onToggle={onLike} size="md" />
@@ -623,6 +672,85 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, likeState, onLike 
             </div>
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Domain Enquiry Modal (inline — also exported as standalone) ───────────────
+function DomainEnquiryModal({ domain, user, onClose, onSuccess }) {
+  const [form, setForm] = useState({
+    fullName: `${user?.firstname || ''} ${user?.lastname || ''}`.trim(),
+    email:    user?.email || '',
+    phone:    user?.phoneNumber || '',
+    message:  '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState('');
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setLoading(true); setError('');
+    try {
+      await domainEnquiryAPI.submit(domain.id, form);
+      onSuccess();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to submit enquiry.');
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal-card" style={{ maxWidth: 500 }}>
+        <div className="modal-glow" />
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-header">
+          <div className="modal-badge">Domain Enquiry</div>
+          <h2>{domain.domainName}{domain.domainExtension}</h2>
+          <p>₹{Number(domain.askingPrice).toLocaleString('en-IN')} · {domain.pricingDemand}</p>
+        </div>
+        <div style={{ padding: '0.875rem 1rem', background: 'rgba(200,169,110,0.08)',
+                      border: '1px solid rgba(200,169,110,0.2)', borderRadius: 8,
+                      marginBottom: '1.5rem', fontSize: '0.83rem', color: '#c8a96e' }}>
+          ⚡ For high-value domains, our team will facilitate the transaction.
+          Fill in your details and we'll be in touch shortly.
+        </div>
+        <form onSubmit={handleSubmit} className="venture-form">
+          <div className="form-group">
+            <label>Full Name <span className="required">*</span></label>
+            <input value={form.fullName}
+              onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))}
+              placeholder="Your full name" required />
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Email <span className="required">*</span></label>
+              <input type="email" value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="your@email.com" required />
+            </div>
+            <div className="form-group">
+              <label>Phone <span className="required">*</span></label>
+              <input value={form.phone}
+                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                placeholder="10-digit number" maxLength={10} required />
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Message / Reason for Enquiry <span className="required">*</span></label>
+            <textarea value={form.message}
+              onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+              placeholder="Tell us why you're interested and any specific requirements…"
+              rows={4} style={{ resize: 'vertical' }} required />
+          </div>
+          {error && <div className="form-error">{error}</div>}
+          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+            <button type="submit" className="btn-primary" disabled={loading} style={{ flex: 1 }}>
+              {loading ? <span className="btn-spinner" /> : 'Submit Enquiry →'}
+            </button>
+            <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
+          </div>
+        </form>
       </div>
     </div>
   );

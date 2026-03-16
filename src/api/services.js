@@ -119,6 +119,12 @@ export const adminAPI = {
   getCoBrothers:        ()              => api.get('/api/v1/admin/cobrothers'),
   forward:              (data)          => api.post('/api/v1/admin/forward', data),
   listOfficialSoftware: (data)          => api.post('/api/v1/admin/cocreation', data),
+  getDomainEnquiries: () => api.get('/api/v1/admin/domain-enquiries'),
+  takeDown:  (type, entityId, reason) =>
+      api.post('/api/v1/admin/takedown',  { type, entityId: String(entityId), reason }),
+  restore:   (type, entityId) =>
+      api.post('/api/v1/admin/restore',   { type, entityId: String(entityId) }),
+
 };
 
 export const coBrotherAPI = {
@@ -132,4 +138,8 @@ export const feeAPI = {
   createOrder:    (id)      => api.post(`/api/v1/fee/requests/${id}/create-order`),
   verify:         (id, data)=> api.post(`/api/v1/fee/requests/${id}/verify`, data),
   cancel:         (id)      => api.post(`/api/v1/fee/requests/${id}/cancel`),
+};
+
+export const domainEnquiryAPI = {
+  submit: (domainId, data) => api.post(`/api/v1/domain-enquiry/${domainId}`, data),
 };

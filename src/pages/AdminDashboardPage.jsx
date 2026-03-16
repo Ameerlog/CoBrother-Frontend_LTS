@@ -2,12 +2,6 @@ import { useState, useEffect } from 'react';
 import { adminAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
 
-const TYPE_COLORS = {
-  COVENTURE:  { color: '#c8a96e', bg: 'rgba(200,169,110,0.1)' },
-  DOMAIN:     { color: '#6eadc8', bg: 'rgba(110,173,200,0.1)' },
-  COCREATION: { color: '#6ec896', bg: 'rgba(110,200,150,0.1)' },
-};
-
 const STATUS_COLORS = {
   PAYMENT_PENDING:   '#c8a96e',
   PAYMENT_COMPLETED: '#6eadc8',
@@ -18,12 +12,29 @@ const STATUS_COLORS = {
 };
 
 export default function AdminDashboardPage() {
-  const [tab, setTab] = useState('coventures');
-  const [data, setData] = useState([]);
-  const [coBrothers, setCoBrothers] = useState([]);
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [forwardModal, setForwardModal] = useState(null);
+  const [tab, setTab]                       = useState('coventures');
+  const [data, setData]                     = useState([]);
+  const [coBrothers, setCoBrothers]         = useState([]);
+  const [requests, setRequests]             = useState([]);
+  const [loading, setLoading]               = useState(false);
+  const [forwardModal, setForwardModal]     = useState(null);
+  const [takeDownTarget, setTakeDownTarget] = useState(null);
+
+  const fetchers = {
+    coventures:         adminAPI.getCoVentures,
+    domains:            adminAPI.getDomains,
+    'domain-enquiries': adminAPI.getDomainEnquiries,
+    cocreations:        adminAPI.getCoCreations,
+  };
+
+  const loadTab = (currentTab) => {
+    if (!fetchers[currentTab]) return;
+    setLoading(true);
+    fetchers[currentTab]()
+      .then(({ data }) => setData(Array.isArray(data) ? data : []))
+      .catch(() => setData([]))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     adminAPI.getCoBrothers()
@@ -34,19 +45,7 @@ export default function AdminDashboardPage() {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    setLoading(true);
-    const fetchers = {
-      coventures:  adminAPI.getCoVentures,
-      domains:     adminAPI.getDomains,
-      cocreations: adminAPI.getCoCreations,
-    };
-    if (!fetchers[tab]) { setLoading(false); return; }
-    fetchers[tab]()
-      .then(({ data }) => setData(Array.isArray(data) ? data : []))
-      .catch(() => setData([]))
-      .finally(() => setLoading(false));
-  }, [tab]);
+  useEffect(() => { loadTab(tab); }, [tab]);
 
   const handleForward = async (entityId, type, coBrotherId) => {
     try {
@@ -60,11 +59,34 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleTakeDown = (entityId, type, title) =>
+    setTakeDownTarget({ entityId, type, title });
+
+  const confirmTakeDown = async (reason) => {
+    try {
+      await adminAPI.takeDown(takeDownTarget.type, takeDownTarget.entityId, reason);
+      setTakeDownTarget(null);
+      loadTab(tab);
+    } catch (e) {
+      alert('Failed to take down listing.');
+    }
+  };
+
+  const handleRestore = async (entityId, type) => {
+    try {
+      await adminAPI.restore(type, entityId);
+      loadTab(tab);
+    } catch (e) {
+      alert('Failed to restore listing.');
+    }
+  };
+
   const tabs = [
-    { id: 'coventures',  label: '📋 CoVentures' },
-    { id: 'domains',     label: '◇ Domains' },
-    { id: 'cocreations', label: '⟁ CoCreations' },
-    { id: 'requests',    label: '◆ CoBrother Requests' },
+    { id: 'coventures',         label: '📋 CoVentures'       },
+    { id: 'domains',            label: '◇ Domains'           },
+    { id: 'domain-enquiries',   label: '📩 Domain Enquiries' },
+    { id: 'cocreations',        label: '⟁ CoCreations'       },
+    { id: 'requests',           label: '◆ CoBrother Requests'},
   ];
 
   return (
@@ -89,23 +111,25 @@ export default function AdminDashboardPage() {
 
         {loading ? (
           <div className="page-loading"><div className="spinner" /></div>
+        ) : tab === 'domain-enquiries' ? (
+          <DomainEnquiriesTable
+            enquiries={data}
+            onForward={(entityId, type) => setForwardModal({ entityId, type })}
+          />
         ) : tab === 'requests' ? (
           <RequestsTable requests={requests} />
         ) : data.length === 0 ? (
-          <div className="empty-state">
-            <h3>No records found</h3>
-          </div>
+          <div className="empty-state"><h3>No records found</h3></div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {data.map(item => (
               <AdminRow
                 key={item.id}
                 item={item}
-                type={tab.slice(0, -1).toUpperCase().replace('COVENTURE', 'COVENTURE')
-                  .replace('DOMAIN', 'DOMAIN').replace('COCREATION', 'COCREATION')}
                 tabType={tab}
-                coBrothers={coBrothers}
                 onForward={(entityId, type) => setForwardModal({ entityId, type })}
+                onTakeDown={handleTakeDown}
+                onRestore={handleRestore}
               />
             ))}
           </div>
@@ -117,51 +141,63 @@ export default function AdminDashboardPage() {
           entityId={forwardModal.entityId}
           type={forwardModal.type}
           coBrothers={coBrothers}
-          requests={requests}          // ✅ pass this
+          requests={requests}
           onForward={handleForward}
           onClose={() => setForwardModal(null)}
+        />
+      )}
+
+      {takeDownTarget && (
+        <TakeDownModal
+          target={takeDownTarget}
+          onConfirm={confirmTakeDown}
+          onClose={() => setTakeDownTarget(null)}
         />
       )}
     </AppLayout>
   );
 }
 
-function AdminRow({ item, tabType, coBrothers, onForward }) {
+function AdminRow({ item, tabType, onForward, onTakeDown, onRestore }) {
   const [expanded, setExpanded] = useState(false);
 
   const getTitle = () => {
     if (tabType === 'coventures') return item.venture?.brandDetails?.brandName || 'CoVenture #' + item.id;
-    if (tabType === 'domains') return (item.domainName || '') + (item.domainExtension || '');
+    if (tabType === 'domains')    return (item.domainName || '') + (item.domainExtension || '');
     return item.name || 'Software #' + item.id;
   };
 
   const getType = () => {
     if (tabType === 'coventures') return 'COVENTURE';
-    if (tabType === 'domains') return 'DOMAIN';
+    if (tabType === 'domains')    return 'DOMAIN';
     return 'COCREATION';
   };
 
-  const getListerInfo = () => {
-    if (tabType === 'coventures') return item.venture?.listedBy;
-    return item.listedBy;
-  };
-
-  const getApplicantInfo = () => {
-    if (tabType === 'coventures') return item.applicant;
-    return item.purchasedBy;
-  };
-
-  const lister    = getListerInfo();
-  const applicant = getApplicantInfo();
+  const lister    = tabType === 'coventures' ? item.venture?.listedBy : item.listedBy;
+  const applicant = tabType === 'coventures' ? item.applicant          : item.purchasedBy;
 
   return (
-    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 10, overflow: 'hidden' }}>
+    <div style={{
+      background: 'rgba(255,255,255,0.03)',
+      border: `1px solid ${item.takenDown ? 'rgba(200,110,110,0.25)' : 'rgba(255,255,255,0.08)'}`,
+      borderRadius: 10, overflow: 'hidden',
+    }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem',
                     padding: '1rem 1.25rem', cursor: 'pointer' }}
            onClick={() => setExpanded(v => !v)}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, color: '#e0e0f0' }}>{getTitle()}</div>
+          <div style={{ fontWeight: 600, color: '#e0e0f0', display: 'flex',
+                        alignItems: 'center', gap: '0.5rem' }}>
+            {getTitle()}
+            {item.takenDown && (
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#c86e6e',
+                             background: 'rgba(200,110,110,0.12)',
+                             border: '1px solid rgba(200,110,110,0.3)',
+                             padding: '0.15rem 0.45rem', borderRadius: 4 }}>
+                ⚠ Taken Down
+              </span>
+            )}
+          </div>
           <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
             ID: {item.id}
           </div>
@@ -170,8 +206,7 @@ function AdminRow({ item, tabType, coBrothers, onForward }) {
       </div>
 
       {expanded && (
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)',
-                      padding: '1rem 1.25rem' }}>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '1rem 1.25rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem',
                         marginBottom: '1rem' }}>
             <div>
@@ -196,13 +231,105 @@ function AdminRow({ item, tabType, coBrothers, onForward }) {
             </div>
           </div>
 
-          <button className="btn-secondary btn-sm"
-            onClick={() => onForward(item.id, getType())}
-            style={{ fontSize: '0.8rem' }}>
-            ◆ Forward to CoBrother
-          </button>
+          {item.takenDown && item.takeDownReason && (
+            <div style={{ fontSize: '0.8rem', color: '#c86e6e', marginBottom: '0.75rem',
+                          fontStyle: 'italic' }}>
+              Takedown reason: {item.takeDownReason}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {!item.takenDown && (
+              <button className="btn-secondary btn-sm"
+                onClick={() => onForward(item.id, getType())}
+                style={{ fontSize: '0.8rem' }}>
+                ◆ Forward to CoBrother
+              </button>
+            )}
+            {!item.takenDown ? (
+              <button className="btn-danger btn-sm"
+                onClick={() => onTakeDown(item.id, getType(), getTitle())}
+                style={{ fontSize: '0.8rem' }}>
+                ⚠ Take Down
+              </button>
+            ) : (
+              <button className="btn-secondary btn-sm"
+                onClick={() => onRestore(item.id, getType())}
+                style={{ fontSize: '0.75rem' }}>
+                ↺ Restore
+              </button>
+            )}
+          </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function DomainEnquiriesTable({ enquiries, onForward }) {
+  if (enquiries.length === 0) return (
+    <div className="empty-state">
+      <h3>No domain enquiries yet</h3>
+      <p>Enquiries for domains above ₹5,00,000 will appear here.</p>
+    </div>
+  );
+
+  const ENQUIRY_STATUS = { PENDING: '#c8a96e', FORWARDED: '#a06ec8', CLOSED: '#6ec896' };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {enquiries.map(e => (
+        <div key={e.id} style={{ padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.03)',
+                                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between',
+                        flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <div>
+              <div style={{ fontWeight: 600, color: '#e0e0f0' }}>
+                {e.domain?.domainName}{e.domain?.domainExtension}
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+                ₹{Number(e.domain?.askingPrice || 0).toLocaleString('en-IN')}
+              </div>
+            </div>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700,
+                           color: ENQUIRY_STATUS[e.status] || '#888' }}>
+              {e.status}
+            </span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr',
+                        gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <div>
+              <div style={labelStyle}>Enquirer</div>
+              <div style={valueStyle}>{e.fullName}</div>
+              <div style={{ fontSize: '0.78rem', color: '#888' }}>{e.email}</div>
+              <div style={{ fontSize: '0.78rem', color: '#888' }}>{e.phone}</div>
+            </div>
+            <div>
+              <div style={labelStyle}>Domain Lister</div>
+              <div style={valueStyle}>
+                {e.domain?.listedBy?.firstname} {e.domain?.listedBy?.lastname}
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#888' }}>{e.domain?.listedBy?.email}</div>
+            </div>
+          </div>
+
+          {e.message && (
+            <div style={{ fontSize: '0.82rem', color: '#a0a0b0', marginBottom: '0.75rem',
+                          fontStyle: 'italic' }}>
+              "{e.message}"
+            </div>
+          )}
+
+          {e.status === 'PENDING' && (
+            <button className="btn-secondary btn-sm"
+              onClick={() => onForward(e.id, 'DOMAIN_ENQUIRY')}
+              style={{ fontSize: '0.8rem' }}>
+              ◆ Forward to CoBrother
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -214,10 +341,8 @@ function RequestsTable({ requests }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       {requests.map(r => (
-        <div key={r.id} style={{ padding: '1rem 1.25rem',
-                                  background: 'rgba(255,255,255,0.03)',
-                                  border: '1px solid rgba(255,255,255,0.08)',
-                                  borderRadius: 10 }}>
+        <div key={r.id} style={{ padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.03)',
+                                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between',
                         flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
             <div>
@@ -250,9 +375,8 @@ function RequestsTable({ requests }) {
 
 function ForwardModal({ entityId, type, coBrothers, requests, onForward, onClose }) {
   const [selectedCoBrother, setSelectedCoBrother] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading]                     = useState(false);
 
-  // Check if there's already an active non-cancelled request for this entity
   const activeRequests = requests.filter(r =>
     r.entityId === entityId &&
     r.requestType === type &&
@@ -279,37 +403,32 @@ function ForwardModal({ entityId, type, coBrothers, requests, onForward, onClose
         <div className="modal-header">
           <div className="modal-badge">Forward to CoBrother</div>
           <h2>Assign CoBrother</h2>
-          <p>Select a CoBrother for this {type.toLowerCase()} request.</p>
+          <p>Select a CoBrother for this {type.toLowerCase().replace(/_/g, ' ')} request.</p>
         </div>
 
-        {/* ── Warnings ── */}
         {alreadyAccepted && (
           <div style={{ padding: '0.875rem', background: 'rgba(200,110,110,0.08)',
                         border: '1px solid rgba(200,110,110,0.25)', borderRadius: 8,
                         marginBottom: '1rem', fontSize: '0.83rem', color: '#c86e6e' }}>
-            ⚠️ This request has already been accepted by a CoBrother.
-            Forwarding again is not recommended.
+            ⚠️ This request has already been accepted. Forwarding again is not recommended.
           </div>
         )}
+
         {!alreadyAccepted && pendingPayment && (
           <div style={{ padding: '0.875rem', background: 'rgba(200,169,110,0.08)',
                         border: '1px solid rgba(200,169,110,0.25)', borderRadius: 8,
                         marginBottom: '1rem', fontSize: '0.83rem', color: '#c8a96e' }}>
-            ⚠️ The lister already has a pending payment request for this entity.
-            You can only assign a different CoBrother after the current request is cancelled.
+            ⚠️ The lister already has a pending payment request. Cancel it before assigning another.
           </div>
         )}
 
         <div className="form-group" style={{ margin: '1rem 0' }}>
           <label style={{ fontSize: '0.78rem', color: '#888', marginBottom: '0.5rem',
                           display: 'block' }}>Select CoBrother</label>
-          <select value={selectedCoBrother}
-            onChange={e => setSelectedCoBrother(e.target.value)}>
+          <select value={selectedCoBrother} onChange={e => setSelectedCoBrother(e.target.value)}>
             <option value="">Choose a CoBrother…</option>
             {coBrothers.map(cb => {
-              // Mark already-assigned CoBrothers
-              const alreadyAssigned = activeRequests
-                .some(r => r.assignedCoBrother?.id === cb.id);
+              const alreadyAssigned = activeRequests.some(r => r.assignedCoBrother?.id === cb.id);
               return (
                 <option key={cb.id} value={cb.id} disabled={alreadyAssigned}>
                   {cb.firstname} {cb.lastname} ({cb.email})
@@ -323,8 +442,7 @@ function ForwardModal({ entityId, type, coBrothers, requests, onForward, onClose
         <div style={{ padding: '0.875rem', background: 'rgba(200,169,110,0.08)',
                       border: '1px solid rgba(200,169,110,0.2)', borderRadius: 8,
                       marginBottom: '1.25rem', fontSize: '0.83rem', color: '#c8a96e' }}>
-          ⚡ A ₹1,000 payment request will be sent to the lister via email.
-          CoBrother is notified only after payment is confirmed.
+          ⚡ A ₹1,000 payment request will be sent to the lister. CoBrother notified after payment.
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -339,6 +457,64 @@ function ForwardModal({ entityId, type, coBrothers, requests, onForward, onClose
     </div>
   );
 }
-const labelStyle = { fontSize: '0.72rem', fontWeight: 600, color: '#888',
-                     textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' };
+
+function TakeDownModal({ target, onConfirm, onClose }) {
+  const [reason, setReason]   = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!reason.trim()) { alert('Please provide a reason.'); return; }
+    setLoading(true);
+    await onConfirm(reason);
+    setLoading(false);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal-card" style={{ maxWidth: 440 }}>
+        <div className="modal-glow" />
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-header">
+          <div className="modal-badge" style={{ background: 'rgba(200,110,110,0.15)',
+                                                color: '#c86e6e',
+                                                border: '1px solid rgba(200,110,110,0.3)' }}>
+            Take Down Listing
+          </div>
+          <h2>{target.title}</h2>
+          <p>{target.type}</p>
+        </div>
+
+        <div style={{ padding: '0.875rem', background: 'rgba(200,110,110,0.07)',
+                      border: '1px solid rgba(200,110,110,0.2)', borderRadius: 8,
+                      marginBottom: '1.25rem', fontSize: '0.83rem', color: '#c86e6e' }}>
+          ⚠️ This hides the listing from public view. Lister still sees it with a "Taken Down"
+          badge. Restorable at any time.
+        </div>
+
+        <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+          <label style={{ fontSize: '0.78rem', color: '#888', marginBottom: '0.5rem',
+                          display: 'block' }}>
+            Reason <span style={{ color: '#c86e6e' }}>*</span>
+          </label>
+          <textarea value={reason} onChange={e => setReason(e.target.value)}
+            placeholder="e.g. Fraudulent listing, policy violation, spam…"
+            rows={3} style={{ resize: 'vertical' }} />
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn-danger" onClick={handleSubmit}
+            disabled={loading || !reason.trim()} style={{ flex: 1 }}>
+            {loading ? <span className="btn-spinner" /> : '⚠ Confirm Takedown'}
+          </button>
+          <button className="btn-ghost" onClick={onClose}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const labelStyle = {
+  fontSize: '0.72rem', fontWeight: 600, color: '#888',
+  textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem',
+};
 const valueStyle = { fontSize: '0.9rem', color: '#e0e0f0', fontWeight: 500 };
