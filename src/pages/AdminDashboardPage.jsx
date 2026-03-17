@@ -25,6 +25,7 @@ export default function AdminDashboardPage() {
     domains:            adminAPI.getDomains,
     'domain-enquiries': adminAPI.getDomainEnquiries,
     cocreations:        adminAPI.getCoCreations,
+    auctions: adminAPI.getAllAuctions,
   };
 
   const loadTab = (currentTab) => {
@@ -87,6 +88,7 @@ export default function AdminDashboardPage() {
     { id: 'domain-enquiries',   label: '📩 Domain Enquiries' },
     { id: 'cocreations',        label: '⟁ CoCreations'       },
     { id: 'requests',           label: '◆ CoBrother Requests'},
+    { id: 'auctions', label: '🔨 Auctions' },
   ];
 
   return (
@@ -116,6 +118,8 @@ export default function AdminDashboardPage() {
             enquiries={data}
             onForward={(entityId, type) => setForwardModal({ entityId, type })}
           />
+        ) :
+          tab === 'auctions' ? ( <AuctionsAdminTable auctions={data} /> 
         ) : tab === 'requests' ? (
           <RequestsTable requests={requests} />
         ) : data.length === 0 ? (
@@ -260,6 +264,124 @@ function AdminRow({ item, tabType, onForward, onTakeDown, onRestore }) {
               </button>
             )}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AuctionsAdminTable({ auctions }) {
+  if (!auctions.length) return (
+    <div className="empty-state"><h3>No auctions yet</h3></div>
+  );
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {auctions.map((item) => {
+        // Handle both { auction, bids, domain } and flat auction objects
+        const auction = item.auction ?? item;
+        const bids    = item.bids ?? [];
+        return (
+          <AuctionAdminRow key={auction.id} auction={auction} bids={bids} />
+        );
+      })}
+    </div>
+  );
+}
+
+function AuctionAdminRow({ auction, bids }) {
+  const [expanded, setExpanded] = useState(false);
+  const domain = auction.domain || {};
+
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10,
+                  overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem',
+                    padding: '1rem 1.25rem', cursor: 'pointer' }}
+           onClick={() => setExpanded(v => !v)}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 600, color: '#e0e0f0' }}>
+            {domain.domainName}{domain.domainExtension}
+          </div>
+          <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+            {auction.totalBids} bids · Status: {auction.status}
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
+                        fontWeight: 700, color: '#6ec896' }}>
+            {auction.currentHighestBid > 0
+              ? `₹${Number(auction.currentHighestBid).toLocaleString('en-IN')}`
+              : 'No bids'}
+          </div>
+          {auction.currentWinner && (
+            <div style={{ fontSize: '0.72rem', color: '#888' }}>
+              {auction.currentWinner.firstname} {auction.currentWinner.lastname}
+            </div>
+          )}
+        </div>
+        <span style={{ color: '#666' }}>{expanded ? '▲' : '▼'}</span>
+      </div>
+
+      {expanded && (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)',
+                      padding: '1rem 1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
+                        gap: '1rem', marginBottom: '1rem' }}>
+            <div><div style={labelStyle}>Lister</div>
+              <div style={valueStyle}>
+                {domain.listedBy?.firstname} {domain.listedBy?.lastname}
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#888' }}>
+                {domain.listedBy?.email}
+              </div>
+            </div>
+            <div><div style={labelStyle}>Winner</div>
+              <div style={valueStyle}>
+                {auction.currentWinner
+                  ? `${auction.currentWinner.firstname} ${auction.currentWinner.lastname}`
+                  : '—'}
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#888' }}>
+                {auction.currentWinner?.email || ''}
+              </div>
+            </div>
+            <div><div style={labelStyle}>Winning Bid</div>
+              <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.25rem',
+                            fontWeight: 700, color: '#6ec896' }}>
+                {auction.currentHighestBid > 0
+                  ? `₹${Number(auction.currentHighestBid).toLocaleString('en-IN')}`
+                  : '—'}
+              </div>
+            </div>
+          </div>
+
+          {bids?.length > 0 && (
+            <div>
+              <div style={labelStyle}>All Bids ({bids.length})</div>
+              <div style={{ maxHeight: 200, overflowY: 'auto', marginTop: '0.5rem',
+                            background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '0.5rem' }}>
+                {bids.map((bid, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between',
+                                        padding: '0.4rem 0.5rem', fontSize: '0.8rem',
+                                        borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                    <span style={{ color: '#c0c0d0' }}>{bid.bidderName}</span>
+                    <span style={{ color: bid.isWinningBid ? '#6ec896' : '#c8a96e',
+                                   fontWeight: 600 }}>
+                      ₹{Number(bid.amount).toLocaleString('en-IN')}
+                      {bid.isWinningBid && ' 🏆'}
+                    </span>
+                    <span style={{ color: '#666' }}>
+                      {bid.bidTime
+                        ? new Date(bid.bidTime).toLocaleString('en-IN',
+                            { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })
+                        : ''}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -142,39 +142,85 @@ function StatCard({ label, value, icon, color = '#e0e0f0' }) {
 }
 
 function DomainRow({ domain, type, onVerify }) {
+  const navigate = useNavigate();  // add useNavigate import to DomainsDashboardPage if not present
   const s = STATUS_COLORS[domain.domainStatus] || STATUS_COLORS.AVAILABLE;
   const p = domain.paymentStatus ? PAYMENT_COLORS[domain.paymentStatus] : null;
-
+ 
+  const isAuction  = domain.saleType === 'AUCTION';
+  const auction    = domain.auction;
+  const auctionId  = auction?.id;
+ 
+  const AUCTION_STATUS_COLORS = {
+    DRAFT:    '#888',
+    ACTIVE:   '#6ec896',
+    EXTENDED: '#c8a96e',
+    ENDED:    '#a06ec8',
+    UNSOLD:   '#c86e6e',
+    CLOSED:   '#666',
+  };
+ 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10,
-                  flexWrap: 'wrap', gap: '0.5rem' }}>
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.03)',
+      border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10,
+      flexWrap: 'wrap', gap: '0.5rem',
+    }}>
       <div>
-        <div style={{ fontWeight: 600, fontSize: '1rem', color: '#e0e0f0' }}>
+        <div style={{ fontWeight: 600, fontSize: '1rem', color: '#e0e0f0',
+                      display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {domain.domainName}{domain.domainExtension}
+          {isAuction && (
+            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#a06ec8',
+                           background: 'rgba(160,110,200,0.1)',
+                           border: '1px solid rgba(160,110,200,0.25)',
+                           padding: '0.15rem 0.45rem', borderRadius: 4 }}>
+              🔨 Auction
+            </span>
+          )}
         </div>
         <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
           {domain.pricingDemand}
+          {isAuction && auction && (
+            <span style={{ marginLeft: '0.5rem',
+                           color: AUCTION_STATUS_COLORS[auction.status] || '#888' }}>
+              · {auction.status}
+              {auction.status === 'ACTIVE' || auction.status === 'EXTENDED'
+                ? ` · ${auction.totalBids} bid${auction.totalBids !== 1 ? 's' : ''}`
+                : ''}
+            </span>
+          )}
         </div>
       </div>
-
+ 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#c8a96e' }}>
-          ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
-        </span>
-
+        {!isAuction && (
+          <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#c8a96e' }}>
+            ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
+          </span>
+        )}
+        {isAuction && auction?.currentHighestBid > 0 && (
+          <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#6ec896' }}>
+            Top: ₹{Number(auction.currentHighestBid).toLocaleString('en-IN')}
+          </span>
+        )}
+        {isAuction && auction?.minBidPrice > 0 && auction?.currentHighestBid === 0 && (
+          <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#c8a96e' }}>
+            Min: ₹{Number(auction.minBidPrice).toLocaleString('en-IN')}
+          </span>
+        )}
+ 
         <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.72rem',
                        fontWeight: 600, color: s.color, background: s.bg,
                        border: `1px solid ${s.border}` }}>
           {domain.domainStatus}
         </span>
-        
+ 
         {domain.takenDown && (
           <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#c86e6e',
-                        background: 'rgba(200,110,110,0.1)',
-                        border: '1px solid rgba(200,110,110,0.25)',
-                        padding: '0.25rem 0.6rem', borderRadius: 6 }}>
+                         background: 'rgba(200,110,110,0.1)',
+                         border: '1px solid rgba(200,110,110,0.25)',
+                         padding: '0.25rem 0.6rem', borderRadius: 6 }}>
             ⚠ Taken Down
           </span>
         )}
@@ -183,33 +229,48 @@ function DomainRow({ domain, type, onVerify }) {
             Reason: {domain.takeDownReason}
           </span>
         )}
-
-        {p && (
+ 
+        {p && !isAuction && (
           <span style={{ fontSize: '0.72rem', color: p.color, fontWeight: 600 }}>
             {domain.paymentStatus === 'COMPLETED' && '✓ Paid'}
             {domain.paymentStatus === 'CREATED'   && '⏳ Pending'}
             {domain.paymentStatus === 'FAILED'    && '✕ Failed'}
           </span>
         )}
-
+ 
         {type === 'purchase' && domain.paymentStatus === 'COMPLETED' && (
-          <span style={{ fontSize: '0.75rem', color: '#c8a96e', background: 'rgba(200,169,110,0.1)',
-                         border: '1px solid rgba(200,169,110,0.2)', padding: '0.25rem 0.6rem',
-                         borderRadius: 6 }}>
+          <span style={{ fontSize: '0.75rem', color: '#c8a96e',
+                         background: 'rgba(200,169,110,0.1)',
+                         border: '1px solid rgba(200,169,110,0.2)',
+                         padding: '0.25rem 0.6rem', borderRadius: 6 }}>
             ⏳ Transfer within 24hrs
           </span>
         )}
-
+ 
+        {/* Auction action buttons */}
+        {type === 'listing' && isAuction && auctionId && (
+          <button className="btn-secondary btn-sm"
+            onClick={() => navigate(`/auction/${auctionId}`)}
+            style={{ fontSize: '0.75rem',
+                     background: 'rgba(160,110,200,0.1)',
+                     border: '1px solid rgba(160,110,200,0.3)',
+                     color: '#a06ec8' }}>
+            🔨 View Auction →
+          </button>
+        )}
+ 
+        {/* Verify button — only for non-auction or unverified auction drafts */}
         {type === 'listing' && domain.verified && (
           <span style={{ fontSize: '0.75rem', color: '#6ec896', fontWeight: 600 }}>
             ✓ Verified
           </span>
         )}
-
+ 
         {type === 'listing' && !domain.verified && domain.domainStatus === 'AVAILABLE' && (
           <button className="btn-secondary btn-sm" onClick={onVerify}
             style={{ fontSize: '0.75rem' }}>
             🔍 Verify
+            {isAuction && auction?.status === 'DRAFT' && ' (Starts Auction)'}
           </button>
         )}
       </div>

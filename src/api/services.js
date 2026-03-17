@@ -80,18 +80,20 @@ export const analyticsAPI = {
 };
 
 export const cocreationAPI = {
-  getAll:        ()          => api.get('/api/v1/cocreation/all'),
-  getMyListings: ()          => api.get('/api/v1/cocreation/my-listings'),
-  getMyPurchases:()          => api.get('/api/v1/cocreation/my-purchases'),
-  get:           (id)        => api.get(`/api/v1/cocreation/${id}`),
-  create:        (data)      => api.post('/api/v1/cocreation', data),
-  update:        (id, data)  => api.put(`/api/v1/cocreation/${id}`, data),
-  delete:        (id)        => api.delete(`/api/v1/cocreation/${id}`),
-  createOrder:   (id, data)  => api.post(`/api/v1/cocreation/${id}/purchase/create-order`, data),
-  verifyPayment: (id, data)  => api.post(`/api/v1/cocreation/${id}/purchase/verify`, data),
-  handleFailure: (id)        => api.post(`/api/v1/cocreation/${id}/purchase/failure`),
-  confirmPurchase:(id)       => api.post(`/api/v1/cocreation/${id}/purchase/confirm`),
-  getAnalytics:  (id)        => api.get(`/api/v1/cocreation/${id}/analytics`),
+  getAll:          ()         => api.get('/api/v1/cocreation/all'),
+  getMyListings:   ()         => api.get('/api/v1/cocreation/my-listings'),
+  getMyPurchases:  ()         => api.get('/api/v1/cocreation/my-purchases'),  // returns SoftwarePurchase[]
+  get:             (id)       => api.get(`/api/v1/cocreation/${id}`),
+  create:          (data)     => api.post('/api/v1/cocreation', data),
+  update:          (id, data) => api.put(`/api/v1/cocreation/${id}`, data),
+  delete:          (id)       => api.delete(`/api/v1/cocreation/${id}`),
+  createOrder:     (id, data) => api.post(`/api/v1/cocreation/${id}/purchase/create-order`, data),
+  verifyPayment:   (id, data) => api.post(`/api/v1/cocreation/${id}/purchase/verify`, data),
+  handleFailure:   (id)       => api.post(`/api/v1/cocreation/${id}/purchase/failure`),
+  confirmPurchase: (purchaseId) => api.post(`/api/v1/cocreation/purchase/${purchaseId}/confirm`),
+  getAnalytics:    (id)       => api.get(`/api/v1/cocreation/${id}/analytics`),
+  payCoBrotherHelp:    (purchaseId) => api.post(`/api/v1/cocreation/purchase/${purchaseId}/cobrother-help/create-order`),
+  verifyCoBrotherHelp: (purchaseId, data) => api.post(`/api/v1/cocreation/purchase/${purchaseId}/cobrother-help/verify`, data),
 };
 
 export const notificationAPI = {
@@ -119,11 +121,10 @@ export const adminAPI = {
   getCoBrothers:        ()              => api.get('/api/v1/admin/cobrothers'),
   forward:              (data)          => api.post('/api/v1/admin/forward', data),
   listOfficialSoftware: (data)          => api.post('/api/v1/admin/cocreation', data),
-  getDomainEnquiries: () => api.get('/api/v1/admin/domain-enquiries'),
-  takeDown:  (type, entityId, reason) =>
-      api.post('/api/v1/admin/takedown',  { type, entityId: String(entityId), reason }),
-  restore:   (type, entityId) =>
-      api.post('/api/v1/admin/restore',   { type, entityId: String(entityId) }),
+  getAllAuctions: () => api.get('/api/v1/auction/admin/all'),
+  takeDown:  (type, id, reason) => api.post(`/api/v1/admin/takedown`, { type, entityId: id, reason }),
+  restore:   (type, id)         => api.post(`/api/v1/admin/restore`,  { type, entityId: id }),
+  getDomainEnquiries: ()        => api.get('/api/v1/domain-enquiry/all'),
 
 };
 
@@ -142,4 +143,15 @@ export const feeAPI = {
 
 export const domainEnquiryAPI = {
   submit: (domainId, data) => api.post(`/api/v1/domain-enquiry/${domainId}`, data),
+};
+
+export const auctionAPI = {
+  create:       (domainId, data)    => api.post(`/api/v1/auction/domain/${domainId}`, data),
+  get:          (auctionId)         => api.get(`/api/v1/auction/${auctionId}`),
+  getByDomain:  (domainId)          => api.get(`/api/v1/auction/domain/${domainId}`),
+  placeBid:     (auctionId, amount) => api.post(`/api/v1/auction/${auctionId}/bid`, { amount }),
+  reAuction:    (auctionId, data)   => api.post(`/api/v1/auction/${auctionId}/re-auction`, data),
+  close:        (auctionId)         => api.post(`/api/v1/auction/${auctionId}/close`),
+  adminGetAll:  ()                  => api.get('/api/v1/auction/admin/all'),
+  getActive: () => api.get('/api/v1/auction/active'),
 };

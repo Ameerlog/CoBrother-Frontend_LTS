@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { domainAPI, domainEnquiryAPI } from '../api/services';
+import { domainAPI, domainEnquiryAPI, auctionAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../components/layout/AppLayout';
 import { useLikes } from '../hooks/useLikes';
@@ -39,8 +39,6 @@ export default function DomainsPage() {
 
   const { toggle: toggleLike, get: getLike } = useLikes('DOMAIN', allDomains);
 
-  // My listings tab shows owned domains including taken-down ones
-  // Public tab hides taken-down listings
   const visibleDomains = filterTab === 'mine'
     ? allDomains.filter(d => d.listedBy?.id === user?.id)
     : allDomains.filter(d => !d.takenDown);
@@ -51,16 +49,12 @@ export default function DomainsPage() {
     handleSearch, handleCategory, handleMinPrice, handleMaxPrice, handleSort,
     clearAll, activeFilterCount,
     page, totalPages, setPage,
-  } = useFilterSort(
-    visibleDomains,
-    {
-      searchFields:  ['domainName', 'domainExtension'],
-      priceField:    'askingPrice',
-      categoryField: 'pricingDemand',
-      dateField:     'createdAt',
-    },
-    20
-  );
+  } = useFilterSort(visibleDomains, {
+    searchFields:  ['domainName', 'domainExtension'],
+    priceField:    'askingPrice',
+    categoryField: 'pricingDemand',
+    dateField:     'createdAt',
+  }, 20);
 
   useEffect(() => {
     setLoading(true);
@@ -76,9 +70,7 @@ export default function DomainsPage() {
       setAllDomains(d => d.filter(x => x.id !== deleteTarget));
     } catch (e) {
       alert(e.response?.data?.error || 'Failed to remove listing.');
-    } finally {
-      setDeleteTarget(null);
-    }
+    } finally { setDeleteTarget(null); }
   };
 
   const refreshDomains = () =>
@@ -173,6 +165,7 @@ export default function DomainsPage() {
                   onView={() => setDetailTarget(d)}
                   onBuy={() => setBuyTarget(d)}
                   onEnquire={() => setEnquireTarget(d)}
+                  onViewAuction={() => navigate(`/auction/${d.auction?.id}`)}
                   onDelete={() => setDeleteTarget(d.id)}
                 />
               ))}
@@ -208,6 +201,10 @@ export default function DomainsPage() {
           onClose={() => { setDetailTarget(null); refreshDomains(); }}
           onBuy={() => { setBuyTarget(detailTarget); setDetailTarget(null); }}
           onEnquire={() => { setEnquireTarget(detailTarget); setDetailTarget(null); }}
+          onViewAuction={() => {
+            navigate(`/auction/${detailTarget.auction?.id}`);
+            setDetailTarget(null);
+          }}
         />
       )}
 
@@ -250,16 +247,20 @@ export default function DomainsPage() {
 }
 
 // ─── Domain Card ──────────────────────────────────────────────────────────────
-function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onDelete,
-                       likeState, onLike }) {
+function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onViewAuction,
+                       onDelete, likeState, onLike }) {
   const s           = STATUS_COLORS[domain.domainStatus] || STATUS_COLORS.AVAILABLE;
-  const isHighValue = domain.askingPrice >= 500000;
+  const isAuction   = domain.saleType === 'AUCTION';
+  const isHighValue = !isAuction && domain.askingPrice >= 500000;
+  const auction     = domain.auction;
+  const auctionLive = auction?.status === 'ACTIVE' || auction?.status === 'EXTENDED';
 
   return (
     <div className="venture-card" onClick={onView} style={{ cursor: 'pointer' }}>
       <div className="venture-card-top">
         <div className="venture-logo-placeholder"
-             style={{ fontSize: '1.1rem', fontWeight: 700, color: '#c8a96e' }}>
+             style={{ fontSize: '1.1rem', fontWeight: 700,
+                      color: isAuction ? '#a06ec8' : '#c8a96e' }}>
           {domain.domainExtension || '.?'}
         </div>
         <div className="venture-card-meta">
@@ -276,13 +277,16 @@ function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onDelete,
         )}
       </div>
 
-      <div style={{ margin: '0.5rem 0 0.75rem', display: 'flex',
+      {/* Badges */}
+      <div style={{ margin: '0.5rem 0 0.5rem', display: 'flex',
                     alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-        <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.75rem',
-                       fontWeight: 600, color: s.color, background: s.bg,
-                       border: `1px solid ${s.border}` }}>
-          {domain.domainStatus}
-        </span>
+        {!isAuction && (
+          <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.75rem',
+                         fontWeight: 600, color: s.color, background: s.bg,
+                         border: `1px solid ${s.border}` }}>
+            {domain.domainStatus}
+          </span>
+        )}
         {domain.verified && (
           <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.72rem',
                          fontWeight: 700, color: '#6ec896', background: 'rgba(110,200,150,0.1)',
@@ -298,9 +302,49 @@ function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onDelete,
             Premium
           </span>
         )}
+        {isAuction && (
+          <>
+            <span style={{ padding: '0.2rem 0.5rem', borderRadius: 4, fontSize: '0.68rem',
+                           fontWeight: 700, color: '#a06ec8',
+                           background: 'rgba(160,110,200,0.1)',
+                           border: '1px solid rgba(160,110,200,0.25)' }}>
+              🔨 Auction
+            </span>
+            {auction?.status === 'ACTIVE'   && <span style={{ fontSize: '0.68rem', color: '#6ec896', fontWeight: 700 }}>🟢 Live</span>}
+            {auction?.status === 'EXTENDED' && <span style={{ fontSize: '0.68rem', color: '#c8a96e', fontWeight: 700 }}>⚡ Extended</span>}
+            {auction?.status === 'DRAFT'    && <span style={{ fontSize: '0.68rem', color: '#888' }}>⏳ Draft</span>}
+          </>
+        )}
       </div>
 
-      <div className="venture-deal">₹{Number(domain.askingPrice).toLocaleString('en-IN')}</div>
+      {/* Price / bid */}
+      {isAuction && auction ? (
+        <div style={{ marginBottom: '0.5rem' }}>
+          {auction.currentHighestBid > 0 ? (
+            <>
+              <div style={{ fontSize: '0.65rem', color: '#888' }}>Highest Bid</div>
+              <div className="venture-deal" style={{ color: '#6ec896' }}>
+                ₹{Number(auction.currentHighestBid).toLocaleString('en-IN')}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#888' }}>
+                {auction.totalBids} bid{auction.totalBids !== 1 ? 's' : ''}
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: '0.65rem', color: '#888' }}>Starting Bid</div>
+              <div className="venture-deal">
+                ₹{Number(auction.minBidPrice).toLocaleString('en-IN')}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#6ec896' }}>No bids yet</div>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="venture-deal">
+          ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
+        </div>
+      )}
 
       <div className="venture-card-footer">
         <div className="venture-stats">
@@ -310,7 +354,26 @@ function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onDelete,
         <div className="venture-card-actions" onClick={e => e.stopPropagation()}>
           {isOwner ? (
             <button className="btn-danger btn-sm"
-              onClick={e => { e.stopPropagation(); onDelete(); }}>Remove</button>
+              onClick={e => { e.stopPropagation(); onDelete(); }}>
+              Remove
+            </button>
+          ) : isAuction ? (
+            auctionLive ? (
+              <button
+                onClick={e => { e.stopPropagation(); onViewAuction(); }}
+                style={{ padding: '0.35rem 0.75rem', borderRadius: 8, fontSize: '0.78rem',
+                         fontWeight: 600, cursor: 'pointer',
+                         background: 'rgba(160,110,200,0.15)',
+                         border: '1px solid rgba(160,110,200,0.4)', color: '#a06ec8' }}>
+                🔨 Bid Now →
+              </button>
+            ) : (
+              <span style={{ fontSize: '0.75rem', color: '#666' }}>
+                {auction?.status === 'DRAFT'  ? 'Coming Soon' :
+                 auction?.status === 'ENDED'  ? 'Auction Ended' :
+                 auction?.status === 'UNSOLD' ? 'Unsold' : 'Closed'}
+              </span>
+            )
           ) : domain.domainStatus === 'AVAILABLE' ? (
             isHighValue ? (
               <button
@@ -323,7 +386,9 @@ function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onDelete,
               </button>
             ) : (
               <button className="btn-primary btn-sm"
-                onClick={e => { e.stopPropagation(); onBuy(); }}>Buy Now →</button>
+                onClick={e => { e.stopPropagation(); onBuy(); }}>
+                Buy Now →
+              </button>
             )
           ) : (
             <span style={{ fontSize: '0.8rem', color: '#888' }}>
@@ -341,6 +406,7 @@ function DomainForm({ onSaved, onCancel }) {
   const [form, setForm] = useState({
     domainName: '', domainExtension: '',
     askingPrice: '', pricingDemand: '',
+    saleType: 'ONE_TIME', minBidPrice: '', auctionDuration: 'SEVEN_DAYS',
     contactInfo: { email: '', phoneNumber: '' },
     agreement: { terms: false },
   });
@@ -352,14 +418,34 @@ function DomainForm({ onSaved, onCancel }) {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    if (form.saleType === 'AUCTION' && (!form.minBidPrice || parseFloat(form.minBidPrice) <= 0)) {
+      setError('Please enter a valid minimum bid price.');
+      return;
+    }
     setLoading(true); setError('');
     try {
-      const { data } = await domainAPI.create(form);
-      onSaved(data);
+      const { data: domain } = await domainAPI.create({
+        domainName:      form.domainName,
+        domainExtension: form.domainExtension,
+        askingPrice:     form.saleType === 'AUCTION' ? 0 : parseFloat(form.askingPrice),
+        pricingDemand:   form.pricingDemand,
+        saleType:        form.saleType,
+        contactInfo:     form.contactInfo,
+        agreement:       form.agreement,
+      });
+      if (form.saleType === 'AUCTION' && domain.id) {
+        await auctionAPI.create(domain.id, {
+          minBidPrice: parseFloat(form.minBidPrice),
+          duration:    form.auctionDuration,
+        });
+      }
+      onSaved(domain);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to list domain.');
     } finally { setLoading(false); }
   };
+
+  const isAuction = form.saleType === 'AUCTION';
 
   return (
     <div className="community-form-card">
@@ -385,13 +471,41 @@ function DomainForm({ onSaved, onCancel }) {
             Include the extension (e.g. .com, .in, .io)
           </span>
         </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Asking Price (₹) <span className="required">*</span></label>
-            <input type="number" min="0" value={form.askingPrice}
-              onChange={e => setForm(f => ({ ...f, askingPrice: e.target.value }))}
-              placeholder="e.g. 50000" required />
+
+        <div className="form-group">
+          <label>Sale Type <span className="required">*</span></label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '0.35rem' }}>
+            {[
+              { value: 'ONE_TIME', label: '🛒 One-Time Sale', desc: 'Set a fixed price. Buyer pays and gets the domain.' },
+              { value: 'AUCTION',  label: '🔨 Auction',       desc: 'Bidders compete. Highest bid wins after your chosen duration.' },
+            ].map(opt => (
+              <div key={opt.value}
+                onClick={() => setForm(f => ({ ...f, saleType: opt.value }))}
+                style={{
+                  padding: '0.875rem 1rem', borderRadius: 10, cursor: 'pointer',
+                  border: `1px solid ${form.saleType === opt.value ? 'rgba(200,169,110,0.5)' : 'rgba(255,255,255,0.1)'}`,
+                  background: form.saleType === opt.value ? 'rgba(200,169,110,0.08)' : 'rgba(255,255,255,0.03)',
+                  transition: 'all 0.15s',
+                }}>
+                <div style={{ fontWeight: 600, fontSize: '0.875rem',
+                              color: form.saleType === opt.value ? '#c8a96e' : '#c0c0d0', marginBottom: '0.3rem' }}>
+                  {opt.label}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#666', lineHeight: 1.4 }}>{opt.desc}</div>
+              </div>
+            ))}
           </div>
+        </div>
+
+        <div className="form-row">
+          {!isAuction && (
+            <div className="form-group">
+              <label>Asking Price (₹) <span className="required">*</span></label>
+              <input type="number" min="0" value={form.askingPrice}
+                onChange={e => setForm(f => ({ ...f, askingPrice: e.target.value }))}
+                placeholder="e.g. 50000" required={!isAuction} />
+            </div>
+          )}
           <div className="form-group">
             <label>Pricing Type <span className="required">*</span></label>
             <select value={form.pricingDemand}
@@ -402,6 +516,40 @@ function DomainForm({ onSaved, onCancel }) {
             </select>
           </div>
         </div>
+
+        {isAuction && (
+          <>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Minimum Bid (₹) <span className="required">*</span></label>
+                <input type="number" min="1" value={form.minBidPrice}
+                  onChange={e => setForm(f => ({ ...f, minBidPrice: e.target.value }))}
+                  placeholder="e.g. 5000" required />
+                <span style={{ fontSize: '0.72rem', color: '#888', marginTop: '0.3rem', display: 'block' }}>
+                  Each subsequent bid must be at least 5% higher.
+                </span>
+              </div>
+              <div className="form-group">
+                <label>Auction Duration <span className="required">*</span></label>
+                <select value={form.auctionDuration}
+                  onChange={e => setForm(f => ({ ...f, auctionDuration: e.target.value }))}>
+                  <option value="ONE_DAY">1 Day</option>
+                  <option value="SEVEN_DAYS">7 Days</option>
+                  <option value="FIFTEEN_DAYS">15 Days</option>
+                  <option value="THIRTY_DAYS">30 Days</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ padding: '0.875rem 1rem', background: 'rgba(200,169,110,0.08)',
+                          border: '1px solid rgba(200,169,110,0.2)', borderRadius: 8,
+                          fontSize: '0.82rem', color: '#c8a96e', lineHeight: 1.5 }}>
+              ⚡ Auction domains go live only after domain verification (≈15 mins). Your listing
+              stays in <strong>Draft</strong> until verification is complete, then the auction
+              timer starts automatically.
+            </div>
+          </>
+        )}
+
         <div className="form-row">
           <div className="form-group">
             <label>Contact Email <span className="required">*</span></label>
@@ -416,16 +564,20 @@ function DomainForm({ onSaved, onCancel }) {
               placeholder="10-digit number" maxLength={10} />
           </div>
         </div>
+
         <label className="checkbox-label">
           <input type="checkbox" checked={form.agreement.terms}
             onChange={e => setForm(f => ({ ...f, agreement: { terms: e.target.checked } }))}
             required />
           <span>I confirm I own this domain and agree to the Terms & Conditions.</span>
         </label>
+
         {error && <div className="form-error">{error}</div>}
+
         <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-          <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? <span className="btn-spinner" /> : 'List Domain →'}
+          <button type="submit" className="btn-primary" disabled={loading} style={{ flex: 1 }}>
+            {loading ? <span className="btn-spinner" /> :
+              isAuction ? 'List for Auction →' : 'List Domain →'}
           </button>
           <button type="button" className="btn-ghost" onClick={onCancel}>Cancel</button>
         </div>
@@ -444,11 +596,8 @@ function BuyDomainModal({ domain, onClose, onSuccess }) {
     try {
       const { data: orderData } = await domainAPI.createOrder(domain.id);
       const options = {
-        key: orderData.keyId,
-        amount: orderData.amount * 100,
-        currency: orderData.currency,
-        name: 'CoBrother',
-        description: `Purchase ${domain.domainName}${domain.domainExtension}`,
+        key: orderData.keyId, amount: orderData.amount * 100, currency: orderData.currency,
+        name: 'CoBrother', description: `Purchase ${domain.domainName}${domain.domainExtension}`,
         order_id: orderData.orderId,
         handler: async response => {
           try {
@@ -458,14 +607,10 @@ function BuyDomainModal({ domain, onClose, onSuccess }) {
               razorpaySignature: response.razorpay_signature,
             });
             onSuccess({ ...domain, domainStatus: 'SOLD', paymentStatus: 'COMPLETED' });
-          } catch {
-            setError('Payment verification failed. Contact support.');
-            setLoading(false);
-          }
+          } catch { setError('Payment verification failed. Contact support.'); setLoading(false); }
         },
         modal: { ondismiss: async () => { await domainAPI.handleFailure(domain.id); setLoading(false); } },
-        prefill: {},
-        theme: { color: '#c8a96e' },
+        prefill: {}, theme: { color: '#c8a96e' },
       };
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', async () => {
@@ -474,10 +619,7 @@ function BuyDomainModal({ domain, onClose, onSuccess }) {
         setLoading(false);
       });
       rzp.open();
-    } catch (err) {
-      setError(err.response?.data || 'Failed to initiate payment.');
-      setLoading(false);
-    }
+    } catch (err) { setError(err.response?.data || 'Failed to initiate payment.'); setLoading(false); }
   };
 
   return (
@@ -543,7 +685,7 @@ function PurchaseSuccessModal({ domain, onClose }) {
 
 // ─── Domain Detail Modal ──────────────────────────────────────────────────────
 function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
-                              likeState, onLike }) {
+                              onViewAuction, likeState, onLike }) {
   const [detail, setDetail]   = useState(null);
   const [loading, setLoading] = useState(true);
   const hasFetched            = useRef(false);
@@ -560,7 +702,10 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
   const d           = detail || domain;
   const c           = d.contactInfo || {};
   const s           = STATUS_COLORS[d.domainStatus] || STATUS_COLORS.AVAILABLE;
-  const isHighValue = d.askingPrice >= 500000;
+  const isAuction   = d.saleType === 'AUCTION';
+  const isHighValue = !isAuction && d.askingPrice >= 500000;
+  const auction     = d.auction;
+  const auctionLive = auction?.status === 'ACTIVE' || auction?.status === 'EXTENDED';
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -576,8 +721,8 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
           <>
             <div className="modal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            marginBottom: '0.3rem' }}>
-                <div className="modal-badge">Domain</div>
+                            flexWrap: 'wrap', marginBottom: '0.3rem' }}>
+                <div className="modal-badge">{isAuction ? '🔨 Auction' : 'Domain'}</div>
                 {d.verified && (
                   <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6ec896',
                                  background: 'rgba(110,200,150,0.1)', padding: '0.2rem 0.5rem',
@@ -598,22 +743,66 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-              <div style={{ padding: '0.5rem 1rem', background: 'rgba(110,200,150,0.08)',
-                            border: '1px solid rgba(110,200,150,0.2)', borderRadius: 8,
-                            fontSize: '0.875rem', color: '#6ec896' }}>
-                💰 ₹{Number(d.askingPrice).toLocaleString('en-IN')}
-              </div>
+              {isAuction && auction ? (
+                <>
+                  <div style={{ padding: '0.5rem 1rem', background: 'rgba(110,200,150,0.08)',
+                                border: '1px solid rgba(110,200,150,0.2)', borderRadius: 8,
+                                fontSize: '0.875rem', color: '#6ec896' }}>
+                    {auction.currentHighestBid > 0
+                      ? `🏆 ₹${Number(auction.currentHighestBid).toLocaleString('en-IN')}`
+                      : `🔨 Min ₹${Number(auction.minBidPrice).toLocaleString('en-IN')}`}
+                  </div>
+                  <div style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.04)',
+                                border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
+                                fontSize: '0.875rem', color: '#a0a0b0' }}>
+                    📋 {auction.totalBids} bid{auction.totalBids !== 1 ? 's' : ''}
+                  </div>
+                </>
+              ) : (
+                <div style={{ padding: '0.5rem 1rem', background: 'rgba(110,200,150,0.08)',
+                              border: '1px solid rgba(110,200,150,0.2)', borderRadius: 8,
+                              fontSize: '0.875rem', color: '#6ec896' }}>
+                  💰 ₹{Number(d.askingPrice).toLocaleString('en-IN')}
+                </div>
+              )}
               <div style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.04)',
                             border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
                             fontSize: '0.875rem', color: '#a0a0b0' }}>
                 👁 {d.views || 0} views
               </div>
-              <span style={{ padding: '0.5rem 1rem', borderRadius: 8, fontSize: '0.875rem',
-                             fontWeight: 600, color: s.color, background: s.bg,
-                             border: `1px solid ${s.border}` }}>
-                {d.domainStatus}
-              </span>
+              {!isAuction && (
+                <span style={{ padding: '0.5rem 1rem', borderRadius: 8, fontSize: '0.875rem',
+                               fontWeight: 600, color: s.color, background: s.bg,
+                               border: `1px solid ${s.border}` }}>
+                  {d.domainStatus}
+                </span>
+              )}
             </div>
+
+            {isAuction && auction && (
+              <Section title="Auction Info">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <DetailItem label="Status"
+                    value={auction.status === 'ACTIVE'   ? '🟢 Live' :
+                           auction.status === 'EXTENDED' ? '⚡ Extended' :
+                           auction.status === 'DRAFT'    ? '⏳ Pending Verification' :
+                           auction.status} />
+                  <DetailItem label="Duration" value={auction.duration?.replace(/_/g, ' ')} />
+                  {auction.endTime && (
+                    <DetailItem label="Ends"
+                      value={new Date(
+                        auction.endTime.endsWith('Z') ? auction.endTime : auction.endTime + 'Z'
+                      ).toLocaleDateString('en-IN',
+                        { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} />
+                  )}
+                  {auction.currentHighestBid > 0 && (
+                    <DetailItem label="Next Min Bid"
+                      value={`₹${Number(auction.currentHighestBid * 1.05)
+                        .toLocaleString('en-IN', { maximumFractionDigits: 0 })}`} />
+                  )}
+                </div>
+              </Section>
+            )}
 
             {isHighValue && !isOwner && d.domainStatus === 'AVAILABLE' && (
               <div style={{ padding: '0.875rem 1rem', background: 'rgba(160,110,200,0.08)',
@@ -652,19 +841,32 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
 
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem',
                           flexWrap: 'wrap', alignItems: 'center' }}>
-              {!isOwner && d.domainStatus === 'AVAILABLE' && (
-                isHighValue ? (
-                  <button
-                    onClick={onEnquire}
-                    style={{ padding: '0.5rem 1.25rem', borderRadius: 8, fontSize: '0.875rem',
-                             fontWeight: 600, cursor: 'pointer',
-                             background: 'rgba(200,169,110,0.12)',
-                             border: '1px solid rgba(200,169,110,0.35)', color: '#c8a96e' }}>
-                    Enquire Now →
-                  </button>
-                ) : (
-                  <button className="btn-primary" onClick={onBuy}>Buy Now →</button>
-                )
+              {!isOwner && (
+                isAuction ? (
+                  auctionLive ? (
+                    <button
+                      onClick={onViewAuction}
+                      style={{ padding: '0.5rem 1.25rem', borderRadius: 8,
+                               fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer',
+                               background: 'rgba(160,110,200,0.15)',
+                               border: '1px solid rgba(160,110,200,0.4)', color: '#a06ec8' }}>
+                      🔨 Go to Auction →
+                    </button>
+                  ) : null
+                ) : d.domainStatus === 'AVAILABLE' ? (
+                  isHighValue ? (
+                    <button
+                      onClick={onEnquire}
+                      style={{ padding: '0.5rem 1.25rem', borderRadius: 8,
+                               fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer',
+                               background: 'rgba(200,169,110,0.12)',
+                               border: '1px solid rgba(200,169,110,0.35)', color: '#c8a96e' }}>
+                      Enquire Now →
+                    </button>
+                  ) : (
+                    <button className="btn-primary" onClick={onBuy}>Buy Now →</button>
+                  )
+                ) : null
               )}
               <LikeButton liked={likeState?.liked} count={likeState?.count}
                           onToggle={onLike} size="md" />
@@ -677,7 +879,7 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
   );
 }
 
-// ─── Domain Enquiry Modal (inline — also exported as standalone) ───────────────
+// ─── Domain Enquiry Modal ─────────────────────────────────────────────────────
 function DomainEnquiryModal({ domain, user, onClose, onSuccess }) {
   const [form, setForm] = useState({
     fullName: `${user?.firstname || ''} ${user?.lastname || ''}`.trim(),
@@ -692,7 +894,13 @@ function DomainEnquiryModal({ domain, user, onClose, onSuccess }) {
     e.preventDefault();
     setLoading(true); setError('');
     try {
-      await domainEnquiryAPI.submit(domain.id, form);
+      // Correct signature: (domainId, { fullName, email, phone, message })
+      await domainEnquiryAPI.submit(domain.id, {
+        fullName: form.fullName,
+        email:    form.email,
+        phone:    form.phone,
+        message:  form.message,
+      });
       onSuccess();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit enquiry.');
@@ -761,7 +969,9 @@ function Section({ title, children }) {
     <div style={{ marginBottom: '1.25rem' }}>
       <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888',
                     textTransform: 'uppercase', letterSpacing: '0.06em',
-                    marginBottom: '0.6rem' }}>{title}</div>
+                    marginBottom: '0.6rem' }}>
+        {title}
+      </div>
       {children}
     </div>
   );

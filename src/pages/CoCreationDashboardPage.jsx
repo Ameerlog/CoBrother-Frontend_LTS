@@ -3,52 +3,46 @@ import { useNavigate } from 'react-router-dom';
 import { cocreationAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
 
-const PAYMENT_COLORS = {
-  COMPLETED: { color: '#6ec896' },
-  CREATED:   { color: '#c8a96e' },
-  FAILED:    { color: '#c86e6e' },
-};
-
 export default function CoCreationDashboardPage() {
-  const navigate = useNavigate();
-  const [tab, setTab]             = useState('listings');
-  const [listings, setListings]   = useState([]);
-  const [purchases, setPurchases] = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [confirmingId, setConfirmingId] = useState(null);
-  const [githubLink, setGithubLink]     = useState(null);
+  const navigate                        = useNavigate();
+  const [tab, setTab]                   = useState('listings');
+  const [listings, setListings]         = useState([]);   // Software[]  (with purchaseCount)
+  const [purchases, setPurchases]       = useState([]);   // SoftwarePurchase[]
+  const [loading, setLoading]           = useState(true);
+  const [confirmingId, setConfirmingId] = useState(null); // purchaseId being confirmed
+  const [githubModal, setGithubModal]   = useState(null); // { link, softwareName }
 
   const load = () => {
     setLoading(true);
-    Promise.all([cocreationAPI.getMyListings(), cocreationAPI.getMyPurchases()])
-      .then(([l, p]) => {
-        setListings(Array.isArray(l.data) ? l.data : (l.data?.data ?? []));
-        setPurchases(Array.isArray(p.data) ? p.data : (p.data?.data ?? []));
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      cocreationAPI.getMyListings(),
+      cocreationAPI.getMyPurchases(),
+    ]).then(([l, p]) => {
+      setListings(Array.isArray(l.data) ? l.data : (l.data?.data ?? []));
+      setPurchases(Array.isArray(p.data) ? p.data : (p.data?.data ?? []));
+    }).catch(() => {}).finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);
 
-  const handleConfirm = async (id) => {
-    setConfirmingId(id);
+  const handleConfirm = async (purchaseId, softwareName) => {
+    setConfirmingId(purchaseId);
     try {
-      const { data } = await cocreationAPI.confirmPurchase(id);
-      setGithubLink(data.githubLink);
-      load(); // refresh
+      const { data } = await cocreationAPI.confirmPurchase(purchaseId);
+      if (data.githubLink) {
+        setGithubModal({ link: data.githubLink, softwareName });
+      }
+      load();
     } catch (e) {
-      alert('Failed to confirm. Please try again.');
+      alert(e.response?.data?.error || 'Failed to confirm. Please try again.');
     } finally { setConfirmingId(null); }
   };
 
-  const totalRevenue = listings
-    .filter(s => s.paymentStatus === 'COMPLETED')
-    .reduce((sum, s) => sum + s.price, 0);
-
-  const totalSpent = purchases
-    .filter(s => s.paymentStatus === 'COMPLETED')
-    .reduce((sum, s) => sum + s.price, 0);
+  // Stats
+  const completedPurchases = purchases.filter(p => p.paymentStatus === 'COMPLETED');
+  const totalRevenue = listings.reduce((sum, s) => sum + (s.price * (s.purchaseCount || 0)), 0);
+  const totalSpent   = completedPurchases.reduce((sum, p) => sum + (p.software?.price || 0), 0);
+  const pendingConfirm = completedPurchases.filter(p => p.completionStatus === 'PENDING').length;
 
   return (
     <AppLayout>
@@ -64,22 +58,38 @@ export default function CoCreationDashboardPage() {
         </div>
 
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(155px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          <StatCard label="Total Listings"  value={listings.length}                                            icon="⟁" />
-          <StatCard label="Active"          value={listings.filter(s => s.softwareStatus === 'AVAILABLE').length} icon="✓" color="#6ec896" />
-          <StatCard label="Sold"            value={listings.filter(s => s.softwareStatus === 'SOLD').length}   icon="💰" color="#c8a96e" />
-          <StatCard label="Revenue"         value={`₹${Number(totalRevenue).toLocaleString('en-IN')}`}         icon="📈" color="#6ec896" />
-          <StatCard label="Purchased"       value={purchases.length}                                           icon="🛒" />
-          <StatCard label="Total Spent"     value={`₹${Number(totalSpent).toLocaleString('en-IN')}`}           icon="💳" color="#c86e6e" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(155px, 1fr))',
+                      gap: '1rem', marginBottom: '2rem' }}>
+          <StatCard label="Total Listings"   value={listings.length}                 icon="⟁" />
+          <StatCard label="Total Sales"      value={listings.reduce((s, x) => s + (x.purchaseCount || 0), 0)}
+                    icon="💰" color="#6ec896" />
+          <StatCard label="Revenue"          value={`₹${Number(totalRevenue).toLocaleString('en-IN')}`}
+                    icon="📈" color="#6ec896" />
+          <StatCard label="My Purchases"     value={completedPurchases.length}       icon="🛒" color="#c8a96e" />
+          <StatCard label="Total Spent"      value={`₹${Number(totalSpent).toLocaleString('en-IN')}`}
+                    icon="💳" color="#c86e6e" />
+          {pendingConfirm > 0 && (
+            <StatCard label="Awaiting Confirm" value={pendingConfirm}
+                      icon="⏳" color="#a06ec8" />
+          )}
         </div>
 
         {/* Tabs */}
         <div className="filter-tabs" style={{ marginBottom: '1.5rem' }}>
-          <button className={`filter-tab ${tab === 'listings'  ? 'active' : ''}`} onClick={() => setTab('listings')}>
+          <button className={`filter-tab ${tab === 'listings'  ? 'active' : ''}`}
+            onClick={() => setTab('listings')}>
             My Listings ({listings.length})
           </button>
-          <button className={`filter-tab ${tab === 'purchases' ? 'active' : ''}`} onClick={() => setTab('purchases')}>
-            My Purchases ({purchases.length})
+          <button className={`filter-tab ${tab === 'purchases' ? 'active' : ''}`}
+            onClick={() => setTab('purchases')}>
+            My Purchases ({completedPurchases.length})
+            {pendingConfirm > 0 && (
+              <span style={{ marginLeft: '0.4rem', background: '#a06ec8', color: '#fff',
+                             fontSize: '0.65rem', fontWeight: 700, padding: '0.1rem 0.4rem',
+                             borderRadius: 10 }}>
+                {pendingConfirm}
+              </span>
+            )}
           </button>
         </div>
 
@@ -90,29 +100,38 @@ export default function CoCreationDashboardPage() {
             <div className="empty-state">
               <div className="empty-icon">⟁</div>
               <h3>No listings yet</h3>
-              <button className="btn-primary" onClick={() => navigate('/cocreation')}>List Software</button>
+              <button className="btn-primary" onClick={() => navigate('/cocreation')}>
+                List Software
+              </button>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {listings.map(s => (
-                <SoftwareRow key={s.id} item={s} type="listing" onNavigate={() => navigate(`/cocreation/${s.id}/analytics`)} />
+                <ListingRow
+                  key={s.id}
+                  item={s}
+                  onAnalytics={() => navigate(`/cocreation/${s.id}/analytics`)}
+                />
               ))}
             </div>
           )
         ) : (
-          purchases.length === 0 ? (
+          completedPurchases.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">🛒</div>
               <h3>No purchases yet</h3>
-              <button className="btn-primary" onClick={() => navigate('/cocreation')}>Browse Software</button>
+              <button className="btn-primary" onClick={() => navigate('/cocreation')}>
+                Browse Software
+              </button>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {purchases.map(s => (
-                <SoftwareRow
-                  key={s.id} item={s} type="purchase"
-                  onConfirm={() => handleConfirm(s.id)}
-                  confirmingId={confirmingId}
+              {completedPurchases.map(p => (
+                <PurchaseRow
+                  key={p.id}
+                  purchase={p}
+                  onConfirm={() => handleConfirm(p.id, p.software?.name)}
+                  confirming={confirmingId === p.id}
                 />
               ))}
             </div>
@@ -121,31 +140,245 @@ export default function CoCreationDashboardPage() {
       </div>
 
       {/* GitHub link reveal modal */}
-      {githubLink && (
-        <div className="modal-overlay" onClick={() => setGithubLink(null)}>
+      {githubModal && (
+        <div className="modal-overlay" onClick={() => setGithubModal(null)}>
           <div className="modal-card" style={{ maxWidth: 440, textAlign: 'center' }}
                onClick={e => e.stopPropagation()}>
             <div className="modal-glow" />
             <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🔓</div>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', marginBottom: '0.5rem' }}>
-              GitHub Access Unlocked!
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', marginBottom: '0.5rem',
+                         color: '#e0e0f0' }}>
+              Purchase Confirmed!
             </h2>
             <p style={{ color: '#a0a0b0', marginBottom: '1.25rem' }}>
-              Your GitHub link has also been sent to your email.
+              Thanks for confirming <strong style={{ color: '#e0e0f0' }}>
+                {githubModal.softwareName}</strong>.
             </p>
             <div style={{ padding: '0.875rem', background: 'rgba(110,200,150,0.08)',
                           border: '1px solid rgba(110,200,150,0.2)', borderRadius: 8,
                           marginBottom: '1.25rem', wordBreak: 'break-all' }}>
-              <a href={githubLink} target="_blank" rel="noreferrer"
-                 style={{ color: '#6ec896', fontWeight: 600 }}>
-                {githubLink}
+              <div style={{ fontSize: '0.72rem', color: '#888', marginBottom: '0.4rem' }}>
+                🔗 GitHub Repository
+              </div>
+              <a href={githubModal.link} target="_blank" rel="noreferrer"
+                 style={{ color: '#6ec896', fontWeight: 600, fontSize: '0.875rem' }}>
+                {githubModal.link}
               </a>
             </div>
-            <button className="btn-primary" onClick={() => setGithubLink(null)} style={{ width: '100%' }}>Done</button>
+            <button className="btn-primary" onClick={() => setGithubModal(null)}
+              style={{ width: '100%' }}>
+              Done
+            </button>
           </div>
         </div>
       )}
     </AppLayout>
+  );
+}
+
+// ─── Listing Row (seller view) ────────────────────────────────────────────────
+function ListingRow({ item, onAnalytics }) {
+  const [expanded, setExpanded] = useState(false);
+  const sales = item.purchaseCount || 0;
+
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 10, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem',
+                    padding: '1rem 1.25rem', cursor: 'pointer' }}
+           onClick={() => setExpanded(v => !v)}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 600, color: '#e0e0f0', fontSize: '0.95rem' }}>
+            {item.name}
+            {item.official && (
+              <span style={{ marginLeft: '0.5rem', fontSize: '0.68rem', color: '#c8a96e',
+                             background: 'rgba(200,169,110,0.12)',
+                             border: '1px solid rgba(200,169,110,0.3)',
+                             padding: '0.1rem 0.4rem', borderRadius: 4, fontWeight: 700 }}>
+                ✦ Official
+              </span>
+            )}
+          </div>
+          <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+            {item.category?.replace(/_/g, ' ')} · {item.pricingDemand}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexShrink: 0 }}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
+                          fontWeight: 700, color: '#c8a96e' }}>
+              ₹{Number(item.price).toLocaleString('en-IN')}
+            </div>
+            <div style={{ fontSize: '0.72rem', color: '#888' }}>per sale</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem',
+                          fontWeight: 700, color: '#6ec896' }}>
+              {sales}
+            </div>
+            <div style={{ fontSize: '0.68rem', color: '#888' }}>
+              {sales === 1 ? 'buyer' : 'buyers'}
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
+                          fontWeight: 700, color: '#6ec896' }}>
+              ₹{Number(item.price * sales).toLocaleString('en-IN')}
+            </div>
+            <div style={{ fontSize: '0.72rem', color: '#888' }}>revenue</div>
+          </div>
+          <span style={{ color: '#666', fontSize: '0.85rem' }}>{expanded ? '▲' : '▼'}</span>
+        </div>
+      </div>
+
+      {expanded && (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)',
+                      padding: '0.875rem 1.25rem',
+                      display: 'flex', gap: '0.75rem', flexWrap: 'wrap',
+                      alignItems: 'center' }}>
+          <button className="btn-ghost btn-sm" onClick={onAnalytics}
+            style={{ fontSize: '0.78rem' }}>
+            📊 Analytics
+          </button>
+          <span style={{ fontSize: '0.78rem', color: '#888' }}>
+            👁 {item.views || 0} views · ✦ {sales} paid
+            {sales > 0 && ` · Revenue: ₹${Number(item.price * sales).toLocaleString('en-IN')}`}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Purchase Row (buyer view) ────────────────────────────────────────────────
+function PurchaseRow({ purchase, onConfirm, confirming }) {
+  const [expanded, setExpanded] = useState(false);
+  const sw           = purchase.software || {};
+  const isConfirmed  = purchase.completionStatus === 'CONFIRMED';
+  const isPending    = purchase.completionStatus === 'PENDING' &&
+                       purchase.paymentStatus === 'COMPLETED';
+  const helpPaid     = purchase.coBrotherHelpPaid;
+
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.03)',
+      border: `1px solid ${isConfirmed
+        ? 'rgba(110,200,150,0.2)'
+        : isPending
+        ? 'rgba(160,110,200,0.2)'
+        : 'rgba(255,255,255,0.08)'}`,
+      borderRadius: 10, overflow: 'hidden',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem',
+                    padding: '1rem 1.25rem', cursor: 'pointer' }}
+           onClick={() => setExpanded(v => !v)}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 600, color: '#e0e0f0', fontSize: '0.95rem',
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        flexWrap: 'wrap' }}>
+            {sw.name || '—'}
+            {isConfirmed && (
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#6ec896',
+                             background: 'rgba(110,200,150,0.1)',
+                             border: '1px solid rgba(110,200,150,0.3)',
+                             padding: '0.1rem 0.4rem', borderRadius: 4 }}>
+                ✓ Confirmed
+              </span>
+            )}
+            {isPending && (
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#a06ec8',
+                             background: 'rgba(160,110,200,0.1)',
+                             border: '1px solid rgba(160,110,200,0.3)',
+                             padding: '0.1rem 0.4rem', borderRadius: 4 }}>
+                ⏳ Awaiting Confirmation
+              </span>
+            )}
+            {helpPaid && (
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#6ec896',
+                             background: 'rgba(110,200,150,0.1)',
+                             border: '1px solid rgba(110,200,150,0.3)',
+                             padding: '0.1rem 0.4rem', borderRadius: 4 }}>
+                ◆ CoBrother Active
+              </span>
+            )}
+          </div>
+          <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+            {sw.category?.replace(/_/g, ' ')} · Purchased{' '}
+            {purchase.soldAt
+              ? new Date(purchase.soldAt).toLocaleDateString('en-IN',
+                  { day: 'numeric', month: 'short', year: 'numeric' })
+              : ''}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
+                          fontWeight: 700, color: '#a06ec8' }}>
+              ₹{Number(sw.price || 0).toLocaleString('en-IN')}
+            </div>
+            {purchase.coBrotherOptIn && !helpPaid && (
+              <div style={{ fontSize: '0.68rem', color: '#888' }}>+ ₹1,000 pending</div>
+            )}
+            {helpPaid && (
+              <div style={{ fontSize: '0.68rem', color: '#888' }}>+ ₹1,000 CoBrother</div>
+            )}
+          </div>
+          <span style={{ color: '#666', fontSize: '0.85rem' }}>{expanded ? '▲' : '▼'}</span>
+        </div>
+      </div>
+
+      {expanded && (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)',
+                      padding: '1rem 1.25rem' }}>
+
+          {/* GitHub access */}
+          {sw.githubLink && (
+            <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.04)',
+                          border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8,
+                          marginBottom: '0.875rem',
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.82rem', color: '#c0c0d0' }}>🔗 GitHub Repository</span>
+              <a href={sw.githubLink} target="_blank" rel="noreferrer"
+                 style={{ fontSize: '0.8rem', color: '#6ec896', fontWeight: 600,
+                          textDecoration: 'none' }}>
+                Open →
+              </a>
+            </div>
+          )}
+
+          {/* CoBrother status */}
+          {helpPaid ? (
+            <div style={{ padding: '0.75rem 1rem', background: 'rgba(110,200,150,0.07)',
+                          border: '1px solid rgba(110,200,150,0.2)', borderRadius: 8,
+                          marginBottom: '0.875rem', fontSize: '0.82rem', color: '#6ec896' }}>
+              ◆ CoBrother assigned — check your email for introduction details.
+            </div>
+          ) : null}
+
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {isPending && (
+              <button
+                className="btn-primary btn-sm"
+                onClick={onConfirm}
+                disabled={confirming}
+                style={{ fontSize: '0.78rem' }}>
+                {confirming ? <span className="btn-spinner" /> : '✓ Mark as Complete'}
+              </button>
+            )}
+            {isConfirmed && (
+              <span style={{ fontSize: '0.78rem', color: '#6ec896', fontWeight: 600,
+                             alignSelf: 'center' }}>
+                ✓ Purchase confirmed
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -154,77 +387,11 @@ function StatCard({ label, value, icon, color = '#e0e0f0' }) {
     <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)',
                   border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
       <div style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{icon}</div>
-      <div style={{ fontSize: '1.4rem', fontWeight: 700, color, fontFamily: 'Cormorant Garamond, serif' }}>{value}</div>
+      <div style={{ fontSize: '1.4rem', fontWeight: 700, color,
+                    fontFamily: 'Cormorant Garamond, serif' }}>
+        {value}
+      </div>
       <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.2rem' }}>{label}</div>
-    </div>
-  );
-}
-
-function SoftwareRow({ item, type, onConfirm, confirmingId, onNavigate }) {
-  const p = item.paymentStatus ? PAYMENT_COLORS[item.paymentStatus] : null;
-  const isConfirmed = item.completionStatus === 'CONFIRMED';
-  const isPending   = item.completionStatus === 'PENDING' && item.paymentStatus === 'COMPLETED';
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10,
-                  flexWrap: 'wrap', gap: '0.5rem' }}>
-      <div>
-        <div style={{ fontWeight: 600, fontSize: '1rem', color: '#e0e0f0' }}>{item.name}</div>
-        <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
-          {item.category?.replace(/_/g, ' ')} · {item.pricingDemand}
-          {item.techStack && ` · ${item.techStack.split(',').slice(0,2).join(', ')}`}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#c8a96e' }}>
-          ₹{Number(item.price).toLocaleString('en-IN')}
-        </span>
-
-        <span style={{ fontSize: '0.72rem', fontWeight: 600,
-                       color: item.softwareStatus === 'SOLD' ? '#c86e6e' : '#6ec896' }}>
-          {item.softwareStatus}
-        </span>
-
-        {p && (
-          <span style={{ fontSize: '0.72rem', color: p.color, fontWeight: 600 }}>
-            {item.paymentStatus === 'COMPLETED' && '✓ Paid'}
-            {item.paymentStatus === 'CREATED'   && '⏳ Pending'}
-            {item.paymentStatus === 'FAILED'    && '✕ Failed'}
-          </span>
-        )}
-
-        {type === 'listing' && (
-          <button className="btn-ghost btn-sm" onClick={onNavigate} style={{ fontSize: '0.75rem' }}>
-            📊 Analytics
-          </button>
-        )}
-
-        {type === 'purchase' && isPending && (
-          <button className="btn-primary btn-sm"
-            onClick={onConfirm}
-            disabled={confirmingId === item.id}
-            style={{ fontSize: '0.75rem' }}>
-            {confirmingId === item.id ? <span className="btn-spinner" /> : '✓ Mark as Complete'}
-          </button>
-        )}
-
-        {type === 'purchase' && isConfirmed && item.githubLink && (
-          <a href={item.githubLink} target="_blank" rel="noreferrer"
-             style={{ fontSize: '0.75rem', color: '#6ec896', fontWeight: 600,
-                      padding: '0.25rem 0.6rem', borderRadius: 6,
-                      background: 'rgba(110,200,150,0.1)', border: '1px solid rgba(110,200,150,0.2)',
-                      textDecoration: 'none' }}>
-            🔓 View GitHub
-          </a>
-        )}
-
-        {type === 'purchase' && isConfirmed && !item.githubLink && (
-          <span style={{ fontSize: '0.72rem', color: '#6ec896' }}>✓ Completed</span>
-        )}
-      </div>
     </div>
   );
 }

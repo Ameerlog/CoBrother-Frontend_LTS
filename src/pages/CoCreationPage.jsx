@@ -40,7 +40,6 @@ export default function CoCreationPage() {
 
   const { toggle: toggleLike, get: getLike } = useLikes('SOFTWARE', allSoftware);
 
-  // ── Filter / sort / paginate ───────────────────────────────────────────────
   const {
     paginated, totalCount,
     search, category, minPrice, maxPrice, sortBy,
@@ -74,9 +73,7 @@ export default function CoCreationPage() {
       setAllSoftware(s => s.filter(x => x.id !== deleteTarget));
     } catch (e) {
       alert(e.response?.data?.error || 'Failed to remove listing.');
-    } finally {
-      setDeleteTarget(null);
-    }
+    } finally { setDeleteTarget(null); }
   };
 
   const refreshSoftware = () =>
@@ -103,7 +100,6 @@ export default function CoCreationPage() {
           </div>
         </div>
 
-        {/* ── Tabs ── */}
         <div className="filter-tabs">
           <button className={`filter-tab ${filterTab === 'all'  ? 'active' : ''}`}
             onClick={() => setFilterTab('all')}>All Software</button>
@@ -111,7 +107,6 @@ export default function CoCreationPage() {
             onClick={() => setFilterTab('mine')}>My Listings</button>
         </div>
 
-        {/* ── List form (admin only) ── */}
         {showForm && user?.role === 'ADMIN' && (
           <div className="community-form-section">
             <SoftwareForm
@@ -121,7 +116,6 @@ export default function CoCreationPage() {
           </div>
         )}
 
-        {/* ── Filter bar ── */}
         <FilterBar
           search={search}           onSearch={handleSearch}
           category={category}       onCategory={handleCategory}
@@ -133,14 +127,12 @@ export default function CoCreationPage() {
           placeholder="Search software by name, description or tech stack…"
         />
 
-        {/* ── Result count ── */}
         {!loading && allSoftware.length > 0 && (
           <div style={{ fontSize: '0.78rem', color: '#666', marginBottom: '1rem' }}>
             {totalCount} software listing{totalCount !== 1 ? 's' : ''} found
           </div>
         )}
 
-        {/* ── Content ── */}
         {loading ? (
           <div className="ventures-grid">
             {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
@@ -186,7 +178,6 @@ export default function CoCreationPage() {
         )}
       </div>
 
-      {/* ── Modals ── */}
       {buyTarget && (
         <BuySoftwareModal
           item={buyTarget}
@@ -201,10 +192,7 @@ export default function CoCreationPage() {
       )}
 
       {successItem && (
-        <PurchaseSuccessModal
-          item={successItem}
-          onClose={() => setSuccessItem(null)}
-        />
+        <PurchaseSuccessModal item={successItem} onClose={() => setSuccessItem(null)} />
       )}
 
       {detailTarget && (
@@ -445,28 +433,37 @@ function SoftwareForm({ onSaved, onCancel }) {
   );
 }
 
-// ─── Buy Software Modal ───────────────────────────────────────────────────────
+// ─── Buy Software Modal ── UPGRADED with CoBrother opt-in + billing breakdown ─
 function BuySoftwareModal({ item, user, onClose, onSuccess }) {
   const [form, setForm] = useState({
     buyerFullName: `${user?.firstname || ''} ${user?.lastname || ''}`.trim(),
     buyerEmail:    user?.email || '',
     buyerPhone:    user?.phoneNumber || '',
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [coBrotherOptIn, setCoBrotherOptIn] = useState(false);
+  const [loading, setLoading]               = useState(false);
+  const [error, setError]                   = useState('');
+
+  const basePrice    = item.price;
+  const coBrotherFee = coBrotherOptIn ? 1000 : 0;
+  const totalPrice   = basePrice + coBrotherFee;
 
   const handlePay = async () => {
     setLoading(true); setError('');
     try {
-      const { data: orderData } = await cocreationAPI.createOrder(item.id, form);
+      // Pass both buyer info AND coBrotherOptIn to backend
+      const { data: orderData } = await cocreationAPI.createOrder(item.id, {
+        ...form,
+        coBrotherOptIn,
+      });
 
       const options = {
-        key: orderData.keyId,
-        amount: orderData.amount * 100,
-        currency: orderData.currency,
-        name: 'CoBrother',
-        description: `Purchase ${item.name}`,
-        order_id: orderData.orderId,
+        key:         orderData.keyId,
+        amount:      orderData.amount * 100,
+        currency:    orderData.currency,
+        name:        'CoBrother',
+        description: `${item.name}${coBrotherOptIn ? ' + CoBrother Help' : ''}`,
+        order_id:    orderData.orderId,
         handler: async response => {
           try {
             const { data: verifyData } = await cocreationAPI.verifyPayment(item.id, {
@@ -476,10 +473,12 @@ function BuySoftwareModal({ item, user, onClose, onSuccess }) {
             });
             onSuccess({
               ...item,
-              softwareStatus: 'SOLD',
-              paymentStatus:  'COMPLETED',
+              softwareStatus:   'SOLD',
+              paymentStatus:    'COMPLETED',
               completionStatus: 'PENDING',
-              githubLink: verifyData.githubLink,
+              githubLink:       verifyData.githubLink,
+              coBrotherOptIn,
+              coBrotherHelpPaid: coBrotherOptIn,
             });
           } catch {
             setError('Payment verification failed. Contact support.');
@@ -490,10 +489,10 @@ function BuySoftwareModal({ item, user, onClose, onSuccess }) {
           ondismiss: async () => {
             await cocreationAPI.handleFailure(item.id);
             setLoading(false);
-          }
+          },
         },
         prefill: { name: form.buyerFullName, email: form.buyerEmail, contact: form.buyerPhone },
-        theme: { color: '#c8a96e' },
+        theme: { color: '#a06ec8' },
       };
 
       const rzp = new window.Razorpay(options);
@@ -504,14 +503,14 @@ function BuySoftwareModal({ item, user, onClose, onSuccess }) {
       });
       rzp.open();
     } catch (err) {
-      setError(err.response?.data || 'Failed to initiate payment.');
+      setError(err.response?.data?.error || err.response?.data || 'Failed to initiate payment.');
       setLoading(false);
     }
   };
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card" style={{ maxWidth: 500 }}>
+      <div className="modal-card" style={{ maxWidth: 520 }}>
         <div className="modal-glow" />
         <button className="modal-close" onClick={onClose}>✕</button>
 
@@ -521,17 +520,7 @@ function BuySoftwareModal({ item, user, onClose, onSuccess }) {
           <p>{item.category?.replace(/_/g, ' ')} · {item.pricingDemand}</p>
         </div>
 
-        <div style={{ margin: '1.25rem 0', padding: '1rem', background: 'rgba(110,200,150,0.08)',
-                      border: '1px solid rgba(110,200,150,0.2)', borderRadius: 10 }}>
-          <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.3rem' }}>
-            Purchase Price
-          </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#6ec896',
-                        fontFamily: 'Cormorant Garamond, serif' }}>
-            ₹{Number(item.price).toLocaleString('en-IN')}
-          </div>
-        </div>
-
+        {/* Buyer details */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem',
                       marginBottom: '1.25rem' }}>
           <div className="form-group" style={{ margin: 0 }}>
@@ -559,10 +548,76 @@ function BuySoftwareModal({ item, user, onClose, onSuccess }) {
           </div>
         </div>
 
+        {/* ── CoBrother opt-in card ── */}
+        <div
+          onClick={() => setCoBrotherOptIn(v => !v)}
+          style={{
+            marginBottom: '1.25rem', padding: '1rem 1.25rem', borderRadius: 12,
+            cursor: 'pointer',
+            background: coBrotherOptIn ? 'rgba(160,110,200,0.1)' : 'rgba(255,255,255,0.03)',
+            border: `1px solid ${coBrotherOptIn
+              ? 'rgba(160,110,200,0.45)' : 'rgba(255,255,255,0.1)'}`,
+            transition: 'all 0.2s',
+          }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
+            {/* Custom checkbox */}
+            <div style={{
+              width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 2,
+              background: coBrotherOptIn ? '#a06ec8' : 'rgba(255,255,255,0.08)',
+              border: `2px solid ${coBrotherOptIn ? '#a06ec8' : 'rgba(255,255,255,0.2)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.15s',
+            }}>
+              {coBrotherOptIn && (
+                <span style={{ color: '#fff', fontSize: '0.7rem', fontWeight: 700 }}>✓</span>
+              )}
+            </div>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.25rem',
+                            color: coBrotherOptIn ? '#c8a0f8' : '#c0c0d0' }}>
+                ◆ Add CoBrother Helper{' '}
+                <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem',
+                               color: coBrotherOptIn ? '#c8a0f8' : '#888' }}>
+                  +₹1,000
+                </span>
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#888', lineHeight: 1.5 }}>
+                Get a dedicated CoBrother to help you set up, deploy, and get the most out of
+                this software. They'll reach out within 24 hours.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Billing breakdown ── */}
+        <div style={{ background: 'rgba(255,255,255,0.03)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 10, padding: '1rem', marginBottom: '1.25rem' }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888',
+                        textTransform: 'uppercase', letterSpacing: '0.06em',
+                        marginBottom: '0.75rem' }}>
+            Billing Breakdown
+          </div>
+          <BillingLine label={item.name}
+                       value={`₹${Number(basePrice).toLocaleString('en-IN')}`} />
+          {coBrotherOptIn && (
+            <BillingLine label="◆ CoBrother Helper" value="₹1,000" accent />
+          )}
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '0.625rem 0' }} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 600, color: '#e0e0f0', fontSize: '0.9rem' }}>Total</span>
+            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem',
+                           fontWeight: 700, color: '#6ec896' }}>
+              ₹{Number(totalPrice).toLocaleString('en-IN')}
+            </span>
+          </div>
+        </div>
+
         <div style={{ padding: '0.875rem 1rem', background: 'rgba(200,169,110,0.08)',
                       border: '1px solid rgba(200,169,110,0.2)', borderRadius: 8,
                       marginBottom: '1.25rem', fontSize: '0.875rem', color: '#c8a96e' }}>
           🔒 GitHub link will be shared after you confirm everything works.
+          {coBrotherOptIn && ' Your CoBrother will reach out within 24 hours.'}
         </div>
 
         {error && <div className="form-error" style={{ marginBottom: '1rem' }}>{error}</div>}
@@ -570,11 +625,22 @@ function BuySoftwareModal({ item, user, onClose, onSuccess }) {
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button className="btn-primary" onClick={handlePay} disabled={loading} style={{ flex: 1 }}>
             {loading ? <span className="btn-spinner" /> :
-              `Pay ₹${Number(item.price).toLocaleString('en-IN')} →`}
+              `Pay ₹${Number(totalPrice).toLocaleString('en-IN')} →`}
           </button>
           <button className="btn-ghost" onClick={onClose}>Cancel</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Billing line helper
+function BillingLine({ label, value, accent }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between',
+                  alignItems: 'center', padding: '0.3rem 0', fontSize: '0.84rem' }}>
+      <span style={{ color: accent ? '#a06ec8' : '#888' }}>{label}</span>
+      <span style={{ color: accent ? '#c8a0f8' : '#c0c0d0', fontWeight: 500 }}>{value}</span>
     </div>
   );
 }
@@ -606,6 +672,15 @@ function PurchaseSuccessModal({ item, onClose }) {
                         fontSize: '0.875rem' }}>
               {item.githubLink}
             </a>
+          </div>
+        )}
+
+        {item.coBrotherOptIn && (
+          <div style={{ padding: '0.875rem 1rem', background: 'rgba(160,110,200,0.08)',
+                        border: '1px solid rgba(160,110,200,0.2)', borderRadius: 10,
+                        marginBottom: '1.25rem', textAlign: 'left',
+                        fontSize: '0.85rem', color: '#a06ec8' }}>
+            ◆ CoBrother Helper activated — expect an introduction within 24 hours.
           </div>
         )}
 
@@ -789,7 +864,9 @@ function Section({ title, children }) {
     <div style={{ marginBottom: '1.25rem' }}>
       <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888',
                     textTransform: 'uppercase', letterSpacing: '0.06em',
-                    marginBottom: '0.6rem' }}>{title}</div>
+                    marginBottom: '0.6rem' }}>
+        {title}
+      </div>
       {children}
     </div>
   );

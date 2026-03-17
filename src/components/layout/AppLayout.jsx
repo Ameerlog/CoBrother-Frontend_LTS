@@ -39,6 +39,8 @@ export default function AppLayout({ children }) {
     { to: '/domains',    label: 'Domains',   icon: '◇' },
     { to: '/cocreation',  label: 'CoCreation',  icon: '⟁' },
     { to: '/community', label: 'Community', icon: '◉' },
+    { to: '/auctions',  label: 'Auctions',  icon: '🔨' },
+    { to: '/purchases', label: 'Purchases', icon: '🛒' },
   ];
 
   // Add after existing navLinks:

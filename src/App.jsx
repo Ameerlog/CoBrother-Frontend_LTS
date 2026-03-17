@@ -24,6 +24,9 @@ import AdminDashboardPage    from './pages/AdminDashboardPage';
 import CoBrotherDashboardPage from './pages/CoBrotherDashboardPage';
 import FeeRequestsPage       from './pages/FeeRequestsPage';
 import { AdminGuard, CoBrotherGuard } from './components/auth/ProtectedRoute';
+import AuctionPage from './pages/AuctionPage';
+import PurchasesPage from './pages/PurchasesPage';
+import AuctionsPage from './pages/AuctionsPage';
 
 
 export default function App() {
@@ -37,6 +40,8 @@ export default function App() {
           {/* OAuth callback — path MUST match app.oauth2.redirect-uri in application.properties */}
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />
 
+
+          <Route path="/auction/:auctionId" element={<ProfileGuard><AuctionPage /></ProfileGuard>} />
           {/* Authenticated but profile may be incomplete */}
           <Route
             path="/complete-profile"
@@ -59,6 +64,9 @@ export default function App() {
           <Route path="/admin"      element={<AdminGuard><AdminDashboardPage /></AdminGuard>} />
           <Route path="/cobrother"  element={<CoBrotherGuard><CoBrotherDashboardPage /></CoBrotherGuard>} />
           <Route path="/fee-requests" element={<ProtectedRoute><FeeRequestsPage /></ProtectedRoute>} />
+          <Route path="/auctions"  element={<ProfileGuard><AuctionsPage  /></ProfileGuard>} />
+          <Route path="/purchases" element={<ProfileGuard><PurchasesPage /></ProfileGuard>} />
+
 
           {/* Authenticated + profile complete required */}
           <Route
