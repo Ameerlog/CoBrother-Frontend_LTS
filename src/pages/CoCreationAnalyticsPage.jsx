@@ -29,13 +29,13 @@ export default function CoCreationAnalyticsPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div className="ventures-page cocreation-analytics-page">
+        <div className="page-header cocreation-analytics-header">
           <div>
             <h1>{data.softwareName}</h1>
             <p>Analytics overview for this software listing.</p>
           </div>
-          <button className="btn-secondary" onClick={() => navigate('/cocreation/dashboard')}>
+          <button className="btn-secondary cocreation-btn" onClick={() => navigate('/cocreation/dashboard')}>
             ← Dashboard
           </button>
         </div>

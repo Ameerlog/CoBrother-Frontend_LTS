@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Plus, Gavel, ShoppingCart, MessageSquare, Trash2, CheckCircle } from 'lucide-react';
 import { domainAPI, domainEnquiryAPI, auctionAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../components/layout/AppLayout';
@@ -79,18 +80,18 @@ export default function DomainsPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div className="ventures-page domains-page domains-main-page">
+        <div className="page-header domains-header">
           <div>
             <h1>Domains</h1>
             <p>Buy and sell premium domain names.</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button className="btn-secondary" onClick={() => navigate('/domains/dashboard')}>
-              📊 Dashboard
+          <div className="domains-header-actions">
+            <button className="btn-secondary domains-btn" onClick={() => navigate('/domains/dashboard')}>
+              <LayoutDashboard size={16} /> Dashboard
             </button>
-            <button className="btn-primary" onClick={() => setShowForm(true)}>
-              + List Domain
+            <button className="btn-primary domains-btn-primary" onClick={() => setShowForm(true)}>
+              <Plus size={16} /> List Domain
             </button>
           </div>
         </div>
@@ -120,10 +121,11 @@ export default function DomainsPage() {
           sortBy={sortBy}           onSort={handleSort}
           onClear={clearAll}        activeFilterCount={activeFilterCount}
           placeholder="Search domains by name or extension…"
+          theme="light"
         />
 
         {!loading && allDomains.length > 0 && (
-          <div style={{ fontSize: '0.78rem', color: '#666', marginBottom: '1rem' }}>
+          <div className="domains-result-count">
             {totalCount} domain{totalCount !== 1 ? 's' : ''} found
           </div>
         )}
@@ -146,8 +148,8 @@ export default function DomainsPage() {
                 : 'Be the first to list a domain for sale.'}
             </p>
             {activeFilterCount > 0
-              ? <button className="btn-secondary" onClick={clearAll}>Clear Filters</button>
-              : <button className="btn-primary" onClick={() => setShowForm(true)}>
+              ? <button className="btn-secondary domains-btn" onClick={clearAll}>Clear Filters</button>
+              : <button className="btn-primary domains-btn-primary" onClick={() => setShowForm(true)}>
                   List a Domain
                 </button>
             }
@@ -219,12 +221,11 @@ export default function DomainsPage() {
 
       {enquireSuccess && (
         <div className="modal-overlay" onClick={() => setEnquireSuccess(false)}>
-          <div className="modal-card" style={{ maxWidth: 420, textAlign: 'center' }}>
+          <div className="modal-card domains-light-modal" style={{ maxWidth: 420, textAlign: 'center' }}>
             <div className="modal-glow" />
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
-                         marginBottom: '0.5rem' }}>Enquiry Submitted!</h2>
-            <p style={{ color: '#a0a0b0', marginBottom: '1.5rem' }}>
+            <div className="domain-success-icon"><CheckCircle size={46} /></div>
+            <h2 className="domain-success-title">Enquiry Submitted!</h2>
+            <p className="domain-success-text">
               Our team will review your request and get back to you shortly.
             </p>
             <button className="btn-primary" onClick={() => setEnquireSuccess(false)}
@@ -254,121 +255,123 @@ function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onViewAuction,
   const isHighValue = !isAuction && domain.askingPrice >= 500000;
   const auction     = domain.auction;
   const auctionLive = auction?.status === 'ACTIVE' || auction?.status === 'EXTENDED';
+  const domainInitials = (domain.domainName || '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .slice(0, 2)
+    .toUpperCase() || '?';
 
   return (
-    <div className="venture-card" onClick={onView} style={{ cursor: 'pointer' }}>
-      <div className="venture-card-top">
-        <div className="venture-logo-placeholder"
-             style={{ fontSize: '1.1rem', fontWeight: 700,
-                      color: isAuction ? '#a06ec8' : '#c8a96e' }}>
-          {domain.domainExtension || '.?'}
-        </div>
-        <div className="venture-card-meta">
-          <h3 className="venture-name">{domain.domainName}{domain.domainExtension}</h3>
-          <span className="venture-type">{domain.pricingDemand}</span>
-        </div>
-        {isOwner && <div className="owner-badge">Owner</div>}
-        {domain.takenDown && (
-          <div style={{ padding: '0.2rem 0.5rem', background: 'rgba(200,110,110,0.15)',
-                        border: '1px solid rgba(200,110,110,0.3)', borderRadius: 4,
-                        fontSize: '0.68rem', fontWeight: 700, color: '#c86e6e' }}>
-            ⚠ Taken Down
+    <div className="venture-card venture-card-pro domain-card-pro" onClick={onView} style={{ cursor: 'pointer' }}>
+      <div className="venture-card-left">
+        <div className="venture-card-top">
+          <div className="venture-logo-placeholder"
+               style={{ fontSize: '1.1rem', fontWeight: 700,
+                        color: isAuction ? '#a06ec8' : '#c8a96e' }}>
+            {domainInitials}
           </div>
-        )}
-      </div>
-
-      {/* Badges */}
-      <div style={{ margin: '0.5rem 0 0.5rem', display: 'flex',
-                    alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-        {!isAuction && (
-          <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.75rem',
-                         fontWeight: 600, color: s.color, background: s.bg,
-                         border: `1px solid ${s.border}` }}>
-            {domain.domainStatus}
-          </span>
-        )}
-        {domain.verified && (
-          <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.72rem',
-                         fontWeight: 700, color: '#6ec896', background: 'rgba(110,200,150,0.1)',
-                         border: '1px solid rgba(110,200,150,0.3)' }}>
-            ✓ Verified
-          </span>
-        )}
-        {isHighValue && domain.domainStatus === 'AVAILABLE' && (
-          <span style={{ padding: '0.2rem 0.5rem', borderRadius: 4, fontSize: '0.68rem',
-                         fontWeight: 700, color: '#a06ec8',
-                         background: 'rgba(160,110,200,0.1)',
-                         border: '1px solid rgba(160,110,200,0.25)' }}>
-            Premium
-          </span>
-        )}
-        {isAuction && (
-          <>
+          <div className="venture-card-meta">
+            <h3 className="venture-name">{domain.domainName}{domain.domainExtension}</h3>
+            <span className="venture-type">{domain.pricingDemand}</span>
+          </div>
+          {isOwner && <div className="owner-badge">Owner</div>}
+          {domain.takenDown && (
+            <div style={{ padding: '0.2rem 0.5rem', background: 'rgba(200,110,110,0.15)',
+                          border: '1px solid rgba(200,110,110,0.3)', borderRadius: 4,
+                          fontSize: '0.68rem', fontWeight: 700, color: '#c86e6e' }}>
+              ⚠ Taken Down
+            </div>
+          )}
+        </div>
+        <div style={{ margin: '0.5rem 0 0.5rem', display: 'flex',
+                      alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+          {!isAuction && (
+            <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.75rem',
+                           fontWeight: 600, color: s.color, background: s.bg,
+                           border: `1px solid ${s.border}` }}>
+              {domain.domainStatus}
+            </span>
+          )}
+          {domain.verified && (
+            <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.72rem',
+                           fontWeight: 700, color: '#6ec896', background: 'rgba(110,200,150,0.1)',
+                           border: '1px solid rgba(110,200,150,0.3)' }}>
+              ✓ Verified
+            </span>
+          )}
+          {isHighValue && domain.domainStatus === 'AVAILABLE' && (
             <span style={{ padding: '0.2rem 0.5rem', borderRadius: 4, fontSize: '0.68rem',
                            fontWeight: 700, color: '#a06ec8',
                            background: 'rgba(160,110,200,0.1)',
                            border: '1px solid rgba(160,110,200,0.25)' }}>
-              🔨 Auction
+              Premium
             </span>
-            {auction?.status === 'ACTIVE'   && <span style={{ fontSize: '0.68rem', color: '#6ec896', fontWeight: 700 }}>🟢 Live</span>}
-            {auction?.status === 'EXTENDED' && <span style={{ fontSize: '0.68rem', color: '#c8a96e', fontWeight: 700 }}>⚡ Extended</span>}
-            {auction?.status === 'DRAFT'    && <span style={{ fontSize: '0.68rem', color: '#888' }}>⏳ Draft</span>}
-          </>
-        )}
-      </div>
-
-      {/* Price / bid */}
-      {isAuction && auction ? (
-        <div style={{ marginBottom: '0.5rem' }}>
-          {auction.currentHighestBid > 0 ? (
+          )}
+          {isAuction && (
             <>
-              <div style={{ fontSize: '0.65rem', color: '#888' }}>Highest Bid</div>
-              <div className="venture-deal" style={{ color: '#6ec896' }}>
-                ₹{Number(auction.currentHighestBid).toLocaleString('en-IN')}
-              </div>
-              <div style={{ fontSize: '0.72rem', color: '#888' }}>
-                {auction.totalBids} bid{auction.totalBids !== 1 ? 's' : ''}
-              </div>
-            </>
-          ) : (
-            <>
-              <div style={{ fontSize: '0.65rem', color: '#888' }}>Starting Bid</div>
-              <div className="venture-deal">
-                ₹{Number(auction.minBidPrice).toLocaleString('en-IN')}
-              </div>
-              <div style={{ fontSize: '0.72rem', color: '#6ec896' }}>No bids yet</div>
+              <span style={{ padding: '0.2rem 0.5rem', borderRadius: 4, fontSize: '0.68rem',
+                             fontWeight: 700, color: '#a06ec8',
+                             background: 'rgba(160,110,200,0.1)',
+                             border: '1px solid rgba(160,110,200,0.25)' }}>
+                🔨 Auction
+              </span>
+              {auction?.status === 'ACTIVE'   && <span style={{ fontSize: '0.68rem', color: '#6ec896', fontWeight: 700 }}>🟢 Live</span>}
+              {auction?.status === 'EXTENDED' && <span style={{ fontSize: '0.68rem', color: '#c8a96e', fontWeight: 700 }}>⚡ Extended</span>}
+              {auction?.status === 'DRAFT'    && <span style={{ fontSize: '0.68rem', color: '#888' }}>⏳ Draft</span>}
             </>
           )}
         </div>
-      ) : (
-        <div className="venture-deal">
-          ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
-        </div>
-      )}
+        {isAuction && auction ? (
+          <div style={{ marginBottom: '0.5rem' }}>
+            {auction.currentHighestBid > 0 ? (
+              <>
+                <div style={{ fontSize: '0.65rem', color: '#888' }}>Highest Bid</div>
+                <div className="venture-deal" style={{ color: '#6ec896' }}>
+                  ₹{Number(auction.currentHighestBid).toLocaleString('en-IN')}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: '#888' }}>
+                  {auction.totalBids} bid{auction.totalBids !== 1 ? 's' : ''}
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: '0.65rem', color: '#888' }}>Starting Bid</div>
+                <div className="venture-deal">
+                  ₹{Number(auction.minBidPrice).toLocaleString('en-IN')}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: '#6ec896' }}>No bids yet</div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="venture-deal">
+            ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
+          </div>
+        )}
+      </div>
 
-      <div className="venture-card-footer">
-        <div className="venture-stats">
+      <div className="venture-card-center">
+        <div className="venture-stats venture-stats-row">
           <span title="Views">👁 {domain.views || 0}</span>
           <LikeButton liked={likeState?.liked} count={likeState?.count} onToggle={onLike} />
         </div>
-        <div className="venture-card-actions" onClick={e => e.stopPropagation()}>
+      </div>
+
+      <div className="venture-card-right">
+        <div className="venture-card-actions venture-card-actions-pro" onClick={e => e.stopPropagation()}>
           {isOwner ? (
-            <button className="btn-danger btn-sm"
+              <button className="btn-danger btn-sm"
               onClick={e => { e.stopPropagation(); onDelete(); }}>
-              Remove
+              <Trash2 size={14} /> Remove
             </button>
           ) : isAuction ? (
             auctionLive ? (
               <button
                 onClick={e => { e.stopPropagation(); onViewAuction(); }}
-                style={{ padding: '0.35rem 0.75rem', borderRadius: 8, fontSize: '0.78rem',
-                         fontWeight: 600, cursor: 'pointer',
-                         background: 'rgba(160,110,200,0.15)',
-                         border: '1px solid rgba(160,110,200,0.4)', color: '#a06ec8' }}>
-                🔨 Bid Now →
+                className="domain-auction-btn">
+                <Gavel size={14} /> Bid Now →
               </button>
             ) : (
-              <span style={{ fontSize: '0.75rem', color: '#666' }}>
+              <span className="domain-muted-status">
                 {auction?.status === 'DRAFT'  ? 'Coming Soon' :
                  auction?.status === 'ENDED'  ? 'Auction Ended' :
                  auction?.status === 'UNSOLD' ? 'Unsold' : 'Closed'}
@@ -378,20 +381,17 @@ function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onViewAuction,
             isHighValue ? (
               <button
                 onClick={e => { e.stopPropagation(); onEnquire(); }}
-                style={{ padding: '0.35rem 0.75rem', borderRadius: 8, fontSize: '0.78rem',
-                         fontWeight: 600, cursor: 'pointer',
-                         background: 'rgba(200,169,110,0.12)',
-                         border: '1px solid rgba(200,169,110,0.35)', color: '#c8a96e' }}>
-                Enquire Now →
+                className="domain-enquire-btn">
+                <MessageSquare size={14} /> Enquire Now →
               </button>
             ) : (
               <button className="btn-primary btn-sm"
                 onClick={e => { e.stopPropagation(); onBuy(); }}>
-                Buy Now →
+                <ShoppingCart size={14} /> Buy Now →
               </button>
             )
           ) : (
-            <span style={{ fontSize: '0.8rem', color: '#888' }}>
+            <span className="domain-muted-status">
               {domain.domainStatus === 'SOLD' ? 'Sold' : 'Pending'}
             </span>
           )}
@@ -709,7 +709,7 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card" style={{ maxWidth: 560, maxHeight: '90vh', overflowY: 'auto' }}>
+      <div className="modal-card domain-detail-modal-light" style={{ maxWidth: 560, maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="modal-glow" />
         <button className="modal-close" onClick={onClose}>✕</button>
 
@@ -724,16 +724,16 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
                             flexWrap: 'wrap', marginBottom: '0.3rem' }}>
                 <div className="modal-badge">{isAuction ? '🔨 Auction' : 'Domain'}</div>
                 {d.verified && (
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6ec896',
-                                 background: 'rgba(110,200,150,0.1)', padding: '0.2rem 0.5rem',
-                                 borderRadius: 4, border: '1px solid rgba(110,200,150,0.3)' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#047857',
+                                 background: '#ecfdf5', padding: '0.2rem 0.5rem',
+                                 borderRadius: 4, border: '1px solid #a7f3d0' }}>
                     ✓ Verified
                   </span>
                 )}
                 {isHighValue && (
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#a06ec8',
-                                 background: 'rgba(160,110,200,0.1)', padding: '0.2rem 0.5rem',
-                                 borderRadius: 4, border: '1px solid rgba(160,110,200,0.25)' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6d28d9',
+                                 background: '#f5f3ff', padding: '0.2rem 0.5rem',
+                                 borderRadius: 4, border: '1px solid #ddd6fe' }}>
                     Premium
                   </span>
                 )}
@@ -745,29 +745,29 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
               {isAuction && auction ? (
                 <>
-                  <div style={{ padding: '0.5rem 1rem', background: 'rgba(110,200,150,0.08)',
-                                border: '1px solid rgba(110,200,150,0.2)', borderRadius: 8,
-                                fontSize: '0.875rem', color: '#6ec896' }}>
+                  <div style={{ padding: '0.5rem 1rem', background: '#ecfdf5',
+                                border: '1px solid #a7f3d0', borderRadius: 8,
+                                fontSize: '0.875rem', color: '#047857' }}>
                     {auction.currentHighestBid > 0
                       ? `🏆 ₹${Number(auction.currentHighestBid).toLocaleString('en-IN')}`
                       : `🔨 Min ₹${Number(auction.minBidPrice).toLocaleString('en-IN')}`}
                   </div>
-                  <div style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.04)',
-                                border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
-                                fontSize: '0.875rem', color: '#a0a0b0' }}>
+                  <div style={{ padding: '0.5rem 1rem', background: '#f9fafb',
+                                border: '1px solid #e5e7eb', borderRadius: 8,
+                                fontSize: '0.875rem', color: '#6b7280' }}>
                     📋 {auction.totalBids} bid{auction.totalBids !== 1 ? 's' : ''}
                   </div>
                 </>
               ) : (
-                <div style={{ padding: '0.5rem 1rem', background: 'rgba(110,200,150,0.08)',
-                              border: '1px solid rgba(110,200,150,0.2)', borderRadius: 8,
-                              fontSize: '0.875rem', color: '#6ec896' }}>
+                <div style={{ padding: '0.5rem 1rem', background: '#ecfdf5',
+                              border: '1px solid #a7f3d0', borderRadius: 8,
+                              fontSize: '0.875rem', color: '#047857' }}>
                   💰 ₹{Number(d.askingPrice).toLocaleString('en-IN')}
                 </div>
               )}
-              <div style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.04)',
-                            border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
-                            fontSize: '0.875rem', color: '#a0a0b0' }}>
+              <div style={{ padding: '0.5rem 1rem', background: '#f9fafb',
+                            border: '1px solid #e5e7eb', borderRadius: 8,
+                            fontSize: '0.875rem', color: '#6b7280' }}>
                 👁 {d.views || 0} views
               </div>
               {!isAuction && (
@@ -805,9 +805,9 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
             )}
 
             {isHighValue && !isOwner && d.domainStatus === 'AVAILABLE' && (
-              <div style={{ padding: '0.875rem 1rem', background: 'rgba(160,110,200,0.08)',
-                            border: '1px solid rgba(160,110,200,0.2)', borderRadius: 8,
-                            marginBottom: '1.25rem', fontSize: '0.83rem', color: '#a06ec8' }}>
+              <div style={{ padding: '0.875rem 1rem', background: '#f5f3ff',
+                            border: '1px solid #ddd6fe', borderRadius: 8,
+                            marginBottom: '1.25rem', fontSize: '0.83rem', color: '#6d28d9' }}>
                 ✦ This is a premium domain. Submit an enquiry and our team will facilitate
                 the transaction.
               </div>
@@ -826,13 +826,13 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
               <Section title="Listed By">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <div style={{ width: 36, height: 36, borderRadius: '50%',
-                                background: 'rgba(200,169,110,0.15)',
-                                border: '1px solid rgba(200,169,110,0.25)',
+                                background: '#eef2ff',
+                                border: '1px solid #c7d2fe',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontWeight: 700, color: '#c8a96e' }}>
+                                fontWeight: 700, color: '#4f46e5' }}>
                     {d.listedBy.firstname?.[0]?.toUpperCase() || '?'}
                   </div>
-                  <div style={{ fontWeight: 500, color: '#e0e0f0', fontSize: '0.9rem' }}>
+                  <div style={{ fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>
                     {d.listedBy.firstname} {d.listedBy.lastname}
                   </div>
                 </div>
@@ -979,9 +979,9 @@ function Section({ title, children }) {
 
 function DetailItem({ label, value }) {
   return (
-    <div>
-      <div style={{ fontSize: '0.72rem', color: '#666', marginBottom: '0.2rem' }}>{label}</div>
-      <div style={{ fontSize: '0.875rem', color: '#d0d0e0' }}>{value}</div>
+    <div className="domain-detail-item">
+      <div className="domain-detail-item-label">{label}</div>
+      <div className="domain-detail-item-value">{value}</div>
     </div>
   );
 }

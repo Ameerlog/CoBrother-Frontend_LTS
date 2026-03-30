@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
+import coBrotherLogo from '../../assets/Cobrother_logo.png';
 import { useAuth } from '../../context/AuthContext';
 import { notificationAPI } from '../../api/services';
+import DashboardIcon from '../../assets/Dashboard.png';
+import VentureIcon from '../../assets/Coventure_logo.png';
+import CommunityIcon from '../../assets/CoCommunity.png';
+import DomainsIcon from '../../assets/CoBranding.png';
+import TechnologyIcon from '../../assets/CoCreation.png';
+import AuctionIcon from '../../assets/Auction.png';
+import PurchaseIcon from '../../assets/purchase.png';
+import NotificationIcon from '../../assets/notification.png';
 
 const TYPE_ICONS = {
   COVENTURE_APPLICATION_RECEIVED:      '📋',
@@ -34,13 +44,13 @@ export default function AppLayout({ children }) {
 
   
   const navLinks = [
-    { to: '/dashboard', label: 'Dashboard', icon: '⬡' },
-    { to: '/ventures', label: 'Ventures', icon: '◈' },
-    { to: '/domains',    label: 'Domains',   icon: '◇' },
-    { to: '/cocreation',  label: 'CoCreation',  icon: '⟁' },
-    { to: '/community', label: 'Community', icon: '◉' },
-    { to: '/auctions',  label: 'Auctions',  icon: '🔨' },
-    { to: '/purchases', label: 'Purchases', icon: '🛒' },
+    { to: '/dashboard', label: 'Dashboard', icon: DashboardIcon },
+    { to: '/ventures', label: 'Venture', icon: VentureIcon },
+    { to: '/domains',    label: 'Domains',   icon: DomainsIcon },
+    { to: '/cocreation',  label: 'Technology',  icon: TechnologyIcon },
+    { to: '/community', label: 'Community', icon: CommunityIcon },
+    { to: '/auctions',  label: 'Auctions',  icon: AuctionIcon },
+    { to: '/purchases', label: 'Purchases', icon: PurchaseIcon },
   ];
 
   // Add after existing navLinks:
@@ -116,8 +126,7 @@ export default function AppLayout({ children }) {
     <div className="app-shell">
       <nav className="topnav">
         <Link to="/dashboard" className="topnav-brand">
-          <span className="brand-mark">CB</span>
-          <span className="brand-name">CoBrother</span>
+          <img src={coBrotherLogo} alt="CoBrother" className="brand-logo" />
         </Link>
 
         <div className={`topnav-links ${mobileOpen ? 'open' : ''}`}>
@@ -128,7 +137,9 @@ export default function AppLayout({ children }) {
               className={`nav-link ${location.pathname.startsWith(l.to) ? 'active' : ''}`}
               onClick={() => setMobileOpen(false)}
             >
-              <span className="nav-icon">{l.icon}</span>
+              <span className="nav-icon">
+                <img src={l.icon} alt="" />
+              </span>
               {l.label}
             </Link>
           ))}
@@ -138,7 +149,7 @@ export default function AppLayout({ children }) {
 
         <div className="bell-wrapper" ref={bellRef}>
             <button className="bell-btn" onClick={handleBellOpen} title="Notifications">
-              🔔
+              <img src={NotificationIcon} alt="Notifications" style={{width: '20px', height: '20px'}} />
               {unreadCount > 0 && (
                 <span className="bell-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
               )}
@@ -192,7 +203,7 @@ export default function AppLayout({ children }) {
             </div>
             <span className="user-name">{user?.firstname || user?.email?.split('@')[0]}</span>
             <button className="logout-btn" onClick={handleLogout} title="Logout">
-              ⏻
+              <LogOut size={16} />
             </button>
           </div>
           <button className="mobile-menu-btn" onClick={() => setMobileOpen(!mobileOpen)}>

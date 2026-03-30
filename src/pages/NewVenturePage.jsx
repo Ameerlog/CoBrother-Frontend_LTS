@@ -28,7 +28,7 @@ export default function NewVenturePage() {
 
   return (
     <AppLayout>
-      <div className="form-page">
+      <div className="form-page venture-form-page">
         <div className="form-page-header">
           <h1>List a New Venture</h1>
           <p>Fill in the details to attract the right co-venturers.</p>

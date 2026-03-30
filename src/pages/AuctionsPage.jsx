@@ -68,7 +68,7 @@ export default function AuctionsPage() {
                 : 'No live auctions at the moment'}
             </p>
           </div>
-          <button className="btn-secondary" onClick={() => navigate('/domains')}>
+          <button className="btn-outline-venture" onClick={() => navigate('/domains')}>
             ◇ Browse Domains
           </button>
         </div>
@@ -104,7 +104,7 @@ export default function AuctionsPage() {
             </h3>
             <p>Check back soon — new domains go live regularly.</p>
             {filter !== 'all' && (
-              <button className="btn-secondary" onClick={() => setFilter('all')}>
+              <button className="btn-outline-venture" onClick={() => setFilter('all')}>
                 View All Auctions
               </button>
             )}
@@ -179,16 +179,16 @@ function AuctionCard({ auction, onClick }) {
       {/* Bid stats */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr',
                     gap: '0.75rem', margin: '0.75rem 0' }}>
-        <div style={{ padding: '0.625rem 0.75rem', background: 'rgba(255,255,255,0.04)',
-                      borderRadius: 8, border: '1px solid rgba(255,255,255,0.07)' }}>
-          <div style={{ fontSize: '0.65rem', color: '#666',
-                        textTransform: 'uppercase', letterSpacing: '0.06em',
-                        marginBottom: '0.2rem' }}>
+        <div style={{ padding: '0.5rem 0.65rem', background: '#f9fafb',
+                      borderRadius: 8, border: '1px solid #e5e7eb' }}>
+          <div style={{ fontSize: '0.75rem', color: '#374151',
+                        textTransform: 'uppercase', letterSpacing: '0.08em',
+                        marginBottom: '0.3rem', fontWeight: 700 }}>
             {auction.currentHighestBid > 0 ? 'Highest Bid' : 'Starting Bid'}
           </div>
-          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
+          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.25rem',
                         fontWeight: 700,
-                        color: auction.currentHighestBid > 0 ? '#6ec896' : '#c8a96e' }}>
+                        color: auction.currentHighestBid > 0 ? '#10b981' : '#f59e0b' }}>
             ₹{Number(
                 auction.currentHighestBid > 0
                   ? auction.currentHighestBid
@@ -196,15 +196,15 @@ function AuctionCard({ auction, onClick }) {
               ).toLocaleString('en-IN')}
           </div>
         </div>
-        <div style={{ padding: '0.625rem 0.75rem', background: 'rgba(255,255,255,0.04)',
-                      borderRadius: 8, border: '1px solid rgba(255,255,255,0.07)' }}>
-          <div style={{ fontSize: '0.65rem', color: '#666',
-                        textTransform: 'uppercase', letterSpacing: '0.06em',
-                        marginBottom: '0.2rem' }}>
+        <div style={{ padding: '0.5rem 0.65rem', background: '#f9fafb',
+                      borderRadius: 8, border: '1px solid #e5e7eb' }}>
+          <div style={{ fontSize: '0.75rem', color: '#374151',
+                        textTransform: 'uppercase', letterSpacing: '0.08em',
+                        marginBottom: '0.3rem', fontWeight: 700 }}>
             Total Bids
           </div>
-          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
-                        fontWeight: 700, color: '#e0e0f0' }}>
+          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.25rem',
+                        fontWeight: 700, color: '#111827' }}>
             {auction.totalBids}
           </div>
         </div>
@@ -212,7 +212,7 @@ function AuctionCard({ auction, onClick }) {
 
       {/* Next bid minimum */}
       {auction.currentHighestBid > 0 && (
-        <div style={{ fontSize: '0.72rem', color: '#888', marginBottom: '0.75rem' }}>
+        <div style={{ fontSize: '0.85rem', color: '#374151', marginBottom: '0.75rem', fontWeight: 600 }}>
           Next bid: ≥ ₹{Number(auction.currentHighestBid * 1.05).toLocaleString('en-IN',
             { maximumFractionDigits: 0 })}
         </div>
@@ -220,16 +220,16 @@ function AuctionCard({ auction, onClick }) {
 
       {/* Countdown */}
       <div style={{ display: 'flex', justifyContent: 'space-between',
-                    alignItems: 'center', marginTop: 'auto', paddingTop: '0.5rem',
-                    borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    alignItems: 'center', marginTop: 'auto', paddingTop: '0.75rem',
+                    borderTop: '1px solid #e5e7eb' }}>
         <div>
-          <div style={{ fontSize: '0.65rem', color: '#666',
-                        textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div style={{ fontSize: '0.7rem', color: '#6b7280',
+                        textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
             Ends in
           </div>
           <div style={{
-            fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1rem',
-            color: isUrgent ? '#c86e6e' : '#c8a96e',
+            fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1.1rem',
+            color: isUrgent ? '#ef4444' : '#f59e0b',
             animation: isUrgent ? 'pulse 1s infinite' : 'none',
           }}>
             {timeLeft}
@@ -237,10 +237,12 @@ function AuctionCard({ auction, onClick }) {
         </div>
         <button
           onClick={e => { e.stopPropagation(); onClick(); }}
+          className="auction-bid-btn"
           style={{
-            padding: '0.4rem 1rem', borderRadius: 8, fontSize: '0.8rem', fontWeight: 600,
-            cursor: 'pointer', background: 'rgba(160,110,200,0.15)',
-            border: '1px solid rgba(160,110,200,0.35)', color: '#a06ec8',
+            padding: '0.5rem 1.25rem', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600,
+            cursor: 'pointer', background: 'transparent',
+            border: '2px solid #9440dd', color: '#9440dd',
+            transition: 'all 0.25s ease',
           }}>
           Bid Now →
         </button>

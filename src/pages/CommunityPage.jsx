@@ -475,24 +475,33 @@ function CommunityCard({ profile, isMe, onView, onEdit, likeState, onLike }) {
         <div>
           <h4 className="community-name">{profile.name || 'Anonymous'}</h4>
           {profile.role && (
-            <div className="community-role-badge">{profile.role.replace(/_/g, ' ')}</div>
+            <div className="community-info-block">
+              <span className="community-info-title">Role</span>
+              <div className="community-role-badge">{profile.role.replace(/_/g, ' ')}</div>
+            </div>
           )}
         </div>
       </div>
 
-      <div className="community-details">
+      <div className="community-info-block">
+        <span className="community-info-title">Industry & Location</span>
+        <div className="community-details">
         {profile.industry && (
           <span className="community-tag industry-tag">{profile.industry.replace(/_/g, ' ')}</span>
         )}
         {profile.location && (
           <span className="community-tag location-tag">📍 {profile.location}</span>
         )}
+        </div>
       </div>
 
       {skills.length > 0 && (
-        <div className="community-skills">
-          {skills.slice(0, 4).map(s => <span key={s} className="skill-chip">{s}</span>)}
-          {skills.length > 4 && <span className="skill-chip more">+{skills.length - 4}</span>}
+        <div className="community-info-block">
+          <span className="community-info-title">Skills</span>
+          <div className="community-skills">
+            {skills.slice(0, 4).map(s => <span key={s} className="skill-chip">{s}</span>)}
+            {skills.length > 4 && <span className="skill-chip more">+{skills.length - 4}</span>}
+          </div>
         </div>
       )}
 
@@ -504,7 +513,7 @@ function CommunityCard({ profile, isMe, onView, onEdit, likeState, onLike }) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between',
                     alignItems: 'center', marginTop: '0.75rem' }}>
-        <LikeButton liked={likeState?.liked} count={likeState?.count} onToggle={onLike} />
+        <LikeButton liked={likeState?.liked} count={likeState?.count} onToggle={onLike} forceRed />
       </div>
     </div>
   );

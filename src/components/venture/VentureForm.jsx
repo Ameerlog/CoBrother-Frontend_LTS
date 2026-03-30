@@ -107,20 +107,15 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
           </div>
           <div className="form-group">
             <label>Venture Reference Image</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div className="venture-image-row">
                 {imagePreview && (
                     <img
                         src={imagePreview}
                         alt="Preview"
-                        style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }}
+                        className="venture-image-preview"
                     />
                 )}
-                <label style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                    padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8,
-                    cursor: 'pointer', fontSize: '0.875rem', color: '#c0c0d0'
-                }}>
+                <label className="venture-upload-btn">
                     📷 {imagePreview ? 'Change Image' : 'Upload Image'}
                     <input
                         type="file"
@@ -130,12 +125,12 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
                     />
                 </label>
                 {imagePreview && (
-                    <button type="button" className="btn-ghost btn-sm" onClick={() => { setImageFile(null); setImagePreview(null); }}>
+                    <button type="button" className="btn-ghost btn-sm venture-remove-image-btn" onClick={() => { setImageFile(null); setImagePreview(null); }}>
                         Remove
                     </button>
                 )}
             </div>
-            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.4rem' }}>
+            <p className="venture-image-help">
                 JPG, PNG or WebP. Max 5MB. Uploaded on save.
             </p>
         </div>

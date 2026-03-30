@@ -29,36 +29,33 @@ export default function ConfirmDialog({
   if (!open) return null;
 
   return (
-    <div className="modal-overlay"
+    <div className="modal-overlay confirm-dialog-overlay"
       onClick={e => e.target === e.currentTarget && onCancel()}>
-      <div className="modal-card" style={{ maxWidth: 400, textAlign: 'center' }}>
-        <div className="modal-glow" />
+      <div className="modal-card confirm-dialog-card">
+        <div className="modal-glow confirm-dialog-glow" />
 
-        <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>
+        <div className="confirm-dialog-icon">
           {danger ? '⚠️' : '❓'}
         </div>
 
-        <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem',
-                     marginBottom: '0.5rem' }}>
+        <h2 className="confirm-dialog-title">
           {title}
         </h2>
 
         {message && (
-          <p style={{ color: '#a0a0b0', fontSize: '0.875rem',
-                      marginBottom: '1.5rem', lineHeight: 1.6 }}>
+          <p className="confirm-dialog-message">
             {message}
           </p>
         )}
 
-        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+        <div className="confirm-dialog-actions">
           <button
             onClick={onConfirm}
-            className={danger ? 'btn-danger' : 'btn-primary'}
-            style={{ minWidth: 100 }}
+            className={`${danger ? 'btn-danger' : 'btn-primary'} confirm-dialog-btn`}
           >
             {confirmLabel}
           </button>
-          <button onClick={onCancel} className="btn-ghost" style={{ minWidth: 80 }}>
+          <button onClick={onCancel} className="btn-ghost confirm-dialog-btn">
             {cancelLabel}
           </button>
         </div>

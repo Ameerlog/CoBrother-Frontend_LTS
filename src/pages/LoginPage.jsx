@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { authAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
+import coBrotherLogo from '../assets/Cobrother_logo.png';
 
 export default function LoginPage() {
   const { user, loading, login, refreshUser } = useAuth();
@@ -103,8 +104,8 @@ export default function LoginPage() {
 
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="auth-logo">CB</div>
-          <h1>CoBrother</h1>
+          <img src={coBrotherLogo} alt="CoBrother" className="auth-logo-image" />
+          <h1>Welcome to CoBrother</h1>
           <p>Where ventures find their co-pilots</p>
         </div>
 

@@ -77,8 +77,8 @@ export default function PurchasesPage() {
             <h3>No purchases yet</h3>
             <p>Browse domains and software to make your first purchase.</p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-              <button className="btn-primary" onClick={() => navigate('/domains')}>Browse Domains</button>
-              <button className="btn-secondary" onClick={() => navigate('/cocreation')}>Browse Software</button>
+              <button className="btn-outline-venture" onClick={() => navigate('/domains')}>Browse Domains</button>
+              <button className="btn-outline-venture" onClick={() => navigate('/cocreation')}>Browse Software</button>
             </div>
           </div>
         ) : (
@@ -132,31 +132,32 @@ export default function PurchasesPage() {
 
 function DomainPurchaseRow({ domain }) {
   return (
-    <div style={{ padding: '1.25rem 1.5rem', background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
+    <div style={{ padding: '1.25rem 1.5rem', background: '#ffffff',
+                  border: '1px solid #e5e7eb', borderRadius: 12,
+                  boxShadow: '0 1px 3px rgba(17,24,39,0.06)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6eadc8',
-                           background: 'rgba(110,173,200,0.12)', border: '1px solid rgba(110,173,200,0.25)',
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0369a1',
+                           background: '#e0f2fe', border: '1px solid #bae6fd',
                            padding: '0.15rem 0.45rem', borderRadius: 4 }}>◇ Domain</span>
-            {domain.verified && <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#6ec896' }}>✓ Verified</span>}
+            {domain.verified && <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#059669' }}>✓ Verified</span>}
           </div>
-          <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#e0e0f0' }}>
+          <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#111827' }}>
             {domain.domainName}{domain.domainExtension}
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#888' }}>{domain.pricingDemand}</div>
+          <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{domain.pricingDemand}</div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontWeight: 700, color: '#6ec896' }}>
+          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontWeight: 700, color: '#059669' }}>
             ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
           </div>
-          <div style={{ fontSize: '0.72rem', color: '#888' }}>✓ Payment Confirmed</div>
+          <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>✓ Payment Confirmed</div>
         </div>
       </div>
       <div style={{ marginTop: '0.875rem', padding: '0.75rem 1rem',
-                    background: 'rgba(200,169,110,0.07)', border: '1px solid rgba(200,169,110,0.18)',
-                    borderRadius: 8, fontSize: '0.82rem', color: '#c8a96e' }}>
+                    background: '#fffbeb', border: '1px solid #fde68a',
+                    borderRadius: 8, fontSize: '0.82rem', color: '#92400e' }}>
         ⏳ Domain transfer in progress — seller will initiate within 24 hours.
       </div>
     </div>
@@ -169,42 +170,42 @@ function SoftwarePurchaseRow({ purchase, onGetHelp }) {
   const confirmed = purchase.completionStatus === 'CONFIRMED';
 
   return (
-    <div style={{ padding: '1.25rem 1.5rem', background: 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${helpPaid ? 'rgba(110,200,150,0.2)' : 'rgba(255,255,255,0.08)'}`,
-                  borderRadius: 12 }}>
+    <div style={{ padding: '1.25rem 1.5rem', background: '#ffffff',
+                  border: `1px solid ${helpPaid ? '#a7f3d0' : '#e5e7eb'}`,
+                  borderRadius: 12, boxShadow: '0 1px 3px rgba(17,24,39,0.06)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.3rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#a06ec8',
-                           background: 'rgba(160,110,200,0.12)', border: '1px solid rgba(160,110,200,0.25)',
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7c3aed',
+                           background: '#ede9fe', border: '1px solid #c4b5fd',
                            padding: '0.15rem 0.45rem', borderRadius: 4 }}>⟁ Software</span>
-            {confirmed && <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#6ec896' }}>✓ Completed</span>}
-            {helpPaid && <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#6ec896',
-                                        background: 'rgba(110,200,150,0.1)', border: '1px solid rgba(110,200,150,0.3)',
+            {confirmed && <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#059669' }}>✓ Completed</span>}
+            {helpPaid && <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#059669',
+                                        background: '#ecfdf5', border: '1px solid #a7f3d0',
                                         padding: '0.15rem 0.45rem', borderRadius: 4 }}>◆ CoBrother Active</span>}
           </div>
-          <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#e0e0f0' }}>{sw.name || '—'}</div>
+          <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#111827' }}>{sw.name || '—'}</div>
           {sw.description && (
-            <div style={{ fontSize: '0.78rem', color: '#888', overflow: 'hidden', textOverflow: 'ellipsis',
+            <div style={{ fontSize: '0.78rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap', maxWidth: 400 }}>{sw.description}</div>
           )}
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontWeight: 700, color: '#a06ec8' }}>
+          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontWeight: 700, color: '#7c3aed' }}>
             ₹{Number(sw.price || 0).toLocaleString('en-IN')}
           </div>
-          {helpPaid && <div style={{ fontSize: '0.72rem', color: '#888' }}>+ ₹1,000 CoBrother</div>}
-          <div style={{ fontSize: '0.72rem', color: '#888' }}>✓ Payment Confirmed</div>
+          {helpPaid && <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>+ ₹1,000 CoBrother</div>}
+          <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>✓ Payment Confirmed</div>
         </div>
       </div>
 
       {sw.githubLink && (
         <div style={{ marginTop: '0.875rem', padding: '0.75rem 1rem',
-                      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                      background: '#f9fafb', border: '1px solid #e5e7eb',
                       borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: '0.82rem', color: '#c0c0d0' }}>🔗 GitHub Repository</span>
+          <span style={{ fontSize: '0.82rem', color: '#374151' }}>🔗 GitHub Repository</span>
           <a href={sw.githubLink} target="_blank" rel="noreferrer"
-             style={{ fontSize: '0.8rem', color: '#c8a96e', fontWeight: 600, textDecoration: 'none' }}>
+             style={{ fontSize: '0.8rem', color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>
             Open →
           </a>
         </div>
@@ -212,33 +213,33 @@ function SoftwarePurchaseRow({ purchase, onGetHelp }) {
 
       <div style={{ marginTop: '0.875rem' }}>
         {helpPaid ? (
-          <div style={{ padding: '0.875rem 1rem', background: 'rgba(110,200,150,0.07)',
-                        border: '1px solid rgba(110,200,150,0.2)', borderRadius: 10 }}>
-            <div style={{ fontWeight: 600, color: '#6ec896', fontSize: '0.88rem', marginBottom: '0.4rem' }}>
+          <div style={{ padding: '0.875rem 1rem', background: '#ecfdf5',
+                        border: '1px solid #a7f3d0', borderRadius: 10 }}>
+            <div style={{ fontWeight: 600, color: '#059669', fontSize: '0.88rem', marginBottom: '0.4rem' }}>
               ◆ CoBrother Helper Assigned
             </div>
-            <div style={{ fontSize: '0.8rem', color: '#a0a0b0', lineHeight: 1.6 }}>
+            <div style={{ fontSize: '0.8rem', color: '#6b7280', lineHeight: 1.6 }}>
               Check your email for introduction details from your assigned CoBrother.
             </div>
           </div>
         ) : (
-          <div style={{ padding: '0.875rem 1rem', background: 'rgba(160,110,200,0.06)',
-                        border: '1px solid rgba(160,110,200,0.18)', borderRadius: 10,
+          <div style={{ padding: '0.875rem 1rem', background: '#faf5ff',
+                        border: '1px solid #ddd6fe', borderRadius: 10,
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                         flexWrap: 'wrap', gap: '0.75rem' }}>
             <div>
-              <div style={{ fontWeight: 600, color: '#a06ec8', fontSize: '0.88rem', marginBottom: '0.2rem' }}>
+              <div style={{ fontWeight: 600, color: '#7c3aed', fontSize: '0.88rem', marginBottom: '0.2rem' }}>
                 Need help getting started?
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#888', lineHeight: 1.5 }}>
+              <div style={{ fontSize: '0.78rem', color: '#6b7280', lineHeight: 1.5 }}>
                 Get a dedicated CoBrother to guide you through setup and deployment.
               </div>
             </div>
             <button onClick={onGetHelp}
               style={{ padding: '0.5rem 1.1rem', borderRadius: 8, fontSize: '0.82rem',
                        fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
-                       background: 'rgba(160,110,200,0.15)', border: '1px solid rgba(160,110,200,0.35)',
-                       color: '#a06ec8' }}>
+                       background: '#ede9fe', border: '1px solid #c4b5fd',
+                       color: '#7c3aed' }}>
               Get Help — ₹1,000
             </button>
           </div>
@@ -271,7 +272,7 @@ function CoBrotherHelpModal({ purchase, onClose, onSuccess }) {
           } catch { setError('Payment verification failed.'); setLoading(false); }
         },
         modal: { ondismiss: () => setLoading(false) },
-        theme: { color: '#a06ec8' },
+        theme: { color: '#7c3aed' },
       };
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', () => { setError('Payment failed.'); setLoading(false); });
@@ -285,8 +286,8 @@ function CoBrotherHelpModal({ purchase, onClose, onSuccess }) {
         <div className="modal-glow" />
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-header">
-          <div className="modal-badge" style={{ background: 'rgba(160,110,200,0.15)', color: '#a06ec8',
-                                                border: '1px solid rgba(160,110,200,0.3)' }}>◆ CoBrother Help</div>
+          <div className="modal-badge" style={{ background: '#ede9fe', color: '#7c3aed',
+                                                border: '1px solid #c4b5fd' }}>◆ CoBrother Help</div>
           <h2>{sw.name}</h2>
           <p>Get a dedicated expert to help you succeed with this software.</p>
         </div>
@@ -296,35 +297,36 @@ function CoBrotherHelpModal({ purchase, onClose, onSuccess }) {
             'Help with deployment, configuration, and integration',
             'Direct communication channel with your helper'].map((line, i) => (
             <div key={i} style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
-              <span style={{ color: '#6ec896', fontSize: '0.875rem', marginTop: '0.1rem' }}>✓</span>
-              <span style={{ fontSize: '0.83rem', color: '#c0c0d0', lineHeight: 1.5 }}>{line}</span>
+              <span style={{ color: '#059669', fontSize: '0.875rem', marginTop: '0.1rem' }}>✓</span>
+              <span style={{ fontSize: '0.83rem', color: '#6b7280', lineHeight: 1.5 }}>{line}</span>
             </div>
           ))}
         </div>
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.09)',
+        <div style={{ background: '#ffffff', border: '1px solid #e5e7eb',
                       borderRadius: 10, padding: '1rem', marginBottom: '1.25rem' }}>
-          <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888', textTransform: 'uppercase',
+          <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase',
                         letterSpacing: '0.06em', marginBottom: '0.75rem' }}>Billing Summary</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.3rem 0', fontSize: '0.85rem' }}>
-            <span style={{ color: '#666' }}>Software (already paid)</span>
-            <span style={{ color: '#666' }}>₹{Number(sw.price || 0).toLocaleString('en-IN')}</span>
+            <span style={{ color: '#6b7280' }}>Software (already paid)</span>
+            <span style={{ color: '#6b7280' }}>₹{Number(sw.price || 0).toLocaleString('en-IN')}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.3rem 0', fontSize: '0.85rem' }}>
-            <span style={{ color: '#c0c0d0' }}>CoBrother Helper Fee</span>
-            <span style={{ color: '#c0c0d0', fontWeight: 500 }}>₹1,000</span>
+            <span style={{ color: '#6b7280' }}>CoBrother Helper Fee</span>
+            <span style={{ color: '#6b7280', fontWeight: 500 }}>₹1,000</span>
           </div>
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '0.625rem 0' }} />
+          <div style={{ height: 1, background: '#e5e7eb', margin: '0.625rem 0' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 600, color: '#e0e0f0', fontSize: '0.9rem' }}>Paying Today</span>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 700, color: '#c8a96e' }}>₹1,000</span>
+            <span style={{ fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>Paying Today</span>
+            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 700, color: '#7c3aed' }}>₹1,000</span>
           </div>
         </div>
-        {error && <div style={{ padding: '0.75rem', background: 'rgba(200,110,110,0.08)',
-                                border: '1px solid rgba(200,110,110,0.25)', borderRadius: 8,
-                                marginBottom: '1rem', fontSize: '0.82rem', color: '#c86e6e' }}>{error}</div>}
+        {error && <div style={{ padding: '0.75rem', background: '#fef2f2',
+                                border: '1px solid #fde2e2', borderRadius: 8,
+                                marginBottom: '1rem', fontSize: '0.82rem', color: '#ef4444' }}>{error}</div>}
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button className="btn-primary" onClick={handlePay} disabled={loading}
-            style={{ flex: 1, background: 'rgba(160,110,200,0.2)', border: '1px solid rgba(160,110,200,0.45)', color: '#c8a0f8' }}>
+            style={{ flex: 1, background: '#ede9fe', border: '1px solid #c4b5fd',
+                     color: '#7c3aed' }}>
             {loading ? <span className="btn-spinner" /> : 'Pay ₹1,000 — Get Help →'}
           </button>
           <button className="btn-ghost" onClick={onClose}>Cancel</button>
@@ -334,13 +336,14 @@ function CoBrotherHelpModal({ purchase, onClose, onSuccess }) {
   );
 }
 
-function StatCard({ label, value, icon, color = '#e0e0f0' }) {
+function StatCard({ label, value, icon, color = '#111827' }) {
   return (
-    <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
+    <div style={{ padding: '1.25rem', background: '#ffffff',
+                  border: '1px solid #e5e7eb', borderRadius: 12,
+                  boxShadow: '0 1px 3px rgba(17,24,39,0.06)' }}>
       <div style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{icon}</div>
       <div style={{ fontSize: '1.4rem', fontWeight: 700, color, fontFamily: 'Cormorant Garamond, serif' }}>{value}</div>
-      <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.2rem' }}>{label}</div>
+      <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600, marginTop: '0.2rem' }}>{label}</div>
     </div>
   );
 }

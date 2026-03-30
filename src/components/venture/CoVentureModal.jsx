@@ -66,7 +66,7 @@ export default function CoVentureModal({ venture, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card">
+      <div className="modal-card coventure-light-modal">
         <div className="modal-glow" />
         <button className="modal-close" onClick={onClose}>✕</button>
 
@@ -107,7 +107,7 @@ export default function CoVentureModal({ venture, onClose }) {
           <>
             <div className="modal-header">
               <div className="modal-badge">Co-Venture Application</div>
-              <h2>Apply to {b.brandName}</h2>
+              <h2>Apply to <span className="coventure-name-accent">{b.brandName}</span></h2>
               <p>{typeLabel}{typeLabel && b.industry ? ' · ' : ''}{b.industry?.replace(/_/g, ' ')}</p>
             </div>
 

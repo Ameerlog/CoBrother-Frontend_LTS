@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 import { ventureAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../components/layout/AppLayout';
@@ -11,6 +12,7 @@ import FilterBar from '../components/common/FilterBar';
 import Pagination from '../components/common/Pagination';
 import SkeletonCard from '../components/common/Skeleton';
 import ConfirmDialog from '../components/common/ConfirmDialog';
+import DashboardIcon from '../assets/Dashboard.png';
 
 const TYPE_LABELS = {
   FIFTY_FIFTY: '50:50', SIXTY_FORTY: '60:40', SEVENTY_THIRTY: '70:30',
@@ -93,20 +95,20 @@ export default function VenturesPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div className="ventures-page ventures-main-page">
+        <div className="page-header ventures-header">
           <div>
             <h1>Ventures</h1>
             <p>Discover and co-venture on exciting opportunities.</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button className="btn-secondary" onClick={() => navigate('/ventures/dashboard')}>
-              📊 Dashboard
+          <div className="ventures-header-actions">
+            <button className="btn-secondary ventures-btn" onClick={() => navigate('/ventures/dashboard')}>
+              <img src={DashboardIcon} alt="Dashboard" style={{width: '18px', height: '18px', marginRight: '6px'}} /> Dashboard
             </button>
-            <button className="btn-secondary" onClick={() => navigate('/ventures/analytics')}>
+            <button className="btn-secondary ventures-btn" onClick={() => navigate('/ventures/analytics')}>
               📈 Analytics
             </button>
-            <Link to="/ventures/new" className="btn-primary">+ List Venture</Link>
+            <Link to="/ventures/new" className="btn-primary ventures-btn-primary">+ List Venture</Link>
           </div>
         </div>
 
@@ -128,11 +130,12 @@ export default function VenturesPage() {
           sortBy={sortBy}           onSort={handleSort}
           onClear={clearAll}        activeFilterCount={activeFilterCount}
           placeholder="Search ventures by name or description…"
+          theme="light"
         />
 
         {/* ── Result count ── */}
         {!loading && allVentures.length > 0 && (
-          <div style={{ fontSize: '0.78rem', color: '#666', marginBottom: '1rem' }}>
+          <div className="ventures-result-count">
             {totalCount} venture{totalCount !== 1 ? 's' : ''} found
           </div>
         )}
@@ -156,8 +159,8 @@ export default function VenturesPage() {
                 : 'Be the first to list a venture and attract co-venturers.'}
             </p>
             {activeFilterCount > 0
-              ? <button className="btn-secondary" onClick={clearAll}>Clear Filters</button>
-              : <Link to="/ventures/new" className="btn-primary">List Your Venture</Link>
+              ? <button className="btn-secondary ventures-btn" onClick={clearAll}>Clear Filters</button>
+              : <Link to="/ventures/new" className="btn-primary ventures-btn-primary">List Your Venture</Link>
             }
           </div>
         ) : (
@@ -218,47 +221,51 @@ export default function VenturesPage() {
 function VentureCard({ venture, isOwner, onView, onApply, onEdit, onDelete,
                         likeState, onLike }) {
   const b = venture.brandDetails || {};
+  const shortDesc = `${b.description?.slice(0, 130) || ''}${b.description?.length > 130 ? '…' : ''}`;
   return (
-    <div className="venture-card" onClick={onView} style={{ cursor: 'pointer' }}>
-      <div className="venture-card-top">
-        {b.ventureImageUrl
-          ? <img src={b.ventureImageUrl} alt={b.brandName} className="venture-logo" />
-          : <div className="venture-logo-placeholder">{b.brandName?.[0] || '?'}</div>
-        }
-        <div className="venture-card-meta">
-          <span className="venture-industry">{b.industry?.replace(/_/g, ' ')}</span>
-          <span className="venture-type">{TYPE_LABELS[b.ventureType] || b.ventureType}</span>
+    <div className="venture-card venture-card-pro" onClick={onView} style={{ cursor: 'pointer' }}>
+      <div className="venture-card-left">
+        <div className="venture-card-top">
+          {b.ventureImageUrl
+            ? <img src={b.ventureImageUrl} alt={b.brandName} className="venture-logo" />
+            : <div className="venture-logo-placeholder">{b.brandName?.[0] || '?'}</div>
+          }
+          <div className="venture-card-meta">
+            <span className="venture-industry">{b.industry?.replace(/_/g, ' ')}</span>
+            <span className="venture-type">{TYPE_LABELS[b.ventureType] || b.ventureType}</span>
+          </div>
+          {isOwner && <div className="owner-badge">Owner</div>}
         </div>
-        {isOwner && <div className="owner-badge">Owner</div>}
+        <h3 className="venture-name">{b.brandName}</h3>
+        <p className="venture-desc">{shortDesc}</p>
+        {b.dealValue && (
+          <div className="venture-deal">₹{Number(b.dealValue).toLocaleString('en-IN')}</div>
+        )}
       </div>
 
-      <h3 className="venture-name">{b.brandName}</h3>
-      <p className="venture-desc">
-        {b.description?.slice(0, 130)}{b.description?.length > 130 ? '…' : ''}
-      </p>
-
-      {b.dealValue && (
-        <div className="venture-deal">₹{Number(b.dealValue).toLocaleString('en-IN')}</div>
-      )}
-
-      <div className="venture-card-footer">
-        <div className="venture-stats">
+      <div className="venture-card-center">
+        <div className="venture-stats venture-stats-row">
           <span title="Views">👁 {venture.views || 0}</span>
           <span title="Applications">📋 {venture.coVentureApplicationCount || 0}</span>
           <LikeButton liked={likeState?.liked} count={likeState?.count} onToggle={onLike} />
         </div>
-        <div className="venture-card-actions" onClick={e => e.stopPropagation()}>
+      </div>
+
+      <div className="venture-card-right">
+        <div className="venture-card-actions venture-card-actions-pro" onClick={e => e.stopPropagation()}>
           {isOwner ? (
             <>
-              <button className="btn-secondary btn-sm" onClick={onEdit}>Edit</button>
+              <button className="btn-secondary btn-sm ventures-btn" onClick={onEdit}>Edit</button>
               <button className="btn-danger btn-sm" onClick={onDelete}>Delete</button>
             </>
           ) : (
-            <button className="btn-primary btn-sm" onClick={onApply}>Co-Venture →</button>
+            <button className="btn-primary btn-sm ventures-btn-primary" onClick={onApply}>Co-Venture →</button>
           )}
           {b.website && (
             <a href={b.website} target="_blank" rel="noreferrer"
-               className="btn-ghost btn-sm" onClick={e => e.stopPropagation()}>↗</a>
+               className="btn-ghost btn-sm venture-icon-btn" onClick={e => e.stopPropagation()}>
+              <ArrowUpRight size={17} />
+            </a>
           )}
         </div>
       </div>
@@ -286,7 +293,7 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
 
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card" style={{ maxWidth: 620, maxHeight: '90vh', overflowY: 'auto' }}>
+      <div className="modal-card venture-detail-modal" style={{ maxWidth: 620, maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="modal-glow" />
         <button className="modal-close" onClick={onClose}>✕</button>
 
@@ -303,11 +310,11 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
                 ? <img src={b.ventureImageUrl} alt={b.brandName}
                        style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
                 : <div style={{ width: 56, height: 56, borderRadius: 12,
-                                background: 'rgba(200,169,110,0.12)',
-                                border: '1px solid rgba(200,169,110,0.2)',
+                                background: '#eef2ff',
+                                border: '1px solid #c7d2fe',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem',
-                                fontWeight: 700, color: '#c8a96e' }}>
+                                fontWeight: 700, color: '#4f46e5' }}>
                     {b.brandName?.[0] || '?'}
                   </div>
               }
@@ -332,20 +339,20 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem',
                           flexWrap: 'wrap' }}>
               {b.dealValue && (
-                <div style={{ padding: '0.5rem 1rem', background: 'rgba(110,200,150,0.1)',
-                              border: '1px solid rgba(110,200,150,0.2)', borderRadius: 8,
-                              fontSize: '0.875rem', color: '#6ec896' }}>
+                <div style={{ padding: '0.5rem 1rem', background: '#ecfdf5',
+                              border: '1px solid #a7f3d0', borderRadius: 8,
+                              fontSize: '0.875rem', color: '#047857' }}>
                   💰 ₹{Number(b.dealValue).toLocaleString('en-IN')}
                 </div>
               )}
-              <div style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.04)',
-                            border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
-                            fontSize: '0.875rem', color: '#a0a0b0' }}>
+              <div style={{ padding: '0.5rem 1rem', background: '#f9fafb',
+                            border: '1px solid #e5e7eb', borderRadius: 8,
+                            fontSize: '0.875rem', color: '#6b7280' }}>
                 👁 {(detail?.views ?? venture.views) || 0} views
               </div>
-              <div style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.04)',
-                            border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
-                            fontSize: '0.875rem', color: '#a0a0b0' }}>
+              <div style={{ padding: '0.5rem 1rem', background: '#f9fafb',
+                            border: '1px solid #e5e7eb', borderRadius: 8,
+                            fontSize: '0.875rem', color: '#6b7280' }}>
                 📋 {(detail?.coVentureApplicationCount ??
                      venture.coVentureApplicationCount) || 0} applications
               </div>
@@ -353,7 +360,7 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
 
             {b.description && (
               <Section title="About">
-                <p style={{ color: '#c0c0d0', lineHeight: 1.7, fontSize: '0.9rem' }}>
+                <p style={{ color: '#374151', lineHeight: 1.7, fontSize: '0.9rem' }}>
                   {b.description}
                 </p>
               </Section>
@@ -385,9 +392,9 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
 
             {(detail || venture).stage && (
               <Section title="Current Stage">
-                <span style={{ padding: '0.35rem 0.75rem', background: 'rgba(200,169,110,0.1)',
-                               border: '1px solid rgba(200,169,110,0.2)', borderRadius: 6,
-                               fontSize: '0.8rem', color: '#c8a96e' }}>
+                <span style={{ padding: '0.35rem 0.75rem', background: '#eef2ff',
+                               border: '1px solid #c7d2fe', borderRadius: 999,
+                               fontSize: '0.8rem', color: '#4f46e5' }}>
                   {{ IDEA: '💡 Idea', MVP: '🛠 MVP',
                      REVENUE_GENERATING: '💰 Revenue Generating',
                      SCALING: '🚀 Scaling' }[(detail || venture).stage]}
@@ -397,7 +404,7 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
 
             {(detail || venture).lookingFor && (
               <Section title="Looking For">
-                <p style={{ color: '#c0c0d0', lineHeight: 1.6, fontSize: '0.9rem', margin: 0 }}>
+                <p style={{ color: '#374151', lineHeight: 1.6, fontSize: '0.9rem', margin: 0 }}>
                   {(detail || venture).lookingFor}
                 </p>
               </Section>
@@ -405,7 +412,7 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
 
             {(detail || venture).currentProblem && (
               <Section title="Current Challenge">
-                <p style={{ color: '#c0c0d0', lineHeight: 1.6, fontSize: '0.9rem', margin: 0 }}>
+                <p style={{ color: '#374151', lineHeight: 1.6, fontSize: '0.9rem', margin: 0 }}>
                   {(detail || venture).currentProblem}
                 </p>
               </Section>
@@ -415,17 +422,17 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
               <Section title="Listed By">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <div style={{ width: 36, height: 36, borderRadius: '50%',
-                                background: 'rgba(200,169,110,0.15)',
-                                border: '1px solid rgba(200,169,110,0.25)',
+                                background: '#eef2ff',
+                                border: '1px solid #c7d2fe',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontWeight: 700, color: '#c8a96e', fontSize: '0.9rem' }}>
+                                fontWeight: 700, color: '#4f46e5', fontSize: '0.9rem' }}>
                     {detail.listedBy.firstname?.[0]?.toUpperCase() || '?'}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 500, color: '#e0e0f0', fontSize: '0.9rem' }}>
+                    <div style={{ fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>
                       {detail.listedBy.firstname} {detail.listedBy.lastname}
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: '#888' }}>
+                    <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>
                       {detail.listedBy.email}
                     </div>
                   </div>
@@ -456,7 +463,7 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
 function Section({ title, children }) {
   return (
     <div style={{ marginBottom: '1.25rem' }}>
-      <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888',
+      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6b7280',
                     textTransform: 'uppercase', letterSpacing: '0.06em',
                     marginBottom: '0.6rem' }}>{title}</div>
       {children}
@@ -467,8 +474,8 @@ function Section({ title, children }) {
 function DetailItem({ label, value }) {
   return (
     <div>
-      <div style={{ fontSize: '0.72rem', color: '#666', marginBottom: '0.2rem' }}>{label}</div>
-      <div style={{ fontSize: '0.875rem', color: '#d0d0e0' }}>{value}</div>
+      <div style={{ fontSize: '0.72rem', color: '#6b7280', marginBottom: '0.2rem' }}>{label}</div>
+      <div style={{ fontSize: '0.875rem', color: '#111827' }}>{value}</div>
     </div>
   );
 }

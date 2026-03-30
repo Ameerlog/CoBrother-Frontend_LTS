@@ -110,7 +110,7 @@ export default function AuctionPage() {
 
         {/* ── Header ── */}
         <div style={{ marginBottom: '2rem' }}>
-          <button className="btn-ghost btn-sm" onClick={() => navigate('/domains')}
+          <button className="btn-ghost btn-sm auction-back-btn" onClick={() => navigate('/domains')}
             style={{ marginBottom: '1rem' }}>
             ← Back to Domains
           </button>
@@ -120,7 +120,7 @@ export default function AuctionPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem',
                             flexWrap: 'wrap', marginBottom: '0.5rem' }}>
                 <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.25rem',
-                             fontWeight: 700, color: '#e0e0f0', margin: 0 }}>
+                             fontWeight: 700, color: '#111827', margin: 0 }}>
                   {domain.domainName}{domain.domainExtension}
                 </h1>
                 {domain.verified && (
@@ -209,7 +209,7 @@ export default function AuctionPage() {
                 <div>
                   <div style={statLabel}>Total Bids</div>
                   <div style={{ fontFamily: 'Cormorant Garamond, serif',
-                                fontSize: '2rem', fontWeight: 700, color: '#e0e0f0' }}>
+                                fontSize: '2rem', fontWeight: 700, color: '#111827' }}>
                     {auction.totalBids}
                   </div>
                 </div>
@@ -234,10 +234,10 @@ export default function AuctionPage() {
                           border: '1px solid rgba(255,255,255,0.08)',
                           borderRadius: 14, overflow: 'hidden' }}>
               <div style={{ padding: '1rem 1.25rem',
-                            borderBottom: '1px solid rgba(255,255,255,0.07)',
-                            fontWeight: 600, color: '#e0e0f0', fontSize: '0.9rem' }}>
+                            borderBottom: '1px solid rgba(0,0,0,0.08)',
+                            fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>
                 Bid History
-                <span style={{ color: '#888', fontWeight: 400,
+                <span style={{ color: '#6b7280', fontWeight: 400,
                                marginLeft: '0.5rem', fontSize: '0.8rem' }}>
                   ({bids.length} bids)
                 </span>
@@ -266,7 +266,7 @@ export default function AuctionPage() {
                 <div style={{ fontWeight: 600, color: '#c8a96e', marginBottom: '0.5rem' }}>
                   Auction ended with no bids
                 </div>
-                <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
                   You can re-auction with new settings, or take the listing down.
                 </p>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -299,8 +299,8 @@ export default function AuctionPage() {
                              color: '#6ec896', marginBottom: '0.5rem' }}>
                   Auction Won!
                 </h3>
-                <p style={{ color: '#a0a0b0' }}>
-                  <strong style={{ color: '#e0e0f0' }}>
+                <p style={{ color: '#6b7280' }}>
+                  <strong style={{ color: '#111827' }}>
                     {auction.currentWinnerName || 'A bidder'}
                   </strong>
                   {' '}won with a bid of{' '}
@@ -308,7 +308,7 @@ export default function AuctionPage() {
                     ₹{Number(auction.currentHighestBid).toLocaleString('en-IN')}
                   </strong>
                 </p>
-                <p style={{ fontSize: '0.82rem', color: '#888', marginTop: '0.5rem' }}>
+                <p style={{ fontSize: '0.82rem', color: '#6b7280', marginTop: '0.5rem' }}>
                   Our admin team will coordinate the transfer.
                 </p>
               </div>
@@ -324,7 +324,7 @@ export default function AuctionPage() {
               <div style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)',
                             border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14 }}>
                 <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.25rem',
-                             marginBottom: '1.25rem', color: '#e0e0f0' }}>
+                             marginBottom: '1.25rem', color: '#0f172a' }}>
                   Place Your Bid
                 </h3>
 
@@ -335,7 +335,7 @@ export default function AuctionPage() {
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap',
                                   marginTop: '0.5rem' }}>
                       {[1, 1.1, 1.25].map(mult => {
-                        const quickAmount = Math.ceil(minNextBid * mult / 100) * 100; // round to nearest 100
+                        const quickAmount = Math.ceil(minNextBid * mult / 100) * 100;
                         const selected = bidAmount === String(quickAmount);
                         return (
                           <button key={mult}
@@ -345,7 +345,7 @@ export default function AuctionPage() {
                               fontSize: '0.78rem', cursor: 'pointer', fontWeight: 600,
                               background: selected ? 'rgba(200,169,110,0.2)' : 'rgba(255,255,255,0.05)',
                               border: `1px solid ${selected ? 'rgba(200,169,110,0.5)' : 'rgba(255,255,255,0.1)'}`,
-                              color: selected ? '#c8a96e' : '#a0a0b0',
+                              color: selected ? '#c8a96e' : '#6b7280',
                               transition: 'all 0.15s',
                             }}>
                             ₹{Number(quickAmount).toLocaleString('en-IN')}
@@ -357,9 +357,9 @@ export default function AuctionPage() {
                 )}
 
                 <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label style={{ fontSize: '0.78rem', color: '#888',
-                                  marginBottom: '0.5rem', display: 'block' }}>
-                    Your Bid Amount (₹)
+                  <label style={{ fontSize: '0.78rem', color: '#6b7280',
+                                  marginBottom: '0.5rem', display: 'block', fontWeight: 600 }}>
+                    YOUR BID AMOUNT (₹)
                   </label>
                   <input
                     type="number"
@@ -367,7 +367,15 @@ export default function AuctionPage() {
                     onChange={e => { setBidAmount(e.target.value); setBidError(''); }}
                     placeholder={`Min ₹${Number(minNextBid).toLocaleString('en-IN')}`}
                     min={minNextBid}
-                    style={{ fontSize: '1.1rem', fontWeight: 600 }}
+                    style={{ 
+                      fontSize: '1.1rem', 
+                      fontWeight: 600,
+                      background: '#f3f4f6',
+                      color: '#111827',
+                      border: '2px solid #e5e7eb',
+                      padding: '0.75rem 1rem',
+                      borderRadius: '8px'
+                    }}
                     onKeyDown={e => e.key === 'Enter' && handleBid()}
                   />
                 </div>
@@ -388,7 +396,7 @@ export default function AuctionPage() {
                   </div>
                 )}
 
-                <button className="btn-primary" onClick={handleBid}
+                <button className="btn-primary auction-bid-btn" onClick={handleBid}
                   disabled={bidLoading || !bidAmount}
                   style={{ width: '100%', fontSize: '1rem', padding: '0.75rem' }}>
                   {bidLoading ? <span className="btn-spinner" /> :
@@ -397,7 +405,7 @@ export default function AuctionPage() {
                       : ''} →`}
                 </button>
 
-                <p style={{ fontSize: '0.72rem', color: '#555', marginTop: '0.75rem',
+                <p style={{ fontSize: '0.72rem', color: '#374151', marginTop: '0.75rem',
                             textAlign: 'center', lineHeight: 1.5 }}>
                   By bidding you commit to purchasing this domain if you win.
                   Each bid must be at least 5% above the current highest bid.
@@ -411,7 +419,7 @@ export default function AuctionPage() {
                             border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14,
                             textAlign: 'center' }}>
                 <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>👑</div>
-                <p style={{ color: '#888', fontSize: '0.875rem' }}>
+                <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
                   This is your auction. You cannot bid on your own listing.
                 </p>
               </div>
@@ -420,7 +428,7 @@ export default function AuctionPage() {
             {/* Auction info card */}
             <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)',
                           border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14 }}>
-              <div style={statLabel}>Auction Info</div>
+              <div style={{ ...statLabel, color: '#111827' }}>Auction Info</div>
               <div style={{ display: 'flex', flexDirection: 'column',
                             gap: '0.6rem', marginTop: '0.75rem' }}>
                 <InfoRow label="Duration"
@@ -494,14 +502,14 @@ function BidRow({ bid, isLatest, isWinner }) {
       transition: 'all 0.3s',
     }}>
       <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                    background: isWinner ? 'rgba(200,169,110,0.15)' : 'rgba(255,255,255,0.06)',
+                    background: isWinner ? 'rgba(200,169,110,0.15)' : '#f3f4f6',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '0.75rem', fontWeight: 700,
-                    color: isWinner ? '#c8a96e' : '#888' }}>
+                    color: isWinner ? '#c8a96e' : '#374151' }}>
         {isWinner ? '🏆' : bid.bidderName?.[0]?.toUpperCase() || '?'}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#e0e0f0' }}>
+        <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#111827' }}>
           {bid.bidderName || 'Anonymous'}
           {isWinner && (
             <span style={{ marginLeft: '0.4rem', fontSize: '0.68rem',
@@ -510,7 +518,7 @@ function BidRow({ bid, isLatest, isWinner }) {
             </span>
           )}
         </div>
-        <div style={{ fontSize: '0.72rem', color: '#666' }}>{bidTimeStr}</div>
+        <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>{bidTimeStr}</div>
       </div>
       <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
                     fontWeight: 700, color: isLatest ? '#6ec896' : '#c8a96e',
@@ -547,8 +555,8 @@ function StatusBadge({ status }) {
 function InfoRow({ label, value }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
-      <span style={{ color: '#666' }}>{label}</span>
-      <span style={{ color: '#c0c0d0', fontWeight: 500 }}>{value || '—'}</span>
+      <span style={{ color: '#4b5563' }}>{label}</span>
+      <span style={{ color: '#111827', fontWeight: 600 }}>{value || '—'}</span>
     </div>
   );
 }

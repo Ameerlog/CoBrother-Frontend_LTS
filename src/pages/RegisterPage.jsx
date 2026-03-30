@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../api/services';
+import coBrotherLogo from '../assets/Cobrother_logo.png';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ export default function RegisterPage() {
 
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="auth-logo">CB</div>
+          <img src={coBrotherLogo} alt="CoBrother" className="auth-logo-image" />
           <h1>Create Account</h1>
           <p>Join the CoBrother community</p>
         </div>

@@ -155,3 +155,11 @@ export const auctionAPI = {
   adminGetAll:  ()                  => api.get('/api/v1/auction/admin/all'),
   getActive: () => api.get('/api/v1/auction/active'),
 };
+
+export const feedbackAPI = {
+  submit: (feedbackType) => api.post('/api/v1/feedback', { feedback: feedbackType }),
+};
+
+export const joinUsAPI = {
+  submit: (data) => api.post('/api/v1/join-us', data),
+};

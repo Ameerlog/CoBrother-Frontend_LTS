@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { ProtectedRoute, ProfileGuard } from './components/auth/ProtectedRoute';
 
 import LoginPage from './pages/LoginPage';
@@ -27,14 +28,19 @@ import { AdminGuard, CoBrotherGuard } from './components/auth/ProtectedRoute';
 import AuctionPage from './pages/AuctionPage';
 import PurchasesPage from './pages/PurchasesPage';
 import AuctionsPage from './pages/AuctionsPage';
+import Home from './pages/Home';
+import JoinForm from './pages/JoinForm';
 
 
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
+      <LanguageProvider>
+        <AuthProvider>
+          <Routes>
           {/* Public */}
+          <Route path="/" element={<Home />} />
+          <Route path="/join-form" element={<JoinForm />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           {/* OAuth callback — path MUST match app.oauth2.redirect-uri in application.properties */}
@@ -119,10 +125,10 @@ export default function App() {
           />
 
           {/* Fallback */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </AuthProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

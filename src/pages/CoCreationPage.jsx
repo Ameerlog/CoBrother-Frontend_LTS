@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Plus } from 'lucide-react';
 import { cocreationAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
 import AppLayout from '../components/layout/AppLayout';
@@ -82,19 +83,19 @@ export default function CoCreationPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div className="ventures-page cocreation-page">
+        <div className="page-header cocreation-header">
           <div>
             <h1>CoCreation</h1>
             <p>Buy and sell software products built by the community.</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button className="btn-secondary" onClick={() => navigate('/cocreation/dashboard')}>
-              📊 Dashboard
+          <div className="cocreation-header-actions">
+            <button className="btn-secondary cocreation-btn" onClick={() => navigate('/cocreation/dashboard')}>
+              <LayoutDashboard size={16} /> Dashboard
             </button>
             {user?.role === 'ADMIN' && (
-              <button className="btn-primary" onClick={() => setShowForm(true)}>
-                + List Software
+              <button className="btn-primary cocreation-btn-primary" onClick={() => setShowForm(true)}>
+                <Plus size={16} /> List Software
               </button>
             )}
           </div>
@@ -125,10 +126,11 @@ export default function CoCreationPage() {
           sortBy={sortBy}           onSort={handleSort}
           onClear={clearAll}        activeFilterCount={activeFilterCount}
           placeholder="Search software by name, description or tech stack…"
+          theme="light"
         />
 
         {!loading && allSoftware.length > 0 && (
-          <div style={{ fontSize: '0.78rem', color: '#666', marginBottom: '1rem' }}>
+          <div className="cocreation-result-count">
             {totalCount} software listing{totalCount !== 1 ? 's' : ''} found
           </div>
         )}
@@ -151,7 +153,7 @@ export default function CoCreationPage() {
                 : 'Check back soon for new software listings.'}
             </p>
             {activeFilterCount > 0 && (
-              <button className="btn-secondary" onClick={clearAll}>Clear Filters</button>
+              <button className="btn-secondary cocreation-btn" onClick={clearAll}>Clear Filters</button>
             )}
           </div>
         ) : (
@@ -284,12 +286,12 @@ function SoftwareCard({ item, isOwner, onView, onBuy, onDelete, likeState, onLik
               Remove
             </button>
           ) : item.softwareStatus === 'AVAILABLE' ? (
-            <button className="btn-primary btn-sm"
+            <button className="btn-primary btn-sm cocreation-btn-primary"
               onClick={e => { e.stopPropagation(); onBuy(); }}>
               Buy Now →
             </button>
           ) : (
-            <span style={{ fontSize: '0.8rem', color: '#888' }}>Sold</span>
+            <span className="cocreation-muted-status">Sold</span>
           )}
         </div>
       </div>

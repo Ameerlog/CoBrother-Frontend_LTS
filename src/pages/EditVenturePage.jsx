@@ -44,7 +44,7 @@ export default function EditVenturePage() {
 
   return (
     <AppLayout>
-      <div className="form-page">
+      <div className="form-page venture-form-page">
         <div className="form-page-header">
           <h1>Edit Venture</h1>
           <p>Update your venture details.</p>

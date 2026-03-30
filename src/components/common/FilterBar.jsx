@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Search } from 'lucide-react';
 
 /**
  * Reusable filter bar.
@@ -27,6 +28,7 @@ export default function FilterBar({
   sortBy, onSort, sortOptions,
   onClear, activeFilterCount = 0,
   placeholder = 'Search…',
+  theme = 'dark',
 }) {
   const [searchInput, setSearchInput] = useState(search || '');
   const debounceRef = useRef(null);
@@ -43,27 +45,22 @@ export default function FilterBar({
 
   const sorts = sortOptions || DEFAULT_SORT_OPTIONS;
   const showPrice = onMinPrice !== undefined && onMinPrice !== null;
+  const isLight = theme === 'light';
 
   return (
-    <div style={{
-      background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 14, padding: '1rem 1.25rem',
-      marginBottom: '1.5rem',
-      display: 'flex', flexDirection: 'column', gap: '0.875rem',
-    }}>
+    <div className={`filter-bar ${isLight ? 'filter-bar-light' : ''}`}>
       {/* Row 1: search + sort */}
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <div className="filter-bar-row">
         {/* Search */}
-        <div style={{ flex: '1 1 220px', position: 'relative' }}>
-          <span style={{ position: 'absolute', left: '0.75rem', top: '50%',
-                         transform: 'translateY(-50%)', color: '#666', fontSize: '0.9rem',
-                         pointerEvents: 'none' }}>🔍</span>
+        <div className="filter-search-wrap">
+          <span className="filter-search-icon">
+            <Search size={15} className="filter-search-icon-svg" />
+          </span>
           <input
             value={searchInput}
             onChange={e => setSearchInput(e.target.value)}
             placeholder={placeholder}
-            style={{ paddingLeft: '2.25rem', width: '100%' }}
+            className="filter-search-input"
           />
         </div>
 
@@ -71,7 +68,7 @@ export default function FilterBar({
         <select
           value={sortBy}
           onChange={e => onSort(e.target.value)}
-          style={{ flex: '0 1 180px' }}
+          className="filter-sort-select"
         >
           {sorts.map(s => (
             <option key={s.value} value={s.value}>{s.label}</option>
@@ -80,13 +77,13 @@ export default function FilterBar({
       </div>
 
       {/* Row 2: category + price + clear */}
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="filter-bar-row filter-bar-row-bottom">
         {/* Category */}
         {categoryOptions.length > 0 && (
           <select
             value={category}
             onChange={e => onCategory(e.target.value)}
-            style={{ flex: '1 1 160px' }}
+            className="filter-category-select"
           >
             <option value="">All Categories</option>
             {categoryOptions.map(c => (
@@ -97,22 +94,21 @@ export default function FilterBar({
 
         {/* Price range */}
         {showPrice && (
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center',
-                        flex: '1 1 220px' }}>
+          <div className="filter-price-wrap">
             <input
               type="number" min="0"
               value={minPrice}
               onChange={e => onMinPrice(e.target.value)}
               placeholder="Min ₹"
-              style={{ width: 90 }}
+              className="filter-price-input"
             />
-            <span style={{ color: '#666', fontSize: '0.8rem' }}>—</span>
+            <span className="filter-price-sep">—</span>
             <input
               type="number" min="0"
               value={maxPrice}
               onChange={e => onMaxPrice(e.target.value)}
               placeholder="Max ₹"
-              style={{ width: 90 }}
+              className="filter-price-input"
             />
           </div>
         )}
@@ -121,21 +117,10 @@ export default function FilterBar({
         {activeFilterCount > 0 && (
           <button
             onClick={onClear}
-            style={{
-              background: 'rgba(200,110,110,0.1)',
-              border: '1px solid rgba(200,110,110,0.25)',
-              borderRadius: 8, padding: '0.4rem 0.85rem',
-              color: '#c86e6e', fontSize: '0.8rem', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '0.35rem',
-              whiteSpace: 'nowrap',
-            }}
+            className="filter-clear-btn"
           >
             ✕ Clear
-            <span style={{
-              background: '#c86e6e', color: '#fff', borderRadius: '50%',
-              width: 18, height: 18, fontSize: '0.68rem', fontWeight: 700,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
+            <span className="filter-clear-count">
               {activeFilterCount}
             </span>
           </button>
@@ -144,20 +129,20 @@ export default function FilterBar({
 
       {/* Active filter chips */}
       {activeFilterCount > 0 && (
-        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+        <div className="filter-chip-row">
           {searchInput && (
-            <Chip label={`"${searchInput}"`} onRemove={() => { setSearchInput(''); onSearch(''); }} />
+            <Chip label={`"${searchInput}"`} onRemove={() => { setSearchInput(''); onSearch(''); }} light={isLight} />
           )}
           {category && (
-            <Chip label={category.replace(/_/g, ' ')} onRemove={() => onCategory('')} />
+            <Chip label={category.replace(/_/g, ' ')} onRemove={() => onCategory('')} light={isLight} />
           )}
           {minPrice && (
             <Chip label={`Min ₹${Number(minPrice).toLocaleString('en-IN')}`}
-                  onRemove={() => onMinPrice('')} />
+                  onRemove={() => onMinPrice('')} light={isLight} />
           )}
           {maxPrice && (
             <Chip label={`Max ₹${Number(maxPrice).toLocaleString('en-IN')}`}
-                  onRemove={() => onMaxPrice('')} />
+                  onRemove={() => onMaxPrice('')} light={isLight} />
           )}
         </div>
       )}
@@ -165,17 +150,11 @@ export default function FilterBar({
   );
 }
 
-function Chip({ label, onRemove }) {
+function Chip({ label, onRemove, light }) {
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-      padding: '0.2rem 0.6rem', borderRadius: 20, fontSize: '0.72rem',
-      background: 'rgba(200,169,110,0.12)', border: '1px solid rgba(200,169,110,0.25)',
-      color: '#c8a96e',
-    }}>
+    <span className={`filter-chip ${light ? 'filter-chip-light' : ''}`}>
       {label}
-      <span onClick={onRemove}
-        style={{ cursor: 'pointer', opacity: 0.7, lineHeight: 1 }}>✕</span>
+      <span onClick={onRemove} className="filter-chip-remove">✕</span>
     </span>
   );
 }

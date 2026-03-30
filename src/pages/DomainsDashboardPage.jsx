@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Gem, CheckCircle2, IndianRupee, ShoppingCart, CreditCard, Gavel, ShieldCheck } from 'lucide-react';
 import { domainAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
 import DomainVerificationModal from './DomainVerificationModal';
@@ -47,29 +48,27 @@ export default function DomainsDashboardPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div className="ventures-page domains-dashboard-page">
+        <div className="page-header domains-dashboard-header">
           <div>
             <h1>Domains Dashboard</h1>
             <p>Manage your domain listings and purchases.</p>
           </div>
-          <button className="btn-secondary" onClick={() => navigate('/domains')}>
-            ← Back to Domains
+          <button className="btn-secondary domains-btn" onClick={() => navigate('/domains')}>
+            <ArrowLeft size={16} /> Back to Domains
           </button>
         </div>
 
-        {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          <StatCard label="Total Listings" value={listings.length} icon="◇" />
-          <StatCard label="Active" value={listings.filter(d => d.domainStatus === 'AVAILABLE').length} icon="✓" color="#6ec896" />
-          <StatCard label="Sold" value={listings.filter(d => d.domainStatus === 'SOLD').length} icon="💰" color="#c8a96e" />
-          <StatCard label="Revenue" value={`₹${Number(totalRevenue).toLocaleString('en-IN')}`} icon="📈" color="#6ec896" />
-          <StatCard label="Purchased" value={purchases.length} icon="🛒" />
-          <StatCard label="Total Spent" value={`₹${Number(totalSpent).toLocaleString('en-IN')}`} icon="💳" color="#c86e6e" />
+        <div className="domains-stats-grid">
+          <StatCard label="Total Listings" value={listings.length} icon={<Gem size={18} />} />
+          <StatCard label="Active" value={listings.filter(d => d.domainStatus === 'AVAILABLE').length} icon={<CheckCircle2 size={18} />} color="#047857" />
+          <StatCard label="Sold" value={listings.filter(d => d.domainStatus === 'SOLD').length} icon={<IndianRupee size={18} />} color="#6d28d9" />
+          <StatCard label="Revenue" value={`₹${Number(totalRevenue).toLocaleString('en-IN')}`} icon={<IndianRupee size={18} />} color="#047857" />
+          <StatCard label="Purchased" value={purchases.length} icon={<ShoppingCart size={18} />} />
+          <StatCard label="Total Spent" value={`₹${Number(totalSpent).toLocaleString('en-IN')}`} icon={<CreditCard size={18} />} color="#1d4ed8" />
         </div>
 
-        {/* Tabs */}
-        <div className="filter-tabs" style={{ marginBottom: '1.5rem' }}>
+        <div className="filter-tabs domains-filter-tabs">
           <button className={`filter-tab ${tab === 'listings' ? 'active' : ''}`} onClick={() => setTab('listings')}>
             My Listings ({listings.length})
           </button>
@@ -89,7 +88,7 @@ export default function DomainsDashboardPage() {
               <button className="btn-primary" onClick={() => navigate('/domains')}>List a Domain</button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="domains-row-list">
               {listings.map(d => (
                 <DomainRow
                   key={d.id}
@@ -109,7 +108,7 @@ export default function DomainsDashboardPage() {
               <button className="btn-primary" onClick={() => navigate('/domains')}>Browse Domains</button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="domains-row-list">
               {purchases.map(d => <DomainRow key={d.id} domain={d} type="purchase" />)}
             </div>
           )
@@ -131,12 +130,12 @@ export default function DomainsDashboardPage() {
   );
 }
 
-function StatCard({ label, value, icon, color = '#e0e0f0' }) {
+function StatCard({ label, value, icon, color = '#111827' }) {
   return (
-    <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
-      <div style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{icon}</div>
-      <div style={{ fontSize: '1.4rem', fontWeight: 700, color, fontFamily: 'Cormorant Garamond, serif' }}>{value}</div>
-      <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.2rem' }}>{label}</div>
+    <div className="domains-stat-card">
+      <div className="domains-stat-icon">{icon}</div>
+      <div className="domains-stat-value" style={{ color }}>{value}</div>
+      <div className="domains-stat-label">{label}</div>
     </div>
   );
 }
@@ -160,26 +159,17 @@ function DomainRow({ domain, type, onVerify }) {
   };
  
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10,
-      flexWrap: 'wrap', gap: '0.5rem',
-    }}>
+    <div className="domain-row-card">
       <div>
-        <div style={{ fontWeight: 600, fontSize: '1rem', color: '#e0e0f0',
-                      display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="domain-row-name">
           {domain.domainName}{domain.domainExtension}
           {isAuction && (
-            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#a06ec8',
-                           background: 'rgba(160,110,200,0.1)',
-                           border: '1px solid rgba(160,110,200,0.25)',
-                           padding: '0.15rem 0.45rem', borderRadius: 4 }}>
-              🔨 Auction
+            <span className="domain-row-auction-pill">
+              <Gavel size={13} /> Auction
             </span>
           )}
         </div>
-        <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+        <div className="domain-row-meta">
           {domain.pricingDemand}
           {isAuction && auction && (
             <span style={{ marginLeft: '0.5rem',
@@ -193,9 +183,9 @@ function DomainRow({ domain, type, onVerify }) {
         </div>
       </div>
  
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <div className="domain-row-right">
         {!isAuction && (
-          <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#c8a96e' }}>
+          <span className="domain-row-price">
             ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
           </span>
         )}
@@ -249,25 +239,22 @@ function DomainRow({ domain, type, onVerify }) {
  
         {/* Auction action buttons */}
         {type === 'listing' && isAuction && auctionId && (
-          <button className="btn-secondary btn-sm"
+          <button className="btn-secondary btn-sm domains-btn"
             onClick={() => navigate(`/auction/${auctionId}`)}
-            style={{ fontSize: '0.75rem',
-                     background: 'rgba(160,110,200,0.1)',
-                     border: '1px solid rgba(160,110,200,0.3)',
-                     color: '#a06ec8' }}>
-            🔨 View Auction →
+            style={{ fontSize: '0.75rem' }}>
+            <Gavel size={13} /> View Auction →
           </button>
         )}
  
         {/* Verify button — only for non-auction or unverified auction drafts */}
         {type === 'listing' && domain.verified && (
-          <span style={{ fontSize: '0.75rem', color: '#6ec896', fontWeight: 600 }}>
-            ✓ Verified
+          <span className="domain-row-verified">
+            <ShieldCheck size={14} /> Verified
           </span>
         )}
  
         {type === 'listing' && !domain.verified && domain.domainStatus === 'AVAILABLE' && (
-          <button className="btn-secondary btn-sm" onClick={onVerify}
+          <button className="btn-secondary btn-sm domains-btn" onClick={onVerify}
             style={{ fontSize: '0.75rem' }}>
             🔍 Verify
             {isAuction && auction?.status === 'DRAFT' && ' (Starts Auction)'}

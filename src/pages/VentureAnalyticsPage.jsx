@@ -96,11 +96,11 @@ export default function VentureAnalyticsPage() {
 
   return (
     <AppLayout>
-      <div style={{ maxWidth: 1100 }}>
+      <div className="venture-analytics-page" style={{ maxWidth: 1100 }}>
         <div className="page-header">
           <div>
-            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.25rem' }}>Venture Analytics</h1>
-            <p style={{ color: '#8a8099', marginTop: '0.3rem' }}>Track performance and applicant insights for your ventures.</p>
+            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.25rem', color: '#c8a96e' }}>Venture Analytics</h1>
+            <p style={{ color: '#4b5563', marginTop: '0.3rem', fontWeight: 500 }}>Track performance and applicant insights for your ventures.</p>
           </div>
           <button className="btn-secondary" onClick={() => navigate('/ventures')}>← Back</button>
         </div>

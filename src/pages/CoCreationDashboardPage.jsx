@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Boxes, IndianRupee, ShoppingCart, CreditCard, Clock3 } from 'lucide-react';
 import { cocreationAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
 
@@ -46,36 +47,34 @@ export default function CoCreationDashboardPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div className="ventures-page cocreation-dashboard-page">
+        <div className="page-header cocreation-dashboard-header">
           <div>
             <h1>CoCreation Dashboard</h1>
             <p>Manage your software listings and purchases.</p>
           </div>
-          <button className="btn-secondary" onClick={() => navigate('/cocreation')}>
-            ← Back to CoCreation
+          <button className="btn-secondary cocreation-btn" onClick={() => navigate('/cocreation')}>
+            <ArrowLeft size={16} /> Back to CoCreation
           </button>
         </div>
 
-        {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(155px, 1fr))',
-                      gap: '1rem', marginBottom: '2rem' }}>
-          <StatCard label="Total Listings"   value={listings.length}                 icon="⟁" />
-          <StatCard label="Total Sales"      value={listings.reduce((s, x) => s + (x.purchaseCount || 0), 0)}
-                    icon="💰" color="#6ec896" />
-          <StatCard label="Revenue"          value={`₹${Number(totalRevenue).toLocaleString('en-IN')}`}
-                    icon="📈" color="#6ec896" />
-          <StatCard label="My Purchases"     value={completedPurchases.length}       icon="🛒" color="#c8a96e" />
-          <StatCard label="Total Spent"      value={`₹${Number(totalSpent).toLocaleString('en-IN')}`}
-                    icon="💳" color="#c86e6e" />
+        <div className="cocreation-stats-grid">
+          <StatCard label="Total Listings" value={listings.length} icon={<Boxes size={18} />} />
+          <StatCard label="Total Sales" value={listings.reduce((s, x) => s + (x.purchaseCount || 0), 0)}
+                    icon={<IndianRupee size={18} />} color="#047857" />
+          <StatCard label="Revenue" value={`₹${Number(totalRevenue).toLocaleString('en-IN')}`}
+                    icon={<IndianRupee size={18} />} color="#047857" />
+          <StatCard label="My Purchases" value={completedPurchases.length} icon={<ShoppingCart size={18} />} color="#6d28d9" />
+          <StatCard label="Total Spent" value={`₹${Number(totalSpent).toLocaleString('en-IN')}`}
+                    icon={<CreditCard size={18} />} color="#1d4ed8" />
           {pendingConfirm > 0 && (
             <StatCard label="Awaiting Confirm" value={pendingConfirm}
-                      icon="⏳" color="#a06ec8" />
+                      icon={<Clock3 size={18} />} color="#7e22ce" />
           )}
         </div>
 
         {/* Tabs */}
-        <div className="filter-tabs" style={{ marginBottom: '1.5rem' }}>
+        <div className="filter-tabs cocreation-filter-tabs">
           <button className={`filter-tab ${tab === 'listings'  ? 'active' : ''}`}
             onClick={() => setTab('listings')}>
             My Listings ({listings.length})
@@ -84,9 +83,7 @@ export default function CoCreationDashboardPage() {
             onClick={() => setTab('purchases')}>
             My Purchases ({completedPurchases.length})
             {pendingConfirm > 0 && (
-              <span style={{ marginLeft: '0.4rem', background: '#a06ec8', color: '#fff',
-                             fontSize: '0.65rem', fontWeight: 700, padding: '0.1rem 0.4rem',
-                             borderRadius: 10 }}>
+              <span className="cocreation-tab-badge">
                 {pendingConfirm}
               </span>
             )}
@@ -105,7 +102,7 @@ export default function CoCreationDashboardPage() {
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="cocreation-row-list">
               {listings.map(s => (
                 <ListingRow
                   key={s.id}
@@ -125,7 +122,7 @@ export default function CoCreationDashboardPage() {
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="cocreation-row-list">
               {completedPurchases.map(p => (
                 <PurchaseRow
                   key={p.id}
@@ -142,7 +139,7 @@ export default function CoCreationDashboardPage() {
       {/* GitHub link reveal modal */}
       {githubModal && (
         <div className="modal-overlay" onClick={() => setGithubModal(null)}>
-          <div className="modal-card" style={{ maxWidth: 440, textAlign: 'center' }}
+          <div className="modal-card cocreation-light-modal" style={{ maxWidth: 440, textAlign: 'center' }}
                onClick={e => e.stopPropagation()}>
             <div className="modal-glow" />
             <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🔓</div>
@@ -382,16 +379,14 @@ function PurchaseRow({ purchase, onConfirm, confirming }) {
   );
 }
 
-function StatCard({ label, value, icon, color = '#e0e0f0' }) {
+function StatCard({ label, value, icon, color = '#111827' }) {
   return (
-    <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
-      <div style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{icon}</div>
-      <div style={{ fontSize: '1.4rem', fontWeight: 700, color,
-                    fontFamily: 'Cormorant Garamond, serif' }}>
+    <div className="cocreation-stat-card">
+      <div className="cocreation-stat-icon">{icon}</div>
+      <div className="cocreation-stat-value" style={{ color }}>
         {value}
       </div>
-      <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.2rem' }}>{label}</div>
+      <div className="cocreation-stat-label">{label}</div>
     </div>
   );
 }
