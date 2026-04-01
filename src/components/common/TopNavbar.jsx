@@ -69,8 +69,8 @@ export default function TopNavbar() {
 
           {/* Profile Icon */}
           <div className="relative ml-2">
-            <a href="/profile" className="w-9 h-9 flex items-center justify-center text-white bg-transparent cursor-pointer relative transition-all duration-300 no-underline hover:opacity-80 hover:scale-105">
-              <img src={cobrotherProfile} alt="Profile" className="w-full h-full object-contain" />
+            <a href="/profile" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white cursor-pointer relative transition-all duration-300 no-underline hover:bg-white/20 hover:scale-105">
+              <img src={cobrotherProfile} alt="Profile" className="w-6 h-6 object-contain" />
             </a>
           </div>
         </div>

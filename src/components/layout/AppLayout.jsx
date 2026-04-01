@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
 import coBrotherLogo from '../../assets/Cobrother_logo.png';
 import { useAuth } from '../../context/AuthContext';
 import { notificationAPI } from '../../api/services';
@@ -125,14 +125,22 @@ export default function AppLayout({ children }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <nav className="sticky top-0 z-[100] flex items-center gap-8 px-8 h-16 bg-white border-b border-gray-200">
-        <Link to="/dashboard" className="flex items-center gap-0 no-underline">
-          <img src={coBrotherLogo} alt="CoBrother" className="w-[140px] h-[42px] object-contain" />
+      <nav className="sticky top-0 z-[100] flex items-center gap-4 md:gap-8 px-4 md:px-8 h-14 md:h-16 bg-white border-b border-gray-200">
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden flex items-center justify-center w-9 h-9 border-none cursor-pointer flex-shrink-0"
+          style={{ background: 'transparent' }}
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X size={22} strokeWidth={2.5} color="#111827" /> : <Menu size={22} strokeWidth={2.5} color="#111827" />}
+        </button>
+
+        <Link to="/dashboard" className="flex items-center gap-0 no-underline flex-shrink-0">
+          <img src={coBrotherLogo} alt="CoBrother" className="w-[140px] h-[42px] object-contain max-md:w-[110px] max-md:h-[34px]" />
         </Link>
 
-        <div className={`flex items-center gap-1 flex-1 max-md:hidden max-md:fixed max-md:top-16 max-md:left-0 max-md:right-0 max-md:bg-white max-md:border-b max-md:border-gray-200 max-md:flex-col max-md:p-4 max-md:gap-1 ${
-          mobileOpen ? 'max-md:flex' : 'max-md:hidden'
-        }`}>
+        <div className="hidden md:flex items-center gap-1 flex-1">
           {visibleLinks.map((l) => (
             <Link
               key={l.to}
@@ -140,7 +148,6 @@ export default function AppLayout({ children }) {
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-[10px] text-sm font-medium text-gray-600 no-underline transition-all duration-200 hover:text-gray-900 hover:bg-gray-100 ${
                 location.pathname.startsWith(l.to) ? 'text-indigo-600 bg-[#eef2ff]' : ''
               }`}
-              onClick={() => setMobileOpen(false)}
             >
               <span className="inline-flex items-center justify-center w-5 h-5">
                 <img src={l.icon} alt="" className="w-full h-full object-contain" />
@@ -150,7 +157,7 @@ export default function AppLayout({ children }) {
           ))}
         </div>
 
-        <div className="ml-auto flex items-center gap-4">
+        <div className="ml-auto flex items-center gap-2 md:gap-4">
 
         <div className="relative" ref={bellRef}>
             <button 
@@ -165,7 +172,7 @@ export default function AppLayout({ children }) {
             </button>
 
             {bellOpen && (
-              <div className="absolute top-[calc(100%+10px)] right-0 w-[360px] bg-white border border-gray-200 rounded-[14px] shadow-[0_20px_60px_rgba(0,0,0,0.5)] z-[1000] overflow-hidden">
+              <div className="absolute top-[calc(100%+10px)] right-0 w-[360px] max-md:w-[calc(100vw-32px)] max-md:right-[-60px] bg-white border border-gray-200 rounded-[14px] shadow-[0_20px_60px_rgba(0,0,0,0.5)] z-[1000] overflow-hidden">
                 <div className="flex justify-between items-center px-4 py-3.5 border-b border-gray-100 font-semibold text-sm text-gray-900">
                   <span>Notifications</span>
                   {unreadCount > 0 && (
@@ -215,11 +222,11 @@ export default function AppLayout({ children }) {
             )}
           </div>
           
-          <div className="flex items-center gap-2.5">
-            <div className="w-[34px] h-[34px] bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-semibold text-sm">
+          <div className="flex items-center gap-2 md:gap-2.5">
+            <div className="w-8 h-8 md:w-[34px] md:h-[34px] bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-semibold text-sm">
               {user?.firstname?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
             </div>
-            <span className="text-sm font-medium text-gray-700 max-md:hidden">{user?.firstname || user?.email?.split('@')[0]}</span>
+            <span className="text-sm font-medium text-gray-700 hidden md:inline">{user?.firstname || user?.email?.split('@')[0]}</span>
             <button 
               className="bg-transparent border border-gray-200 text-gray-600 rounded-lg p-1.5 cursor-pointer transition-all duration-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
               onClick={handleLogout} 
@@ -228,16 +235,61 @@ export default function AppLayout({ children }) {
               <LogOut size={16} />
             </button>
           </div>
-          <button 
-            className="hidden max-md:flex bg-transparent border-none text-gray-900 text-xl cursor-pointer"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen ? '✕' : '☰'}
-          </button>
         </div>
       </nav>
 
-      <main className="flex-1 p-8 max-w-none m-0 w-full bg-gray-50 max-md:p-4">
+      {/* Mobile Slide-out Menu — rendered via portal */}
+      {mobileOpen && createPortal(
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            style={{ zIndex: 9998 }}
+            onClick={() => setMobileOpen(false)}
+          />
+          <div
+            className="fixed top-0 left-0 w-[280px] h-full bg-white shadow-2xl overflow-y-auto"
+            style={{ zIndex: 9999 }}
+          >
+            <div className="flex items-center justify-between p-5 border-b border-gray-200">
+              <img src={coBrotherLogo} alt="CoBrother" className="w-[120px] h-auto object-contain" />
+              <button
+                className="bg-transparent border-none cursor-pointer text-gray-600"
+                onClick={() => setMobileOpen(false)}
+              >
+                <X size={22} />
+              </button>
+            </div>
+            <div className="flex flex-col py-2">
+              {visibleLinks.map((l) => (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  className={`flex items-center gap-3 px-5 py-3.5 text-base font-medium text-gray-700 no-underline transition-all duration-200 border-l-[3px] border-l-transparent hover:bg-gray-50 hover:text-indigo-600 hover:border-l-indigo-600 ${
+                    location.pathname.startsWith(l.to) ? 'text-indigo-600 bg-indigo-50 border-l-indigo-600' : ''
+                  }`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <span className="inline-flex items-center justify-center w-6 h-6">
+                    <img src={l.icon} alt="" className="w-full h-full object-contain" />
+                  </span>
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+            <div className="mt-auto p-5 border-t border-gray-200">
+              <button
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-red-100"
+                onClick={() => { handleLogout(); setMobileOpen(false); }}
+              >
+                <LogOut size={16} /> Logout
+              </button>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
+
+      <main className="flex-1 p-4 md:p-8 max-w-none m-0 w-full bg-gray-50">
         {children}
       </main>
     </div>

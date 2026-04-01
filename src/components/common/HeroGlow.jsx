@@ -20,13 +20,13 @@ export default function HeroGlow() {
         {/* Main Section */}
         <div className="flex flex-col gap-5">
           <h2 className="font-display text-[2.5rem] max-md:text-[22px] font-bold text-gray-900 m-0 leading-tight">
-            CoBrother Free Tier
+            CoBrother
           </h2>
           <p className="text-lg max-md:text-sm text-gray-700 m-0 leading-relaxed max-w-[600px]">
-            Gain free, hands-on experience with CoBrother products and services
+            Trade Auction and bid with cobrother
           </p>
           <button 
-            className="bg-[#232F3E] text-white border-none py-3.5 px-7 rounded-md text-base font-semibold cursor-pointer transition-all duration-200 self-start max-md:self-stretch max-md:text-center font-body hover:bg-white hover:text-gray-900 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
+            className="bg-white text-[#232F3E] border-2 border-[#232F3E] py-3.5 px-7 rounded-md text-base font-semibold cursor-pointer transition-all duration-200 self-start max-md:self-stretch max-md:text-center font-body hover:bg-[#232F3E] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
             onClick={() => navigate('/login')}
           >
             Create a Free Account
@@ -36,13 +36,12 @@ export default function HeroGlow() {
         {/* Secondary Section */}
         <div className="flex flex-col gap-4 pt-8 max-md:pt-4 border-t border-purple/15">
           <h3 className="font-display text-[1.75rem] max-md:text-lg font-bold text-gray-900 m-0 leading-snug">
-            New customers get up to ₹5000 in credits
+            Buy sell and Auction premium domains
           </h3>
           <p className="text-base max-md:text-sm text-gray-600 m-0 leading-[1.7] max-w-[900px]">
-            New CoBrother customers can get started at no cost with the CoBrother Free Tier.
-            Gain ₹2000 credits at sign-up and up to ₹3000 more to earn as you explore key CoBrother services.
-            Test drive CoBrother services with the Free Plan for up to 6 months. You won't be charged unless
-            you choose the Paid Plan, which allows you to scale your operations and gain access to over 150 CoBrother services.
+            Join CoBrother's premium domain marketplace where you can buy, sell, and auction high-value domains.
+            Get access to exclusive premium domains with competitive bidding and secure transactions.
+            Start trading today and expand your digital portfolio with CoBrother's trusted platform.
           </p>
         </div>
       </div>

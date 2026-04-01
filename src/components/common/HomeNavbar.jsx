@@ -109,7 +109,7 @@ export default function HomeNavbar({
             {getTranslation(language, 'joinUs')}
           </button>
           <button 
-            className="px-5 py-2 bg-purple border-2 border-purple text-white rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-dark hover:shadow-[0_8px_20px_rgba(148,64,221,0.25)] max-md:px-3 max-md:py-1.5 max-md:text-[11px] max-md:whitespace-nowrap"
+            className="px-5 py-2 bg-white border-2 border-purple text-purple rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple hover:text-white hover:shadow-[0_8px_20px_rgba(148,64,221,0.25)] max-md:px-3 max-md:py-1.5 max-md:text-[11px] max-md:whitespace-nowrap"
             onClick={() => navigate('/login')}
           >
             {getTranslation(language, 'signIn')}

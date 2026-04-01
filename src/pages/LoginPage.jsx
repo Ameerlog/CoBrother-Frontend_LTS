@@ -87,7 +87,7 @@ export default function LoginPage() {
 
   // ── Google OAuth ──────────────────────────────────────────────────────────
   const handleGoogleLogin = () => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    const apiUrl = import.meta.env.VITE_API_URL || "https://api.cobrother.com";
     window.location.href = `${apiUrl}/oauth2/authorization/google`;
   };
 

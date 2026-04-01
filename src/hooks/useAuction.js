@@ -75,8 +75,9 @@ export function useAuction(auctionId) {
   useEffect(() => {
     if (!auctionId) return;
 
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://api.cobrother.com';
     const client = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS(`${apiUrl}/ws`),
       reconnectDelay: 3000,
       onConnect: () => {
         setConnected(true);

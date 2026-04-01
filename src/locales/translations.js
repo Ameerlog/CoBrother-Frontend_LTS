@@ -24,13 +24,13 @@ export const translations = {
     
     // Feature Cards
     domainTitle: 'Domain',
-    domainDesc: 'Find the perfect identity for your next big tech project',
+    domainDesc: 'We dont just give you brand name we deliver you technology to...',
     ventureTitle: 'Venture',
-    ventureDesc: 'Discover innovative ventures and investment opportunities',
+    ventureDesc: 'Buy sell and joint venture and get join/venture for your investment',
     technologyTitle: 'Technology',
-    technologyDesc: 'Access cutting-edge software and technology solutions',
+    technologyDesc: 'Doorstep delivery and virtual assistants for daily operations',
     communityTitle: 'Community',
-    communityDesc: 'Connect with talented developers and creative professionals',
+    communityDesc: 'Connect, collaborate and grow with like-minded entrepreneurs and professionals',
     exploreBtn: 'Explore →',
     
     // Footer
@@ -63,13 +63,13 @@ export const translations = {
     
     // Feature Cards
     domainTitle: 'डोमेन',
-    domainDesc: 'अपनी अगली बड़ी तकनीकी परियोजना के लिए सही पहचान खोजें',
+    domainDesc: 'हम आपको सिर्फ ब्रांड नाम नहीं देते, हम आपको तकनीक देते हैं...',
     ventureTitle: 'उद्यम',
-    ventureDesc: 'नवीन उद्यमों और निवेश के अवसरों की खोज करें',
+    ventureDesc: 'खरीदें, बेचें और संयुक्त उद्यम करें और अपने निवेश के लिए जॉइन/वेंचर पाएं',
     technologyTitle: 'प्रौद्योगिकी',
-    technologyDesc: 'अत्याधुनिक सॉफ्टवेयर और प्रौद्योगिकी समाधान तक पहुंचें',
+    technologyDesc: 'दैनिक ऑपरेशन के लिए दरवाजे पर डिलीवरी और वर्चुअल सहायक',
     communityTitle: 'समुदाय',
-    communityDesc: 'प्रतिभाशाली डेवलपर्स और रचनात्मक पेशेवरों से जुड़ें',
+    communityDesc: 'समान विचारधारा वाले उद्यमियों और पेशेवरों के साथ जुड़ें, सहयोग करें और बढ़ें',
     exploreBtn: 'खोजें →',
     
     // Footer
@@ -102,13 +102,13 @@ export const translations = {
     
     // Feature Cards
     domainTitle: 'ಡೊಮೇನ್',
-    domainDesc: 'ನಿಮ್ಮ ಮುಂದಿನ ದೊಡ್ಡ ತಂತ್ರಜ್ಞಾನ ಯೋಜನೆಗಾಗಿ ಪರಿಪೂರ್ಣ ಗುರುತನ್ನು ಹುಡುಕಿ',
+    domainDesc: 'ನಾವು ಕೇವಲ ಬ್ರಾಂಡ್ ಹೆಸರನ್ನು ನೀಡುವುದಿಲ್ಲ, ನಾವು ನಿಮಗೆ ತಂತ್ರಜ್ಞಾನವನ್ನು ನೀಡುತ್ತೇವೆ...',
     ventureTitle: 'ಉದ್ಯಮ',
-    ventureDesc: 'ನವೀನ ಉದ್ಯಮಗಳು ಮತ್ತು ಹೂಡಿಕೆ ಅವಕಾಶಗಳನ್ನು ಅನ್ವೇಷಿಸಿ',
+    ventureDesc: 'ಖರೀದಿಸಿ, ಮಾರಾಟ ಮಾಡಿ ಮತ್ತು ಜಂಟಿ ಉದ್ಯಮ ಮಾಡಿ ಮತ್ತು ನಿಮ್ಮ ಹೂಡಿಕೆಗಾಗಿ ಜಾಯಿನ್/ವೆಂಚರ್ ಪಡೆಯಿರಿ',
     technologyTitle: 'ತಂತ್ರಜ್ಞಾನ',
-    technologyDesc: 'ಅತ್ಯಾಧುನಿಕ ಸಾಫ್ಟ್‌ವೇರ್ ಮತ್ತು ತಂತ್ರಜ್ಞಾನ ಪರಿಹಾರಗಳನ್ನು ಪ್ರವೇಶಿಸಿ',
+    technologyDesc: 'ದೈನಂದಿನ ಕಾರ್ಯಾಚರಣೆಗಾಗಿ ಬಾಗಿಲಿಗೆ ಡೆಲಿವರಿ ಮತ್ತು ವರ್ಚುವಲ್ ಸಹಾಯಕರು',
     communityTitle: 'ಸಮುದಾಯ',
-    communityDesc: 'ಪ್ರತಿಭಾವಂತ ಡೆವಲಪರ್‌ಗಳು ಮತ್ತು ಸೃಜನಶೀಲ ವೃತ್ತಿಪರರೊಂದಿಗೆ ಸಂಪರ್ಕ ಸಾಧಿಸಿ',
+    communityDesc: 'ಸಮಾನ ವಿಚಾರಧಾರೆಯ ಉದ್ಯಮಿಗಳು ಮತ್ತು ವೃತ್ತಿಪರರೊಂದಿಗೆ ಸಂಪರ್ಕಿಸಿ, ಸಹಕರಿಸಿ ಮತ್ತು ಬೆಳೆಯಿರಿ',
     exploreBtn: 'ಅನ್ವೇಷಿಸಿ →',
     
     // Footer
