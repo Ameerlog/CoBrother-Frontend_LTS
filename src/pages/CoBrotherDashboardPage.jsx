@@ -40,16 +40,15 @@ export default function CoBrotherDashboardPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1>CoBrother Dashboard</h1>
-            <p>Manage your assigned requests.</p>
+            <h1 className="font-display text-3xl font-bold text-gray-900 m-0">CoBrother Dashboard</h1>
+            <p className="text-gray-600 mt-1">Manage your assigned requests.</p>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px,1fr))',
-                      gap: '1rem', marginBottom: '2rem' }}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard label="Total Assigned" value={requests.length} icon="◆" />
           <StatCard label="Pending"  value={pending.length}   icon="⏳" color="#a06ec8" />
           <StatCard label="Accepted" value={requests.filter(r => r.status === 'ACCEPTED').length}
@@ -59,21 +58,20 @@ export default function CoBrotherDashboardPage() {
         </div>
 
         {loading ? (
-          <div className="page-loading"><div className="spinner" /></div>
+          <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>
         ) : requests.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">◆</div>
-            <h3>No requests assigned yet</h3>
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">◆</div>
+            <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No requests assigned yet</h3>
           </div>
         ) : (
           <>
             {pending.length > 0 && (
-              <div style={{ marginBottom: '2rem' }}>
-                <h3 style={{ color: '#a06ec8', marginBottom: '1rem', fontSize: '0.9rem',
-                             fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div className="mb-8">
+                <h3 className="text-purple-600 mb-4 text-sm font-semibold uppercase tracking-wider">
                   Pending Response
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div className="flex flex-col gap-3">
                   {pending.map(r => (
                     <RequestCard key={r.id} request={r}
                       onRespond={() => setRespondId(r.id)} />
@@ -83,11 +81,10 @@ export default function CoBrotherDashboardPage() {
             )}
             {completed.length > 0 && (
               <div>
-                <h3 style={{ color: '#888', marginBottom: '1rem', fontSize: '0.9rem',
-                             fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <h3 className="text-gray-500 mb-4 text-sm font-semibold uppercase tracking-wider">
                   Completed
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div className="flex flex-col gap-3">
                   {completed.map(r => <RequestCard key={r.id} request={r} />)}
                 </div>
               </div>

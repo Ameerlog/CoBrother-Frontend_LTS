@@ -23,62 +23,66 @@ export default function DomainEnquiryModal({ domain, user, onClose, onSuccess })
   };
 
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card" style={{ maxWidth: 500 }}>
-        <div className="modal-glow" />
-        <button className="modal-close" onClick={onClose}>✕</button>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="relative w-full max-w-[500px] bg-white border border-gray-200 rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden animate-slideUp">
+        <div className="absolute -top-24 -right-24 w-[300px] h-[300px] rounded-full bg-purple-100/30 blur-3xl pointer-events-none" />
+        <button className="absolute top-4 right-4 z-20 bg-transparent border-none text-gray-400 text-xl cursor-pointer transition-colors duration-200 hover:text-gray-700" onClick={onClose}>✕</button>
 
-        <div className="modal-header">
-          <div className="modal-badge">Domain Enquiry</div>
-          <h2>{domain.domainName}{domain.domainExtension}</h2>
-          <p>₹{Number(domain.askingPrice).toLocaleString('en-IN')} · {domain.pricingDemand}</p>
+        <div className="relative z-10 p-8 pb-6">
+          <div className="inline-block px-2.5 py-1 bg-purple-50 text-purple-600 text-xs font-semibold rounded-md mb-4">Domain Enquiry</div>
+          <h2 className="font-display text-2xl font-bold text-gray-900 m-0 mb-2">{domain.domainName}{domain.domainExtension}</h2>
+          <p className="text-gray-500 text-sm m-0 mb-6">₹{Number(domain.askingPrice).toLocaleString('en-IN')} · {domain.pricingDemand}</p>
         </div>
 
-        <div style={{ padding: '0.875rem 1rem', background: 'rgba(200,169,110,0.08)',
-                      border: '1px solid rgba(200,169,110,0.2)', borderRadius: 8,
-                      marginBottom: '1.5rem', fontSize: '0.83rem', color: '#c8a96e' }}>
+        <div className="relative z-10 px-8 py-3.5 bg-purple-50 border border-purple-200 rounded-lg mx-8 mb-6 text-xs text-purple-700">
           ⚡ For high-value domains, our team will facilitate the transaction.
           Fill in your details and we'll be in touch shortly.
         </div>
 
-        <form onSubmit={handleSubmit} className="venture-form">
-          <div className="form-group">
-            <label>Full Name <span className="required">*</span></label>
+        <form onSubmit={handleSubmit} className="relative z-10 px-8 pb-8 flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Full Name <span className="text-red-500">*</span></label>
             <input value={form.fullName}
               onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))}
-              placeholder="Your full name" required />
+              placeholder="Your full name" required
+              className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-purple-500 focus:shadow-[0_0_0_3px_rgba(147,51,234,0.1)]" />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Email <span className="required">*</span></label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">Email <span className="text-red-500">*</span></label>
               <input type="email" value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                placeholder="your@email.com" required />
+                placeholder="your@email.com" required
+                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-purple-500 focus:shadow-[0_0_0_3px_rgba(147,51,234,0.1)]" />
             </div>
-            <div className="form-group">
-              <label>Phone <span className="required">*</span></label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">Phone <span className="text-red-500">*</span></label>
               <input value={form.phone}
                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                placeholder="10-digit number" maxLength={10} required />
+                placeholder="10-digit number" maxLength={10} required
+                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-purple-500 focus:shadow-[0_0_0_3px_rgba(147,51,234,0.1)]" />
             </div>
           </div>
 
-          <div className="form-group">
-            <label>Message / Reason for Enquiry <span className="required">*</span></label>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Message / Reason for Enquiry <span className="text-red-500">*</span></label>
             <textarea value={form.message}
               onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
               placeholder="Tell us why you're interested in this domain and any specific requirements…"
-              rows={4} style={{ resize: 'vertical' }} required />
+              rows={4} required
+              className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 resize-y focus:border-purple-500 focus:shadow-[0_0_0_3px_rgba(147,51,234,0.1)]" />
           </div>
 
-          {error && <div className="form-error">{error}</div>}
+          {error && <div className="px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-[10px] text-red-400 text-sm">{error}</div>}
 
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-            <button type="submit" className="btn-primary" disabled={loading} style={{ flex: 1 }}>
-              {loading ? <span className="btn-spinner" /> : 'Submit Enquiry →'}
+          <div className="flex gap-3 mt-4">
+            <button type="submit" disabled={loading}
+              className="flex-1 px-6 py-2.5 bg-white border-2 border-purple-400 text-purple-600 rounded-full font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              {loading ? <span className="w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin" /> : 'Submit Enquiry →'}
             </button>
-            <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
+            <button type="button" onClick={onClose}
+              className="px-6 py-2.5 bg-white border-2 border-gray-300 text-gray-600 rounded-full font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-gray-50">Cancel</button>
           </div>
         </form>
       </div>

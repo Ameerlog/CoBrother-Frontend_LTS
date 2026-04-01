@@ -3,7 +3,6 @@ import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getTranslation } from '../../locales/translations';
 import cobrotherProfile from '../../assets/Community-profileicon.png';
-import '../../styles/TopNavbar.css';
 
 export default function TopNavbar() {
   const [languageOpen, setLanguageOpen] = useState(false);
@@ -12,7 +11,7 @@ export default function TopNavbar() {
   const languages = [
     { code: 'en', name: 'English' },
     { code: 'hi', name: 'हिन्दी' },
-    { code: 'kn', name: 'ಕನ್ನಡ' }
+    { code: 'kn', name: 'ಕನ्नడ' }
   ];
 
   const handleLanguageSelect = (lang) => {
@@ -23,24 +22,29 @@ export default function TopNavbar() {
   const currentLanguageName = languages.find(l => l.code === language)?.name || 'English';
 
   return (
-    <div className="top-navbar">
-      <div className="top-navbar-container">
-        <div className="top-navbar-right">
+    <div className="relative w-full h-[45px] z-[1000] border-b border-purple/[0.18] font-body" 
+         style={{ background: 'linear-gradient(90deg, #0e0b1e 0%, #130d28 60%, #0f1225 100%)' }}>
+      <div className="max-w-[1400px] mx-auto px-8 h-full flex items-center justify-end">
+        <div className="flex items-center gap-5">
           {/* Language Selector */}
-          <div className="top-nav-item language-selector">
+          <div className="relative">
             <button 
-              className="top-nav-link"
+              className="text-white text-sm font-normal no-underline flex items-center gap-1 px-3 py-2 rounded transition-colors duration-200 cursor-pointer bg-transparent border-none font-body hover:bg-purple/15 hover:text-purple-light"
               onClick={() => setLanguageOpen(!languageOpen)}
             >
               {currentLanguageName} <ChevronDown size={14} />
             </button>
             {languageOpen && (
-              <div className="language-dropdown">
+              <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[140px] overflow-hidden z-[1001]">
                 {languages.map((lang) => (
                   <button 
                     key={lang.code}
                     onClick={() => handleLanguageSelect(lang)}
-                    className={language === lang.code ? 'active' : ''}
+                    className={`w-full px-4 py-2.5 bg-transparent border-none text-left text-sm cursor-pointer transition-colors duration-200 font-body ${
+                      language === lang.code 
+                        ? 'bg-purple-50 text-purple font-semibold' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                   >
                     {lang.name}
                   </button>
@@ -50,23 +54,66 @@ export default function TopNavbar() {
           </div>
 
           {/* Contact Us */}
-          <div className="top-nav-item">
-            <a href="/contact" className="top-nav-link">{getTranslation(language, 'contactUs')}</a>
+          <div className="relative md:block hidden">
+            <a href="/contact" className="text-white text-sm font-normal no-underline flex items-center gap-1 px-3 py-2 rounded transition-colors duration-200 cursor-pointer bg-transparent border-none font-body hover:bg-purple/15 hover:text-purple-light">
+              {getTranslation(language, 'contactUs')}
+            </a>
           </div>
 
           {/* My Account */}
-          <div className="top-nav-item">
-            <a href="/account" className="top-nav-link">{getTranslation(language, 'myAccount')}</a>
+          <div className="relative md:block hidden">
+            <a href="/account" className="text-white text-sm font-normal no-underline flex items-center gap-1 px-3 py-2 rounded transition-colors duration-200 cursor-pointer bg-transparent border-none font-body hover:bg-purple/15 hover:text-purple-light">
+              {getTranslation(language, 'myAccount')}
+            </a>
           </div>
 
           {/* Profile Icon */}
-          <div className="top-nav-item profile-icon-wrapper">
-            <a href="/profile" className="profile-icon">
-              <img src={cobrotherProfile} alt="Profile" className="profile-icon-img" />
+          <div className="relative ml-2">
+            <a href="/profile" className="w-9 h-9 flex items-center justify-center text-white bg-transparent cursor-pointer relative transition-all duration-300 no-underline hover:opacity-80 hover:scale-105">
+              <img src={cobrotherProfile} alt="Profile" className="w-full h-full object-contain" />
             </a>
           </div>
         </div>
       </div>
+
+      {/* Mobile Responsive Styles */}
+      <style>{`
+        @media (max-width: 768px) {
+          .h-\[45px\] {
+            height: 40px;
+            position: sticky;
+            top: 0;
+            z-index: 101;
+          }
+          .px-8 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+          }
+          .gap-5 {
+            gap: 8px;
+          }
+          .text-sm {
+            font-size: 0.75rem;
+          }
+          .px-3 {
+            padding-left: 8px;
+            padding-right: 8px;
+          }
+          .py-2 {
+            padding-top: 4px;
+            padding-bottom: 4px;
+          }
+          .w-9 {
+            width: 28px;
+          }
+          .h-9 {
+            height: 28px;
+          }
+          .min-w-\[140px\] {
+            min-width: 120px;
+          }
+        }
+      `}</style>
     </div>
   );
 }

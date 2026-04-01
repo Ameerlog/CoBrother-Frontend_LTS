@@ -33,69 +33,62 @@ export default function FeeRequestsPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
-          <div>
-            <h1>CoBrother Fee Requests</h1>
-            <p>Payment requests from admin for CoBrother services.</p>
-          </div>
+      <div className="mb-6">
+        <div>
+          <h1 className="font-display text-3xl font-bold text-gray-900 m-0">CoBrother Fee Requests</h1>
+          <p className="text-gray-600 mt-1">Payment requests from admin for CoBrother services.</p>
         </div>
-
-        {loading ? (
-          <div className="page-loading"><div className="spinner" /></div>
-        ) : requests.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">◆</div>
-            <h3>No fee requests</h3>
-            <p>No CoBrother service requests have been made for your listings.</p>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {requests.map(r => {
-              const s = STATUS_COLORS[r.status] || { color: '#888', label: r.status };
-              return (
-                <div key={r.id} style={{ padding: '1rem 1.25rem',
-                                          background: 'rgba(255,255,255,0.03)',
-                                          border: '1px solid rgba(255,255,255,0.08)',
-                                          borderRadius: 10 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between',
-                                flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <div>
-                      <div style={{ fontWeight: 600, color: '#e0e0f0' }}>{r.entityTitle}</div>
-                      <div style={{ fontSize: '0.78rem', color: '#888' }}>{r.requestType}</div>
-                    </div>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 700, color: s.color }}>
-                      {s.label}
-                    </span>
-                  </div>
-
-                  {r.coBrotherNote && (
-                    <div style={{ fontSize: '0.82rem', color: '#a0a0b0', marginBottom: '0.75rem' }}>
-                      <strong>CoBrother Note:</strong> {r.coBrotherNote}
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    {r.status === 'PAYMENT_PENDING' && (
-                      <>
-                        <button className="btn-primary btn-sm"
-                          onClick={() => setPayTarget(r)}>
-                          Pay ₹1,000 →
-                        </button>
-                        <button className="btn-ghost btn-sm"
-                          onClick={() => handleCancel(r.id)}>
-                          Cancel
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
       </div>
 
+      {loading ? (
+        <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>
+      ) : requests.length === 0 ? (
+        <div className="text-center py-20">
+          <div className="text-6xl mb-4">◆</div>
+          <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No fee requests</h3>
+          <p className="text-gray-600">No CoBrother service requests have been made for your listings.</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {requests.map(r => {
+            const s = STATUS_COLORS[r.status] || { color: '#888', label: r.status };
+            return (
+              <div key={r.id} className="p-4 bg-white border border-gray-200 rounded-[10px] shadow-sm">
+                <div className="flex justify-between flex-wrap gap-2 mb-2">
+                  <div>
+                    <div className="font-semibold text-gray-900">{r.entityTitle}</div>
+                    <div className="text-xs text-gray-500">{r.requestType}</div>
+                  </div>
+                  <span className="text-xs font-bold" style={{ color: s.color }}>
+                    {s.label}
+                  </span>
+                </div>
+
+                {r.coBrotherNote && (
+                  <div className="text-xs text-gray-400 mb-3">
+                    <strong>CoBrother Note:</strong> {r.coBrotherNote}
+                  </div>
+                )}
+
+                <div className="flex gap-3 flex-wrap">
+                  {r.status === 'PAYMENT_PENDING' && (
+                    <>
+                      <button className="px-4 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50"
+                        onClick={() => setPayTarget(r)}>
+                        Pay ₹1,000 →
+                      </button>
+                      <button className="px-4 py-2 bg-white border-2 border-gray-300 text-gray-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-gray-50"
+                        onClick={() => handleCancel(r.id)}>
+                        Cancel
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
       {payTarget && (
         <FeePaymentModal
           request={payTarget}
@@ -137,7 +130,7 @@ function FeePaymentModal({ request, onClose, onSuccess }) {
           }
         },
         modal: { ondismiss: () => setLoading(false) },
-        theme: { color: '#c8a96e' },
+        theme: { color: '#a06ec8' },
       };
 
       const rzp = new window.Razorpay(options);
@@ -153,42 +146,38 @@ function FeePaymentModal({ request, onClose, onSuccess }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card" style={{ maxWidth: 440 }}>
-        <div className="modal-glow" />
-        <button className="modal-close" onClick={onClose}>✕</button>
-        <div className="modal-header">
-          <div className="modal-badge">CoBrother Service Fee</div>
-          <h2>{request.entityTitle}</h2>
-          <p>One-time fee to engage CoBrother services for this request.</p>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="relative w-full max-w-[440px] bg-white border border-gray-200 rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden animate-slideUp">
+        <div className="absolute -top-24 -right-24 w-[300px] h-[300px] rounded-full bg-purple-100/30 blur-3xl pointer-events-none" />
+        <button className="absolute top-4 right-4 z-20 bg-transparent border-none text-gray-400 text-xl cursor-pointer transition-colors duration-200 hover:text-gray-700" onClick={onClose}>✕</button>
+        <div className="relative z-10 p-8 pb-6">
+          <div className="inline-block px-2.5 py-1 bg-purple-50 text-purple-600 text-xs font-semibold rounded-md mb-4">CoBrother Service Fee</div>
+          <h2 className="font-display text-2xl font-bold text-gray-900 m-0 mb-2">{request.entityTitle}</h2>
+          <p className="text-gray-500 text-sm m-0 mb-6">One-time fee to engage CoBrother services for this request.</p>
         </div>
 
-        <div style={{ margin: '1.5rem 0', padding: '1rem',
-                      background: 'rgba(110,200,150,0.08)',
-                      border: '1px solid rgba(110,200,150,0.2)', borderRadius: 10 }}>
-          <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.3rem' }}>
+        <div className="relative z-10 mx-8 my-6 p-4 bg-green-500/8 border border-green-500/20 rounded-[10px]">
+          <div className="text-xs text-gray-500 mb-1">
             Service Fee
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#6ec896',
-                        fontFamily: 'Cormorant Garamond, serif' }}>
+          <div className="text-[1.75rem] font-bold text-green-400 font-display">
             ₹1,000
           </div>
         </div>
 
-        <div style={{ padding: '0.875rem', background: 'rgba(200,169,110,0.08)',
-                      border: '1px solid rgba(200,169,110,0.2)', borderRadius: 8,
-                      marginBottom: '1.25rem', fontSize: '0.83rem', color: '#c8a96e' }}>
+        <div className="relative z-10 mx-8 px-3.5 py-3 bg-purple-50 border border-purple-200 rounded-lg mb-5 text-xs text-purple-700">
           ⚡ After payment, a CoBrother will be assigned to assist with your request.
         </div>
 
-        {error && <div className="form-error" style={{ marginBottom: '1rem' }}>{error}</div>}
+        {error && <div className="relative z-10 mx-8 mb-4 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-[10px] text-red-400 text-sm">{error}</div>}
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn-primary" onClick={handlePay}
-            disabled={loading} style={{ flex: 1 }}>
-            {loading ? <span className="btn-spinner" /> : 'Pay ₹1,000 →'}
+        <div className="relative z-10 px-8 pb-8 flex gap-3">
+          <button onClick={handlePay} disabled={loading}
+            className="flex-1 px-6 py-2.5 bg-white border-2 border-purple-400 text-purple-600 rounded-full font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            {loading ? <span className="w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin" /> : 'Pay ₹1,000 →'}
           </button>
-          <button className="btn-ghost" onClick={onClose}>Cancel</button>
+          <button onClick={onClose}
+            className="px-6 py-2.5 bg-white border-2 border-gray-300 text-gray-600 rounded-full font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-gray-50">Cancel</button>
         </div>
       </div>
     </div>

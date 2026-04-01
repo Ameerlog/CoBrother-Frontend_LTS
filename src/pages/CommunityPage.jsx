@@ -107,16 +107,9 @@ export default function CommunityPage() {
   if (linkedInLoading) {
     return (
       <AppLayout>
-        <div style={{
-          minHeight: '60vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '1rem'
-        }}>
-          <div className="spinner" style={{ width: 48, height: 48 }} />
-          <p style={{ color: '#a0a0b0', fontSize: '0.95rem' }}>
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+          <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
+          <p className="text-gray-400 text-sm">
             Connecting your LinkedIn profile…
           </p>
         </div>
@@ -139,26 +132,26 @@ export default function CommunityPage() {
 
   return (
     <AppLayout>
-      <div className="community-page">
-        <div className="page-header">
+      <div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1>Community</h1>
-            <p>Connect with founders, investors, and operators.</p>
+            <h1 className="font-display text-3xl font-bold text-gray-900 m-0">Community</h1>
+            <p className="text-gray-600 mt-1">Connect with founders, investors, and operators.</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div className="flex gap-3 flex-wrap items-center">
             {myProfile ? (
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button className="btn-secondary" onClick={() => navigate('/profile/analytics')}>
+              <div className="flex gap-3">
+                <button className="px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-purple hover:bg-purple-50" onClick={() => navigate('/profile/analytics')}>
                   📈 Analytics
                 </button>
-                <button className="btn-secondary" onClick={() => setShowForm(v => !v)}>
+                <button className="px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-purple hover:bg-purple-50" onClick={() => setShowForm(v => !v)}>
                   ✏ Edit Profile
                 </button>
               </div>
             ) : (
-              <button className="btn-linkedin" onClick={handleConnectLinkedIn} disabled={linkedInLoading}>
+              <button className="inline-flex items-center justify-center gap-2.5 px-5 py-2.5 bg-[#0077b5] text-white font-semibold text-sm rounded-[10px] border-none cursor-pointer transition-colors hover:bg-[#005885] disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleConnectLinkedIn} disabled={linkedInLoading}>
                 {linkedInLoading
-                  ? <><span className="btn-spinner" /> Connecting…</>
+                  ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> Connecting…</>
                   : <><LinkedInIcon /> Connect with LinkedIn</>
                 }
               </button>
@@ -167,18 +160,18 @@ export default function CommunityPage() {
         </div>
 
         {linkedInError && (
-          <div className="form-error" style={{ marginBottom: '1.5rem' }}>
+          <div className="p-4 bg-red-100 border border-red-200 rounded-lg text-sm text-red-600 mb-6">
             {linkedInError}
           </div>
         )}
         {linkedInSuccess && (
-          <div className="form-info linkedin-success" style={{ marginBottom: '1.5rem' }}>
+          <div className="p-4 bg-blue-100 border border-blue-200 rounded-lg text-sm text-blue-600 mb-6 flex items-center gap-2">
             <LinkedInIcon size={16} /> {linkedInSuccess}
           </div>
         )}
 
         {showForm && myProfile && (
-          <div className="community-form-section">
+          <div className="mb-6">
             <CommunityProfileForm
               initial={myProfile}
               onSaved={handleProfileSaved}
@@ -188,18 +181,18 @@ export default function CommunityPage() {
         )}
 
         {loading ? (
-          <div className="page-loading"><div className="spinner" /></div>
+          <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>
         ) : profiles.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">◉</div>
-            <h3>No community members yet</h3>
-            <p>Connect your LinkedIn to join the community and be discovered.</p>
-            <button className="btn-linkedin" onClick={handleConnectLinkedIn}>
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">◉</div>
+            <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No community members yet</h3>
+            <p className="text-gray-600 mb-6">Connect your LinkedIn to join the community and be discovered.</p>
+            <button className="px-5 py-2 bg-[#0077B5] text-white rounded-full text-sm font-semibold transition-all duration-200 hover:bg-[#006399] flex items-center gap-2 mx-auto" onClick={handleConnectLinkedIn}>
               <LinkedInIcon /> Connect with LinkedIn
             </button>
           </div>
         ) : (
-          <div className="community-grid">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-5">
             {profiles.map(p => (
               <CommunityCard
                 key={p.id}
@@ -232,7 +225,6 @@ function CommunityDetailModal({ profile, isMe, onClose, onEdit }) {
   const p = detail || profile;
   const skills = p.skills?.split(',').map(s => s.trim()).filter(Boolean) || [];
 
-  // Fetch full profile + trigger view tracking
   useEffect(() => {
     communityAPI.getOne(profile.id)
       .then(({ data }) => setDetail(data?.data ?? data))
@@ -241,78 +233,67 @@ function CommunityDetailModal({ profile, isMe, onClose, onEdit }) {
   }, [profile.id]);
 
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card" style={{ maxWidth: 560, maxHeight: '90vh', overflowY: 'auto' }}>
-        <div className="modal-glow" />
-        <button className="modal-close" onClick={onClose}>✕</button>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="relative w-full max-w-[560px] max-h-[90vh] overflow-y-auto bg-white border border-gray-200 rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] p-8">
+        <div className="absolute -top-24 -right-24 w-[300px] h-[300px] rounded-full bg-indigo-100/30 blur-3xl pointer-events-none" />
+        <button className="absolute top-4 right-4 z-20 bg-transparent border-none text-gray-400 text-xl cursor-pointer transition-colors hover:text-gray-700" onClick={onClose}>✕</button>
 
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-            <div className="spinner" />
+          <div className="flex justify-center p-12">
+            <div className="w-7 h-7 border-2 border-gray-200 border-t-indigo-500 rounded-full animate-spin" />
           </div>
         ) : (
           <>
-            {/* Avatar + name */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="flex items-center gap-4 mb-6">
               {p.imageUrl
-                ? <img src={p.imageUrl} alt={p.name} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(110,158,200,0.3)' }} />
-                : <div style={{
-                    width: 64, height: 64, borderRadius: '50%',
-                    background: 'rgba(110,158,200,0.12)', border: '1px solid rgba(110,158,200,0.2)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '1.5rem', fontWeight: 700, color: '#6e9ec8'
-                  }}>{p.name?.[0]?.toUpperCase() || '?'}</div>
+                ? <img src={p.imageUrl} alt={p.name} className="w-16 h-16 rounded-full object-cover border-2 border-indigo-200 flex-shrink-0" />
+                : <div className="w-16 h-16 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-2xl font-bold text-indigo-600 flex-shrink-0">{p.name?.[0]?.toUpperCase() || '?'}</div>
               }
               <div>
-                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem', fontWeight: 600 }}>{p.name || 'Anonymous'}</h2>
+                <h2 className="font-display text-[1.75rem] font-semibold text-gray-900">{p.name || 'Anonymous'}</h2>
                 {p.role && (
-                  <div className="community-role-badge" style={{ marginTop: '0.3rem', display: 'inline-block' }}>
+                  <div className="inline-block mt-1 px-1.5 py-0.5 bg-indigo-50 border border-indigo-200 rounded text-[0.7rem] text-indigo-600 uppercase tracking-wider">
                     {p.role.replace(/_/g, ' ')}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Tags */}
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-              {p.industry && <span className="community-tag industry-tag">{p.industry.replace(/_/g, ' ')}</span>}
-              {p.location && <span className="community-tag location-tag">📍 {p.location}</span>}
+            <div className="flex gap-2 flex-wrap mb-5">
+              {p.industry && <span className="px-2 py-0.5 rounded text-xs bg-amber-50 text-amber-700">{p.industry.replace(/_/g, ' ')}</span>}
+              {p.location && <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600">📍 {p.location}</span>}
             </div>
 
-            {/* Skills */}
             {skills.length > 0 && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.6rem' }}>Skills</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                  {skills.map(s => <span key={s} className="skill-chip">{s}</span>)}
+              <div className="mb-5">
+                <div className="text-[0.72rem] font-semibold text-gray-400 uppercase tracking-wider mb-2">Skills</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {skills.map(s => <span key={s} className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs text-gray-600">{s}</span>)}
                 </div>
               </div>
             )}
 
-            {/* LinkedIn */}
             {p.linkedInProfileUrl && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.6rem' }}>LinkedIn</div>
-                <a href={p.linkedInProfileUrl} target="_blank" rel="noreferrer" className="community-linkedin" style={{ fontSize: '0.875rem' }}>
+              <div className="mb-5">
+                <div className="text-[0.72rem] font-semibold text-gray-400 uppercase tracking-wider mb-2">LinkedIn</div>
+                <a href={p.linkedInProfileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-sm text-[#0077b5] no-underline hover:text-[#005885]">
                   <LinkedInIcon size={14} /> View Profile ↗
                 </a>
               </div>
             )}
 
             {p.whyImHere && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.6rem' }}>Why I'm Here</div>
-                <p style={{ color: '#c0c0d0', lineHeight: 1.7, fontSize: '0.875rem', margin: 0 }}>{p.whyImHere}</p>
+              <div className="mb-5">
+                <div className="text-[0.72rem] font-semibold text-gray-400 uppercase tracking-wider mb-2">Why I'm Here</div>
+                <p className="text-gray-600 leading-relaxed text-sm m-0">{p.whyImHere}</p>
               </div>
             )}
 
-
-            {/* Actions */}
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+            <div className="flex gap-3 mt-6">
               {isMe && (
-                <button className="btn-secondary" onClick={onEdit}>✏ Edit Profile</button>
+                <button className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white border-2 border-gray-300 text-gray-700 font-semibold text-sm rounded-[10px] cursor-pointer transition-all hover:border-indigo-400 hover:bg-indigo-50" onClick={onEdit}>✏ Edit Profile</button>
               )}
-              <button className="btn-ghost" onClick={onClose}>Close</button>
+              <button className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-transparent text-gray-500 font-semibold text-sm rounded-[10px] border border-gray-200 cursor-pointer transition-colors hover:bg-gray-100 hover:text-gray-700" onClick={onClose}>Close</button>
             </div>
           </>
         )}
@@ -350,103 +331,92 @@ function CommunityProfileForm({ initial, onSaved, onCancel }) {
   };
 
   return (
-    <div className="community-form-card">
-      {/* Imported LinkedIn preview */}
+    <div className="p-8 bg-white border border-gray-200 rounded-[18px] shadow-sm">
       {initial?.name && (
-        <div className="linkedin-imported">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-[10px] mb-6">
+          <div className="flex items-center gap-3.5">
             {initial.imageUrl
-              ? <img src={initial.imageUrl} alt={initial.name} className="community-avatar" />
-              : <div className="community-avatar-placeholder">{initial.name[0]?.toUpperCase()}</div>
+              ? <img src={initial.imageUrl} alt={initial.name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+              : <div className="w-12 h-12 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-xl font-semibold text-indigo-600 flex-shrink-0">{initial.name[0]?.toUpperCase()}</div>
             }
             <div>
-              <div style={{ fontWeight: 600 }}>{initial.name}</div>
+              <div className="font-semibold text-gray-900">{initial.name}</div>
               {initial.linkedInProfileUrl && (
-                <a href={initial.linkedInProfileUrl} target="_blank" rel="noreferrer" className="community-linkedin">
+                <a href={initial.linkedInProfileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-[#0077b5] no-underline hover:text-[#005885] mt-0.5">
                   <LinkedInIcon size={13} /> View LinkedIn profile
                 </a>
               )}
             </div>
           </div>
-          <div className="linkedin-imported-note">✓ Name and photo imported from LinkedIn</div>
+          <div className="mt-2.5 text-xs text-blue-500">✓ Name and photo imported from LinkedIn</div>
         </div>
       )}
 
-      <h3 style={{ marginTop: initial?.name ? '1.5rem' : 0 }}>
+      <h3 className="font-display text-2xl text-gray-900 font-semibold">
         Complete Your Community Profile
       </h3>
-      <p className="form-subtext">Help others understand what you bring to the table.</p>
+      <p className="text-gray-500 text-sm mt-1">Help others understand what you bring to the table.</p>
 
-      <form onSubmit={handleSubmit} className="venture-form" style={{ marginTop: '1.25rem' }}>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Your Role <span className="required">*</span></label>
-            <select name="role" value={form.role} onChange={handleChange} required>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-5">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Your Role <span className="text-red-500 font-bold">*</span></label>
+            <select name="role" value={form.role} onChange={handleChange} required
+              className="px-3 py-2 border border-gray-300 rounded-[8px] text-gray-900 bg-white outline-none focus:border-indigo-500 cursor-pointer transition-all">
               <option value="">Select role</option>
               {ROLES.map(r => <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>)}
             </select>
           </div>
-          <div className="form-group">
-            <label>Industry <span className="required">*</span></label>
-            <select name="industry" value={form.industry} onChange={handleChange} required>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Industry <span className="text-red-500 font-bold">*</span></label>
+            <select name="industry" value={form.industry} onChange={handleChange} required
+              className="px-3 py-2 border border-gray-300 rounded-[8px] text-gray-900 bg-white outline-none focus:border-indigo-500 cursor-pointer transition-all">
               <option value="">Select industry</option>
               {INDUSTRIES.map(i => <option key={i} value={i}>{i.replace(/_/g, ' ')}</option>)}
             </select>
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Skills <span className="optional">(comma-separated)</span></label>
-          <input
-            name="skills"
-            value={form.skills}
-            onChange={handleChange}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">Skills <span className="text-gray-400 text-xs">(comma-separated)</span></label>
+          <input name="skills" value={form.skills} onChange={handleChange}
             placeholder="e.g. Java, React, Marketing, Finance"
-          />
+            className="px-3 py-2 border border-gray-300 rounded-[8px] text-gray-900 bg-white outline-none focus:border-indigo-500 transition-all" />
         </div>
 
-        <div className="form-group">
-          <label>Location</label>
-          <input
-            name="location"
-            value={form.location}
-            onChange={handleChange}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">Location</label>
+          <input name="location" value={form.location} onChange={handleChange}
             placeholder="e.g. Bengaluru, India"
-          />
+            className="px-3 py-2 border border-gray-300 rounded-[8px] text-gray-900 bg-white outline-none focus:border-indigo-500 transition-all" />
         </div>
 
-        <div className="form-group">
-          <label>Why I'm Here <span className="optional">(optional)</span></label>
-          <textarea
-            name="whyImHere"
-            value={form.whyImHere}
-            onChange={handleChange}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">Why I'm Here <span className="text-gray-400 text-xs">(optional)</span></label>
+          <textarea name="whyImHere" value={form.whyImHere} onChange={handleChange}
             placeholder="e.g. Looking to co-found a SaaS product, open to advisory roles in fintech, seeking a tech co-founder for my D2C brand..."
             rows={3}
-          />
+            className="px-3 py-2 border border-gray-300 rounded-[8px] text-gray-900 bg-white outline-none focus:border-indigo-500 transition-all resize-vertical" />
         </div>
 
-        <div className="form-group">
-          <label>LinkedIn Profile URL<span className="required">*</span></label>
-          <input
-            name="linkedInProfileUrl"
-            value={form.linkedInProfileUrl}
-            onChange={handleChange}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">LinkedIn Profile URL <span className="text-red-500 font-bold">*</span></label>
+          <input name="linkedInProfileUrl" value={form.linkedInProfileUrl} onChange={handleChange}
             placeholder="https://www.linkedin.com/in/your-username"
             required
-          />
-          <span style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.3rem', display: 'block' }}>
+            className="px-3 py-2 border border-gray-300 rounded-[8px] text-gray-900 bg-white outline-none focus:border-indigo-500 transition-all" />
+          <span className="text-xs text-gray-400 mt-0.5">
             Find it on your LinkedIn profile page — e.g. linkedin.com/in/johndoe
           </span>
         </div>
 
-        {error && <div className="form-error">{error}</div>}
+        {error && <div className="text-sm text-red-500">{error}</div>}
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? <span className="btn-spinner" /> : 'Save Profile →'}
+        <div className="flex gap-3">
+          <button type="submit" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white font-semibold text-sm rounded-[10px] border-none cursor-pointer transition-colors hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled={loading}>
+            {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> : 'Save Profile →'}
           </button>
-          <button type="button" className="btn-ghost" onClick={onCancel}>Cancel</button>
+          <button type="button" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-transparent text-gray-500 font-semibold text-sm rounded-[10px] border border-gray-200 cursor-pointer transition-colors hover:bg-gray-100 hover:text-gray-700" onClick={onCancel}>Cancel</button>
         </div>
       </form>
     </div>
@@ -460,59 +430,54 @@ function CommunityCard({ profile, isMe, onView, onEdit, likeState, onLike }) {
   return (
     
     <div
-      className={`community-card${isMe ? ' is-me' : ''}`}
+      className={`card-glow-hover p-6 bg-white rounded-[18px] shadow-sm flex flex-col gap-3 transition-all duration-300 cursor-pointer relative hover:-translate-y-1.5 hover:shadow-xl border ${isMe ? 'border-indigo-300' : 'border-gray-200 hover:border-indigo-200'}`}
       onClick={onView}
-      style={{ cursor: 'pointer' }}
     >
       {isMe && (
-        <button className="me-edit-btn" onClick={e => { e.stopPropagation(); onEdit(); }} title="Edit profile">✏</button>
+        <button className="absolute top-3.5 right-3.5 inline-flex items-center justify-center w-7 h-7 bg-indigo-50 border border-indigo-200 rounded-full text-indigo-500 p-0 cursor-pointer transition-all hover:bg-indigo-100" onClick={e => { e.stopPropagation(); onEdit(); }} title="Edit profile">✏</button>
       )}
-      <div className="community-card-top">
+      <div className="flex items-center gap-3">
         {profile.imageUrl
-          ? <img src={profile.imageUrl} alt={profile.name} className="community-avatar" />
-          : <div className="community-avatar-placeholder">{profile.name?.[0]?.toUpperCase() || '?'}</div>
+          ? <img src={profile.imageUrl} alt={profile.name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+          : <div className="w-12 h-12 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-xl font-semibold text-indigo-600 flex-shrink-0">{profile.name?.[0]?.toUpperCase() || '?'}</div>
         }
         <div>
-          <h4 className="community-name">{profile.name || 'Anonymous'}</h4>
+          <h4 className="font-semibold text-[0.95rem] text-gray-900">{profile.name || 'Anonymous'}</h4>
           {profile.role && (
-            <div className="community-info-block">
-              <span className="community-info-title">Role</span>
-              <div className="community-role-badge">{profile.role.replace(/_/g, ' ')}</div>
-            </div>
+            <div className="inline-block mt-0.5 px-1.5 py-0.5 bg-indigo-50 border border-indigo-200 rounded text-[0.7rem] text-indigo-600 uppercase tracking-wider">{profile.role.replace(/_/g, ' ')}</div>
           )}
         </div>
       </div>
 
-      <div className="community-info-block">
-        <span className="community-info-title">Industry & Location</span>
-        <div className="community-details">
-        {profile.industry && (
-          <span className="community-tag industry-tag">{profile.industry.replace(/_/g, ' ')}</span>
-        )}
-        {profile.location && (
-          <span className="community-tag location-tag">📍 {profile.location}</span>
-        )}
+      <div className="flex flex-col gap-1">
+        <span className="text-[0.72rem] font-semibold text-gray-400 uppercase tracking-wider">Industry & Location</span>
+        <div className="flex flex-wrap gap-1.5">
+          {profile.industry && (
+            <span className="px-2 py-0.5 rounded text-xs bg-amber-50 text-amber-700">{profile.industry.replace(/_/g, ' ')}</span>
+          )}
+          {profile.location && (
+            <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600">📍 {profile.location}</span>
+          )}
         </div>
       </div>
 
       {skills.length > 0 && (
-        <div className="community-info-block">
-          <span className="community-info-title">Skills</span>
-          <div className="community-skills">
-            {skills.slice(0, 4).map(s => <span key={s} className="skill-chip">{s}</span>)}
-            {skills.length > 4 && <span className="skill-chip more">+{skills.length - 4}</span>}
+        <div className="flex flex-col gap-1">
+          <span className="text-[0.72rem] font-semibold text-gray-400 uppercase tracking-wider">Skills</span>
+          <div className="flex flex-wrap gap-1.5">
+            {skills.slice(0, 4).map(s => <span key={s} className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs text-gray-600">{s}</span>)}
+            {skills.length > 4 && <span className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs text-gray-400">+{skills.length - 4}</span>}
           </div>
         </div>
       )}
 
       {profile.linkedInProfileUrl && (
-        <a href={profile.linkedInProfileUrl} target="_blank" rel="noreferrer" className="community-linkedin">
+        <a href={profile.linkedInProfileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-[#0077b5] no-underline mt-0.5 hover:text-[#005885]" onClick={e => e.stopPropagation()}>
           <LinkedInIcon size={13} /> LinkedIn ↗
         </a>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between',
-                    alignItems: 'center', marginTop: '0.75rem' }}>
+      <div className="flex justify-between items-center mt-1">
         <LikeButton liked={likeState?.liked} count={likeState?.count} onToggle={onLike} forceRed />
       </div>
     </div>

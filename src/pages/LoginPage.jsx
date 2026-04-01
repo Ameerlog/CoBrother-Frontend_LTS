@@ -95,21 +95,21 @@ export default function LoginPage() {
   if (loading) return null;
 
   return (
-    <div className="auth-page">
-      <div className="auth-bg">
-        <div className="auth-bg-orb orb-1" />
-        <div className="auth-bg-orb orb-2" />
-        <div className="auth-bg-grid" />
+    <div className="min-h-screen flex items-center justify-center p-8 max-md:p-4 relative overflow-hidden bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute w-[500px] h-[500px] bg-purple/16 rounded-full blur-[80px] opacity-70 -top-[150px] -right-[100px]" />
+        <div className="absolute w-[400px] h-[400px] bg-blue-500/12 rounded-full blur-[80px] opacity-70 -bottom-[100px] -left-[100px]" />
+        <div className="absolute inset-0 opacity-65" style={{backgroundImage: 'linear-gradient(rgba(148,163,184,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.14) 1px, transparent 1px)', backgroundSize: '60px 60px'}} />
       </div>
 
-      <div className="auth-card">
-        <div className="auth-brand">
-          <img src={coBrotherLogo} alt="CoBrother" className="auth-logo-image" />
-          <h1>Welcome to CoBrother</h1>
-          <p>Where ventures find their co-pilots</p>
+      <div className="relative z-10 w-full max-w-[440px] bg-white/95 p-10 max-md:p-8 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-gray-100 backdrop-blur-xl">
+        <div className="text-center mb-10 max-md:mb-8">
+          <img src={coBrotherLogo} alt="CoBrother" className="w-36 max-md:w-28 h-auto object-contain mx-auto mb-6 block" />
+          <h1 className="font-display text-3xl max-md:text-2xl font-bold text-gray-900 whitespace-nowrap">Welcome to CoBrother</h1>
+          <p className="text-gray-500 text-sm mt-2 tracking-wide">Where ventures find their co-pilots</p>
         </div>
 
-        <button className="btn-oauth" onClick={handleGoogleLogin}>
+        <button className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white border-2 border-gray-200 text-gray-700 text-sm font-semibold rounded-xl cursor-pointer transition-all duration-200 shadow-sm hover:border-purple hover:bg-purple-50 hover:shadow-[0_10px_24px_rgba(148,64,221,0.12)] active:scale-[0.98]" onClick={handleGoogleLogin}>
           <svg width="20" height="20" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>

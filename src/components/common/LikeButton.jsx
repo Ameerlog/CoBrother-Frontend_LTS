@@ -10,32 +10,36 @@ export default function LikeButton({ liked, count, onToggle, size = 'sm', forceR
     setTimeout(() => setAnimating(false), 300);
   };
 
+  const isActive = liked || forceRed;
+
   return (
     <button
       onClick={handleClick}
       title={liked ? 'Unlike' : 'Like'}
-      style={{
-        display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-        background: (liked || forceRed) ? 'rgba(200,110,110,0.12)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${(liked || forceRed) ? 'rgba(200,110,110,0.35)' : 'rgba(255,255,255,0.1)'}`,
-        borderRadius: 20, padding: size === 'sm' ? '0.25rem 0.6rem' : '0.35rem 0.85rem',
-        cursor: 'pointer', transition: 'all 0.2s',
-        transform: animating ? 'scale(1.2)' : 'scale(1)',
-      }}
+      className={`inline-flex items-center gap-1.5 rounded-[20px] cursor-pointer transition-all duration-200 ${
+        size === 'sm' ? 'px-2.5 py-1' : 'px-3.5 py-1.5'
+      } ${
+        isActive ? 'bg-red-500/12 border-red-500/35' : 'bg-white/5 border-white/10'
+      } border ${
+        animating ? 'scale-110' : 'scale-100'
+      }`}
     >
-      <span style={{
-        fontSize: size === 'sm' ? '0.85rem' : '1rem',
-        filter: (liked || forceRed) ? 'none' : 'grayscale(1)',
-        transition: 'filter 0.2s',
-      }}>
+      <span 
+        className={`transition-all duration-200 ${
+          size === 'sm' ? 'text-[0.85rem]' : 'text-base'
+        } ${
+          isActive ? 'grayscale-0' : 'grayscale'
+        }`}
+      >
         ❤️
       </span>
-      <span style={{
-        fontSize: size === 'sm' ? '0.72rem' : '0.82rem',
-        fontWeight: 600,
-        color: (liked || forceRed) ? '#c86e6e' : '#888',
-        transition: 'color 0.2s',
-      }}>
+      <span 
+        className={`font-semibold transition-colors duration-200 ${
+          size === 'sm' ? 'text-[0.72rem]' : 'text-[0.82rem]'
+        } ${
+          isActive ? 'text-[#c86e6e]' : 'text-gray-500'
+        }`}
+      >
         {count || 0}
       </span>
     </button>

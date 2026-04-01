@@ -58,30 +58,30 @@ export default function AuctionsPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1>Live Auctions</h1>
-            <p>
+            <h1 className="font-display text-3xl font-bold text-gray-900 m-0">Live Auctions</h1>
+            <p className="text-gray-600 mt-1">
               {auctions.length > 0
                 ? `${auctions.length} auction${auctions.length !== 1 ? 's' : ''} live right now`
                 : 'No live auctions at the moment'}
             </p>
           </div>
-          <button className="btn-outline-venture" onClick={() => navigate('/domains')}>
+          <button className="px-5 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-purple hover:bg-purple-50" onClick={() => navigate('/domains')}>
             ◇ Browse Domains
           </button>
         </div>
 
         {/* ── Filter tabs ── */}
-        <div className="filter-tabs" style={{ marginBottom: '1.5rem' }}>
+        <div className="flex gap-2 mb-6">
           {[
             { id: 'all',          label: `All (${auctions.length})`     },
             { id: 'ending_soon',  label: '⚡ Ending Soon'               },
             { id: 'no_bids',      label: '🆕 No Bids Yet'               },
           ].map(t => (
             <button key={t.id}
-              className={`filter-tab ${filter === t.id ? 'active' : ''}`}
+              className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 ${filter === t.id ? 'bg-purple text-white' : 'bg-white border border-gray-300 text-gray-700 hover:border-purple hover:bg-purple-50'}`}
               onClick={() => setFilter(t.id)}>
               {t.label}
             </button>
@@ -89,28 +89,28 @@ export default function AuctionsPage() {
         </div>
 
         {loading ? (
-          <div className="ventures-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {Array.from({ length: 6 }).map((_, i) => <AuctionSkeleton key={i} />)}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">🔨</div>
-            <h3>
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">🔨</div>
+            <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">
               {filter === 'all'
                 ? 'No live auctions right now'
                 : filter === 'ending_soon'
                 ? 'No auctions ending in the next 24 hours'
                 : 'All auctions have at least one bid'}
             </h3>
-            <p>Check back soon — new domains go live regularly.</p>
+            <p className="text-gray-600 mb-6">Check back soon — new domains go live regularly.</p>
             {filter !== 'all' && (
-              <button className="btn-outline-venture" onClick={() => setFilter('all')}>
+              <button className="px-5 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-purple hover:bg-purple-50" onClick={() => setFilter('all')}>
                 View All Auctions
               </button>
             )}
           </div>
         ) : (
-          <div className="ventures-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filtered.map(auction => (
               <AuctionCard
                 key={auction.id}
@@ -133,14 +133,11 @@ function AuctionCard({ auction, onClick }) {
 
   return (
     <div
-      className="venture-card"
+      className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-purple cursor-pointer relative"
       onClick={onClick}
-      style={{ cursor: 'pointer', position: 'relative' }}
     >
       {/* Status pill */}
-      <div style={{
-        position: 'absolute', top: '0.75rem', right: '0.75rem',
-        padding: '0.2rem 0.55rem', borderRadius: 20, fontSize: '0.68rem', fontWeight: 700,
+      <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-xs font-bold" style={{
         color: isExtended ? '#c8a96e' : '#6ec896',
         background: isExtended ? 'rgba(200,169,110,0.15)' : 'rgba(110,200,150,0.15)',
         border: `1px solid ${isExtended ? 'rgba(200,169,110,0.35)' : 'rgba(110,200,150,0.35)'}`,
@@ -149,16 +146,13 @@ function AuctionCard({ auction, onClick }) {
       </div>
 
       {/* Domain info */}
-      <div className="venture-card-top" style={{ paddingRight: '5rem' }}>
-        <div className="venture-logo-placeholder"
-             style={{ fontSize: '1.1rem', fontWeight: 700, color: '#a06ec8',
-                      background: 'rgba(160,110,200,0.1)',
-                      border: '1px solid rgba(160,110,200,0.2)' }}>
+      <div className="flex items-center gap-3 mb-4 pr-20">
+        <div className="w-11 h-11 rounded-[10px] flex items-center justify-center text-lg font-bold text-purple-600 bg-purple-100 border border-purple-200">
           {domain.domainExtension || '.?'}
         </div>
-        <div className="venture-card-meta">
-          <h3 className="venture-name">{domain.domainName}{domain.domainExtension}</h3>
-          <span style={{ fontSize: '0.72rem', color: '#a06ec8', fontWeight: 600 }}>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-bold text-gray-900 m-0 truncate">{domain.domainName}{domain.domainExtension}</h3>
+          <span className="text-xs text-purple-600 font-semibold">
             🔨 Auction
           </span>
         </div>
@@ -166,29 +160,20 @@ function AuctionCard({ auction, onClick }) {
 
       {/* Verified badge */}
       {domain.verified && (
-        <div style={{ marginBottom: '0.5rem' }}>
-          <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#6ec896',
-                         background: 'rgba(110,200,150,0.1)',
-                         border: '1px solid rgba(110,200,150,0.3)',
-                         padding: '0.15rem 0.45rem', borderRadius: 4 }}>
+        <div className="mb-2">
+          <span className="text-xs font-bold text-green-600 bg-green-100 border border-green-300 px-2 py-0.5 rounded">
             ✓ Verified
           </span>
         </div>
       )}
 
       {/* Bid stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr',
-                    gap: '0.75rem', margin: '0.75rem 0' }}>
-        <div style={{ padding: '0.5rem 0.65rem', background: '#f9fafb',
-                      borderRadius: 8, border: '1px solid #e5e7eb' }}>
-          <div style={{ fontSize: '0.75rem', color: '#374151',
-                        textTransform: 'uppercase', letterSpacing: '0.08em',
-                        marginBottom: '0.3rem', fontWeight: 700 }}>
+      <div className="grid grid-cols-2 gap-3 my-3">
+        <div className="p-2 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-xs text-gray-700 uppercase tracking-wider mb-1 font-bold">
             {auction.currentHighestBid > 0 ? 'Highest Bid' : 'Starting Bid'}
           </div>
-          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.25rem',
-                        fontWeight: 700,
-                        color: auction.currentHighestBid > 0 ? '#10b981' : '#f59e0b' }}>
+          <div className={`font-display text-xl font-bold ${auction.currentHighestBid > 0 ? 'text-green-600' : 'text-amber-500'}`}>
             ₹{Number(
                 auction.currentHighestBid > 0
                   ? auction.currentHighestBid
@@ -196,15 +181,11 @@ function AuctionCard({ auction, onClick }) {
               ).toLocaleString('en-IN')}
           </div>
         </div>
-        <div style={{ padding: '0.5rem 0.65rem', background: '#f9fafb',
-                      borderRadius: 8, border: '1px solid #e5e7eb' }}>
-          <div style={{ fontSize: '0.75rem', color: '#374151',
-                        textTransform: 'uppercase', letterSpacing: '0.08em',
-                        marginBottom: '0.3rem', fontWeight: 700 }}>
+        <div className="p-2 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-xs text-gray-700 uppercase tracking-wider mb-1 font-bold">
             Total Bids
           </div>
-          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.25rem',
-                        fontWeight: 700, color: '#111827' }}>
+          <div className="font-display text-xl font-bold text-gray-900">
             {auction.totalBids}
           </div>
         </div>
@@ -212,38 +193,25 @@ function AuctionCard({ auction, onClick }) {
 
       {/* Next bid minimum */}
       {auction.currentHighestBid > 0 && (
-        <div style={{ fontSize: '0.85rem', color: '#374151', marginBottom: '0.75rem', fontWeight: 600 }}>
+        <div className="text-sm text-gray-700 mb-3 font-semibold">
           Next bid: ≥ ₹{Number(auction.currentHighestBid * 1.05).toLocaleString('en-IN',
             { maximumFractionDigits: 0 })}
         </div>
       )}
 
       {/* Countdown */}
-      <div style={{ display: 'flex', justifyContent: 'space-between',
-                    alignItems: 'center', marginTop: 'auto', paddingTop: '0.75rem',
-                    borderTop: '1px solid #e5e7eb' }}>
+      <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-200">
         <div>
-          <div style={{ fontSize: '0.7rem', color: '#6b7280',
-                        textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+          <div className="text-xs text-gray-600 uppercase tracking-wider font-semibold">
             Ends in
           </div>
-          <div style={{
-            fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, fontSize: '1.1rem',
-            color: isUrgent ? '#ef4444' : '#f59e0b',
-            animation: isUrgent ? 'pulse 1s infinite' : 'none',
-          }}>
+          <div className={`font-display font-bold text-lg ${isUrgent ? 'text-red-500 animate-pulse' : 'text-amber-500'}`}>
             {timeLeft}
           </div>
         </div>
         <button
           onClick={e => { e.stopPropagation(); onClick(); }}
-          className="auction-bid-btn"
-          style={{
-            padding: '0.5rem 1.25rem', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600,
-            cursor: 'pointer', background: 'transparent',
-            border: '2px solid #9440dd', color: '#9440dd',
-            transition: 'all 0.25s ease',
-          }}>
+          className="px-5 py-2 bg-transparent border-2 border-purple text-purple rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple hover:text-white">
           Bid Now →
         </button>
       </div>
@@ -261,22 +229,21 @@ function AuctionCard({ auction, onClick }) {
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 function AuctionSkeleton() {
   return (
-    <div className="venture-card" style={{ pointerEvents: 'none' }}>
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
-        <div style={bone({ width: 44, height: 44, borderRadius: 10 })} />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-          <div style={bone({ height: 12, width: '55%', borderRadius: 6 })} />
-          <div style={bone({ height: 10, width: '35%', borderRadius: 6 })} />
+    <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm pointer-events-none">
+      <div className="flex gap-3 mb-4">
+        <div className="w-11 h-11 rounded-[10px] bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+        <div className="flex-1 flex flex-col gap-2">
+          <div className="h-3 w-[55%] rounded-md bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+          <div className="h-2.5 w-[35%] rounded-md bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem',
-                    marginBottom: '0.75rem' }}>
-        <div style={bone({ height: 52, borderRadius: 8 })} />
-        <div style={bone({ height: 52, borderRadius: 8 })} />
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="h-[52px] rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+        <div className="h-[52px] rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={bone({ height: 28, width: '40%', borderRadius: 6 })} />
-        <div style={bone({ height: 32, width: '30%', borderRadius: 8 })} />
+      <div className="flex justify-between items-center">
+        <div className="h-7 w-[40%] rounded-md bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+        <div className="h-8 w-[30%] rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
       </div>
     </div>
   );

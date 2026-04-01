@@ -56,13 +56,9 @@ export default function OAuthCallbackPage() {
   }, []);
 
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center',
-      background: '#0a0a0f', color: '#e8d5b0', gap: '1.5rem'
-    }}>
-      <div className="spinner" style={{ width: 48, height: 48 }} />
-      <p style={{ opacity: 0.5, fontFamily: 'DM Sans, sans-serif' }}>Completing sign-in…</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-indigo-50 text-purple-600 gap-6">
+      <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
+      <p className="text-gray-500 font-body">Completing sign-in…</p>
     </div>
   );
 }

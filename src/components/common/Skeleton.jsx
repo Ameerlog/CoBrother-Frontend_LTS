@@ -1,34 +1,34 @@
 export default function SkeletonCard() {
     return (
-      <div className="venture-card" style={{ pointerEvents: 'none' }}>
-        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem',
-                      alignItems: 'center' }}>
-          <Bone style={{ width: 44, height: 44, borderRadius: 10, flexShrink: 0 }} />
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            <Bone style={{ height: 12, width: '60%', borderRadius: 6 }} />
-            <Bone style={{ height: 10, width: '40%', borderRadius: 6 }} />
+      <div className="p-6 bg-[#111118] border border-[#2a2a3a] rounded-[14px] pointer-events-none shadow-sm">
+        <div className="flex gap-3 mb-4 items-center">
+          <Bone className="w-11 h-11 rounded-[10px] flex-shrink-0" />
+          <div className="flex-1 flex flex-col gap-1.5">
+            <Bone className="h-3 w-3/5 rounded-md" />
+            <Bone className="h-2.5 w-2/5 rounded-md" />
           </div>
         </div>
-        <Bone style={{ height: 14, width: '80%', borderRadius: 6, marginBottom: '0.5rem' }} />
-        <Bone style={{ height: 10, width: '100%', borderRadius: 6, marginBottom: '0.3rem' }} />
-        <Bone style={{ height: 10, width: '90%', borderRadius: 6, marginBottom: '1rem' }} />
-        <Bone style={{ height: 10, width: '35%', borderRadius: 6, marginBottom: '1.25rem' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Bone style={{ height: 10, width: '25%', borderRadius: 6 }} />
-          <Bone style={{ height: 30, width: '30%', borderRadius: 8 }} />
+        <Bone className="h-3.5 w-4/5 rounded-md mb-2" />
+        <Bone className="h-2.5 w-full rounded-md mb-1.5" />
+        <Bone className="h-2.5 w-[90%] rounded-md mb-4" />
+        <Bone className="h-2.5 w-[35%] rounded-md mb-5" />
+        <div className="flex justify-between items-center">
+          <Bone className="h-2.5 w-1/4 rounded-md" />
+          <Bone className="h-[30px] w-[30%] rounded-lg" />
         </div>
       </div>
     );
   }
   
-  function Bone({ style }) {
+  function Bone({ className }) {
     return (
-      <div style={{
-        background: 'linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)',
-        backgroundSize: '200% 100%',
-        animation: 'skeleton-shimmer 1.5s infinite',
-        ...style,
-      }} />
+      <div 
+        className={`animate-shimmer ${className}`}
+        style={{
+          background: 'linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)',
+          backgroundSize: '200% 100%',
+        }}
+      />
     );
   }
   

@@ -8,19 +8,28 @@ import {
   Quote, Check, AlertCircle, ArrowLeft
 } from 'lucide-react';
 import coBrotherLogo from '../assets/Cobrother_logo.png';
+import HomeFooter from '../components/common/HomeFooter';
+import { joinUsAPI } from '../api/services';
+import Confetti from '../components/common/Confetti';
+
+const SKILL_ENUM_MAP = {
+  CRM: 'CRM_SETUP',
+  'AI Bots': 'AI_SOCIAL_BOTS',
+  'SaaS Setup': 'SAAS_SETUP',
+};
 
 /* ─── Accordion Item ──────────────────────── */
 const AccordionItem = ({ q, a }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="btc-accordion-item">
-      <button type="button" className="btc-accordion-btn" onClick={() => setOpen(v => !v)}>
-        <span>{q}</span>
-        <ChevronDown size={16} className={`btc-accordion-chevron ${open ? 'open' : ''}`} />
+    <div className="border border-gray-200 rounded-xl overflow-hidden mb-3">
+      <button type="button" className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors" onClick={() => setOpen(v => !v)}>
+        <span className="font-semibold text-gray-900">{q}</span>
+        <ChevronDown size={16} className={`text-gray-600 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="btc-accordion-body">
-          <p>{a}</p>
+        <div className="px-5 pb-5 pt-0">
+          <p className="text-gray-600 text-sm">{a}</p>
         </div>
       )}
     </div>
@@ -29,18 +38,18 @@ const AccordionItem = ({ q, a }) => {
 
 /* ─── Detail Card ─────────────────────────── */
 const DetailCard = ({ icon: Icon, title, items }) => (
-  <div className="btc-detail-card">
-    <div className="btc-detail-card-header">
-      <div className="btc-detail-icon">
-        <Icon size={18} />
+  <div className="p-6 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+        <Icon size={18} className="text-purple-600" />
       </div>
-      <h4>{title}</h4>
+      <h4 className="font-bold text-gray-900 text-lg">{title}</h4>
     </div>
-    <ul className="btc-detail-list">
+    <ul className="space-y-2">
       {items.map((item, i) => (
-        <li key={i}>
-          <span className="btc-dot" />
-          {item}
+        <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
+          <span className="w-1.5 h-1.5 bg-purple-600 rounded-full mt-1.5 flex-shrink-0" />
+          <span>{item}</span>
         </li>
       ))}
     </ul>
@@ -49,23 +58,23 @@ const DetailCard = ({ icon: Icon, title, items }) => (
 
 /* ─── Trust Badge ─────────────────────────── */
 const TrustBadge = ({ icon: Icon, text }) => (
-  <div className="btc-trust-badge">
-    <div className="btc-trust-icon"><Icon size={14} /></div>
-    <span>{text}</span>
+  <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
+    <div className="w-7 h-7 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0"><Icon size={14} className="text-white" /></div>
+    <span className="text-xs font-semibold text-gray-900">{text}</span>
   </div>
 );
 
 /* ─── Flow Step ───────────────────────────── */
 const FlowStep = ({ icon: Icon, title, step, desc, isLast }) => (
-  <div className="btc-flow-step">
-    <div className="btc-flow-step-line">
-      <div className="btc-flow-step-icon"><Icon size={17} /></div>
-      {!isLast && <div className="btc-flow-step-connector" />}
+  <div className="flex gap-4 relative">
+    <div className="flex flex-col items-center">
+      <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0"><Icon size={17} className="text-white" /></div>
+      {!isLast && <div className="w-0.5 h-full bg-purple-200 mt-2" />}
     </div>
-    <div className="btc-flow-step-content">
-      <span className="btc-flow-step-num">Step {step}</span>
-      <h4>{title}</h4>
-      <p>{desc}</p>
+    <div className="flex-1 pb-6">
+      <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Step {step}</span>
+      <h4 className="font-bold text-gray-900 text-lg mt-1 mb-2">{title}</h4>
+      <p className="text-gray-600 text-sm">{desc}</p>
     </div>
   </div>
 );
@@ -138,29 +147,17 @@ export default function BeTheCoBrother() {
     }
     setSubmitState({ status: 'loading', message: '' });
     try {
-      // TODO: Replace with your email endpoint
-      // Send form data to backend/email service
-      const emailData = {
+      const requestData = {
         fullName: formData.fullName,
         email: formData.email,
-        whatsapp: formData.whatsapp,
-        cityPincode: formData.cityPincode,
-        topSkill: formData.topSkill,
-        hasEquipment: formData.hasEquipment,
-        timestamp: new Date().toISOString(),
+        phoneNumber: formData.whatsapp,
+        pinCode: formData.cityPincode,
+        skill: SKILL_ENUM_MAP[formData.topSkill],
+        equipment: formData.hasEquipment,
       };
-      
-      // TODO: Uncomment and configure when backend is ready
-      // const response = await fetch('YOUR_EMAIL_API_ENDPOINT', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(emailData),
-      // });
-      // if (!response.ok) throw new Error('Failed to send');
-      
-      console.log('Form data to be sent:', emailData);
-      
-      await new Promise(r => setTimeout(r, 900));
+
+      await joinUsAPI.submit(requestData);
+
       setSubmitState({ status: 'success', message: 'Territory claimed. We\'ll notify you when leads are ready in your area.' });
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 4000);
@@ -206,102 +203,74 @@ export default function BeTheCoBrother() {
 
   if (pageLoading) {
     return (
-      <div className="btc-loader-screen">
-        <div className="btc-loader-content">
-          <img src={coBrotherLogo} alt="CoBrother" className="btc-loader-logo" />
-          <div className="btc-loader-spinner" />
-          <p className="btc-loader-text">Loading CoBrother Elite...</p>
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-800 flex items-center justify-center z-50">
+        <div className="text-center">
+          <img src={coBrotherLogo} alt="CoBrother" className="w-24 h-24 mx-auto mb-6 animate-pulse" />
+          <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-white text-lg font-semibold">Loading CoBrother Elite...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`btc-page ${pageVisible ? 'btc-page-visible' : 'btc-page-hidden'}`}>
-      {/* Confetti Celebration */}
-      {showConfetti && (
-        <div className="btc-confetti-container">
-          {[...Array(100)].map((_, i) => {
-            const colors = ['#9440dd', '#7c3aed', '#00C3FF', '#fbbf24', '#ec4899', '#f97316', '#10b981'];
-            const shapes = ['square', 'circle', 'rectangle'];
-            const shape = shapes[Math.floor(Math.random() * shapes.length)];
-            const startX = Math.random() * 100; // Spread across full width
-            const endX = startX + (Math.random() - 0.5) * 30; // Gentle drift
-            
-            return (
-              <div
-                key={i}
-                className={`btc-confetti btc-confetti-${shape}`}
-                style={{
-                  left: `${startX}%`,
-                  '--end-x': `${endX}%`,
-                  '--rotation': `${Math.random() * 720 - 360}deg`,
-                  animationDelay: `${Math.random() * 0.8}s`,
-                  animationDuration: `${3.5 + Math.random() * 2.5}s`,
-                  backgroundColor: colors[Math.floor(Math.random() * colors.length)],
-                  width: shape === 'rectangle' ? `${8 + Math.random() * 6}px` : `${6 + Math.random() * 8}px`,
-                  height: shape === 'rectangle' ? `${4 + Math.random() * 4}px` : `${6 + Math.random() * 8}px`,
-                }}
-              />
-            );
-          })}
-        </div>
-      )}
+    <div className={`min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 transition-opacity duration-500 ${pageVisible ? 'opacity-100' : 'opacity-0'}`}>
+      <Confetti show={showConfetti} />
       
       {/* Navbar */}
-      <nav className="btc-navbar">
-        <div className="btc-navbar-container">
-          <div className="btc-navbar-left">
-            <img src={coBrotherLogo} alt="CoBrother" className="btc-logo" />
+      <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div>
+            <img src={coBrotherLogo} alt="CoBrother" className="h-10" />
           </div>
-          <button className="btc-back-btn" onClick={() => navigate('/')}>
+          <button className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-purple-600 transition-colors rounded-lg hover:bg-purple-50 font-semibold" onClick={() => navigate('/')}>
             <ArrowLeft size={16} /> Home
           </button>
         </div>
       </nav>
 
-      <main className="btc-main">
+      <main className="max-w-7xl mx-auto px-4 py-12">
         {/* Hero + Form Grid */}
-        <div className="btc-hero-grid">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
           {/* LEFT — Hero */}
-          <div className="btc-hero-left">
-            <div className="btc-badge-pill">
-              <span className="btc-pulse" />
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 border border-green-300 rounded-full text-sm font-semibold text-green-700">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               Now open · Up to 60% commission
             </div>
 
-            <h1 className="btc-hero-title">
-              Join the <span className="btc-purple-text">CoBrother Elite</span>
+            <h1 className="font-display text-5xl md:text-6xl font-bold text-gray-900">
+              Join the <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">CoBrother Elite</span>
             </h1>
 
-            <p className="btc-hero-desc">
-              Small businesses in India are buying <strong>AI and SaaS</strong>, but can't install it. We provide the software — <strong>you provide the deployment</strong> and earn up to 60%.
+            <p className="text-xl text-gray-600">
+              Small businesses in India are buying <strong className="text-gray-900">AI and SaaS</strong>, but can't install it. We provide the software — <strong className="text-gray-900">you provide the deployment</strong> and earn up to 60%.
             </p>
 
             {/* Stats */}
-            <div className="btc-stats-row">
+            <div className="grid grid-cols-3 gap-4">
               {[
                 { val: '60%', label: 'COMMISSION' },
                 { val: '48h', label: 'ONBOARDING' },
                 { val: '₹0', label: 'JOINING FEE' },
               ].map(({ val, label }) => (
-                <div key={label} className="btc-stat-card">
-                  <span className="btc-stat-val">{val}</span>
-                  <span className="btc-stat-label">{label}</span>
+                <div key={label} className="p-4 bg-white rounded-xl shadow-md border border-gray-200 text-center">
+                  <span className="block text-3xl font-bold font-display text-purple-600 mb-1">{val}</span>
+                  <span className="block text-xs text-gray-600 font-semibold uppercase tracking-wider">{label}</span>
                 </div>
               ))}
             </div>
 
-            <div className="btc-cta-wrap">
-              <p className="btc-tagline">
+            <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl text-white text-center">
+              <p className="text-lg font-bold">
                 CoBrother Elite<br />Setup · Deploy · Get paid
               </p>
             </div>
 
             {/* Workflow Timeline */}
-            <div className="btc-workflow-card">
-              <h3 className="btc-workflow-title">
-                The <span className="btc-highlight">CoBrother</span> Workflow
+            <div className="p-8 bg-white rounded-2xl shadow-lg border border-gray-200">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                The <span className="text-purple-600">CoBrother</span> Workflow
               </h3>
               {flowSteps.map((s, i) => (
                 <FlowStep key={s.title} {...s} isLast={i === flowSteps.length - 1} />
@@ -310,61 +279,61 @@ export default function BeTheCoBrother() {
           </div>
 
           {/* RIGHT — Form */}
-          <div className="btc-form-col" ref={formRef}>
-            <div className="btc-form-card">
-              <div className="btc-form-gradient-bar" />
-              <div className="btc-form-header">
-                <h3>Claim your territory</h3>
-                <p>Fill once — we route leads to you by area & skill. <span className="btc-required">*</span> required.</p>
+          <div ref={formRef} className="sticky top-24 self-start">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+              <div className="h-1 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full mb-6" />
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Claim your territory</h3>
+                <p className="text-gray-600 text-sm">Fill once — we route leads to you by area & skill. <span className="text-red-500">*</span> required.</p>
               </div>
 
-              <form className="btc-form" onSubmit={handleSubmit}>
-                <div className="btc-field">
-                  <label>Full Name <span className="btc-required">*</span></label>
-                  {errors.fullName && <span className="btc-field-error">{errors.fullName}</span>}
-                  <input name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Your full name" />
+              <form className="space-y-5" onSubmit={handleSubmit}>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name <span className="text-red-500">*</span></label>
+                  {errors.fullName && <span className="text-xs text-red-500 block mb-1">{errors.fullName}</span>}
+                  <input name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Your full name" className="w-full px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all" />
                 </div>
 
-                <div className="btc-field">
-                  <label>Email <span className="btc-required">*</span></label>
-                  {errors.email && <span className="btc-field-error">{errors.email}</span>}
-                  <input name="email" value={formData.email} onChange={handleChange} placeholder="your.email@example.com" />
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email <span className="text-red-500">*</span></label>
+                  {errors.email && <span className="text-xs text-red-500 block mb-1">{errors.email}</span>}
+                  <input name="email" value={formData.email} onChange={handleChange} placeholder="your.email@example.com" className="w-full px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all" />
                 </div>
 
-                <div className="btc-field">
-                  <label>WhatsApp <span className="btc-required">*</span></label>
-                  {errors.whatsapp && <span className="btc-field-error">{errors.whatsapp}</span>}
-                  <div className="btc-phone-row">
-                    <span className="btc-phone-prefix">+91</span>
-                    <input name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="WhatsApp number" />
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp <span className="text-red-500">*</span></label>
+                  {errors.whatsapp && <span className="text-xs text-red-500 block mb-1">{errors.whatsapp}</span>}
+                  <div className="flex items-center gap-2">
+                    <span className="px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-semibold">+91</span>
+                    <input name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="WhatsApp number" className="flex-1 px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all" />
                   </div>
                 </div>
 
-                <div className="btc-field">
-                  <label>City / Pincode <span className="btc-required">*</span></label>
-                  {errors.cityPincode && <span className="btc-field-error">{errors.cityPincode}</span>}
-                  <input name="cityPincode" value={formData.cityPincode} onChange={handleChange} placeholder="Hubballi / 5800xx" />
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">City / Pincode <span className="text-red-500">*</span></label>
+                  {errors.cityPincode && <span className="text-xs text-red-500 block mb-1">{errors.cityPincode}</span>}
+                  <input name="cityPincode" value={formData.cityPincode} onChange={handleChange} placeholder="Hubballi / 5800xx" className="w-full px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all" />
                 </div>
 
-                <div className="btc-field">
-                  <label>Top Skill <span className="btc-required">*</span></label>
-                  {errors.topSkill && <span className="btc-field-error">{errors.topSkill}</span>}
-                  <div className="btc-custom-dropdown">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Top Skill <span className="text-red-500">*</span></label>
+                  {errors.topSkill && <span className="text-xs text-red-500 block mb-1">{errors.topSkill}</span>}
+                  <div className="btc-custom-dropdown relative">
                     <button
                       type="button"
-                      className={`btc-dropdown-trigger ${skillDropdownOpen ? 'open' : ''}`}
+                      className="w-full px-4 py-3 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all flex items-center justify-between"
                       onClick={() => setSkillDropdownOpen(!skillDropdownOpen)}
                     >
-                      {skillOptions.find(opt => opt.value === formData.topSkill)?.label || 'Select a skill'}
-                      <ChevronDown size={16} className={`btc-dropdown-arrow ${skillDropdownOpen ? 'open' : ''}`} />
+                      <span>{skillOptions.find(opt => opt.value === formData.topSkill)?.label || 'Select a skill'}</span>
+                      <ChevronDown size={16} className={`text-gray-600 transition-transform ${skillDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {skillDropdownOpen && (
-                      <div className="btc-dropdown-menu">
+                      <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
                         {skillOptions.map(option => (
                           <button
                             key={option.value}
                             type="button"
-                            className={`btc-dropdown-option ${formData.topSkill === option.value ? 'selected' : ''}`}
+                            className={`w-full px-4 py-3 text-left hover:bg-purple-50 transition-colors ${formData.topSkill === option.value ? 'bg-purple-100 text-purple-700 font-semibold' : 'text-gray-700'}`}
                             onClick={() => {
                               handleChange({ target: { name: 'topSkill', value: option.value } });
                               setSkillDropdownOpen(false);
@@ -378,55 +347,55 @@ export default function BeTheCoBrother() {
                   </div>
                 </div>
 
-                <div className="btc-equipment-toggle">
-                  <div className="btc-equipment-info">
-                    <div className="btc-equipment-icon">
-                      {formData.hasEquipment ? <Laptop size={16} /> : <Smartphone size={16} />}
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                      {formData.hasEquipment ? <Laptop size={16} className="text-purple-600" /> : <Smartphone size={16} className="text-purple-600" />}
                     </div>
                     <div>
-                      <span className="btc-equipment-title">Equipment</span>
-                      <span className="btc-equipment-sub">Laptop / Tablet available</span>
+                      <span className="block text-sm font-semibold text-gray-900">Equipment</span>
+                      <span className="block text-xs text-gray-600">Laptop / Tablet available</span>
                     </div>
                   </div>
-                  <label className="btc-switch">
-                    <input type="checkbox" name="hasEquipment" checked={formData.hasEquipment} onChange={handleChange} />
-                    <span className="btc-slider" />
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="hasEquipment" checked={formData.hasEquipment} onChange={handleChange} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600" />
                   </label>
                 </div>
 
                 <button
                   type="submit"
-                  className="btc-submit-btn"
+                  className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={submitState.status === 'loading'}
                 >
                   {submitState.status === 'loading' ? 'Submitting…' : 'START EARNING 60% →'}
                 </button>
 
                 {submitState.status === 'success' && (
-                  <div className="btc-alert btc-alert-success">
-                    <Check size={16} />
+                  <div className="flex items-start gap-3 p-4 bg-green-100 border border-green-300 rounded-lg">
+                    <Check size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <strong>Territory Claimed!</strong>
-                      <p>{submitState.message}</p>
+                      <strong className="text-sm font-bold text-green-900 block">Territory Claimed!</strong>
+                      <p className="text-xs text-green-700 mt-1">{submitState.message}</p>
                     </div>
                   </div>
                 )}
                 {submitState.status === 'error' && (
-                  <div className="btc-alert btc-alert-error">
-                    <AlertCircle size={16} />
+                  <div className="flex items-start gap-3 p-4 bg-red-100 border border-red-300 rounded-lg">
+                    <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <strong>Error</strong>
-                      <p>{submitState.message}</p>
+                      <strong className="text-sm font-bold text-red-900 block">Error</strong>
+                      <p className="text-xs text-red-700 mt-1">{submitState.message}</p>
                     </div>
                   </div>
                 )}
 
-                <p className="btc-form-footer">No spam · No joining fee · Get matched within 48h</p>
+                <p className="text-xs text-center text-gray-500">No spam · No joining fee · Get matched within 48h</p>
               </form>
             </div>
 
             {/* Trust Badges */}
-            <div className="btc-trust-grid">
+            <div className="grid grid-cols-2 gap-3 mt-6">
               <TrustBadge icon={Timer} text="Zero wait time" />
               <TrustBadge icon={BadgePercent} text="Upto 60% cut" />
               <TrustBadge icon={ShieldCheck} text="No joining fee" />
@@ -434,42 +403,42 @@ export default function BeTheCoBrother() {
             </div>
 
             {/* Quote */}
-            <div className="btc-quote-card">
-              <Quote size={16} className="btc-quote-icon" />
+            <div className="mt-6 p-5 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-xl border border-purple-200">
+              <Quote size={16} className="text-purple-600 mb-3" />
               <div>
-                <p className="btc-quote-text">"Smart hustlers don't chase — they build engines."</p>
-                <p className="btc-quote-sub">This form is your doorway into that engine.</p>
+                <p className="text-gray-900 font-semibold mb-2">"Smart hustlers don't chase — they build engines."</p>
+                <p className="text-gray-600 text-sm">This form is your doorway into that engine.</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Details Section */}
-        <section className="btc-details-section">
-          <div className="btc-section-label">
-            <div className="btc-section-icon"><Sparkles size={18} /></div>
+        <section className="mb-20">
+          <div className="flex items-start gap-4 mb-8">
+            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0"><Sparkles size={18} className="text-purple-600" /></div>
             <div>
-              <span className="btc-section-kicker">Details</span>
-              <h2>Everything you should know</h2>
-              <p>Scannable details — anyone can understand the workflow in one visit.</p>
+              <span className="text-sm font-bold text-purple-600 uppercase tracking-wider">Details</span>
+              <h2 className="text-3xl font-bold text-gray-900 mt-1 mb-2">Everything you should know</h2>
+              <p className="text-gray-600">Scannable details — anyone can understand the workflow in one visit.</p>
             </div>
           </div>
 
-          <div className="btc-details-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {detailCards.map(c => <DetailCard key={c.title} {...c} />)}
           </div>
 
           {/* Requirements */}
-          <div className="btc-requirements-card">
-            <div className="btc-requirements-header">
-              <div className="btc-req-icon"><ShieldCheck size={17} /></div>
-              <h4>Requirements</h4>
+          <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl text-white">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center"><ShieldCheck size={17} /></div>
+              <h4 className="text-xl font-bold">Requirements</h4>
             </div>
-            <div className="btc-requirements-grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {requirements.map(r => (
-                <div key={r.text} className="btc-req-item">
-                  <div className="btc-req-item-icon"><r.icon size={14} /></div>
-                  <span>{r.text}</span>
+                <div key={r.text} className="flex items-center gap-3 p-3 bg-white/10 rounded-lg backdrop-blur-sm">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0"><r.icon size={14} /></div>
+                  <span className="text-sm font-semibold">{r.text}</span>
                 </div>
               ))}
             </div>
@@ -477,26 +446,22 @@ export default function BeTheCoBrother() {
         </section>
 
         {/* FAQ */}
-        <section className="btc-faq-section">
-          <div className="btc-section-label">
-            <div className="btc-section-icon btc-section-icon-alt"><HelpCircle size={18} /></div>
+        <section className="mb-20">
+          <div className="flex items-start gap-4 mb-8">
+            <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0"><HelpCircle size={18} className="text-indigo-600" /></div>
             <div>
-              <span className="btc-section-kicker">FAQ</span>
-              <h2>Quick answers</h2>
-              <p>Tap a question to expand instantly.</p>
+              <span className="text-sm font-bold text-indigo-600 uppercase tracking-wider">FAQ</span>
+              <h2 className="text-3xl font-bold text-gray-900 mt-1 mb-2">Quick answers</h2>
+              <p className="text-gray-600">Tap a question to expand instantly.</p>
             </div>
           </div>
-          <div className="btc-faq-list">
+          <div className="max-w-3xl">
             {faqs.map(f => <AccordionItem key={f.q} {...f} />)}
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="btc-footer">
-        <p>© 2026 CoBrother™ Aultum International. All rights reserved.</p>
-        <p>Made with ❤️ in India.</p>
-      </footer>
+      <HomeFooter />
     </div>
   );
 }

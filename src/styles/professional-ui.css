@@ -1,0 +1,84 @@
+/* ═══════════════════════════════════════════════════════
+   Professional UI Enhancements
+   ═══════════════════════════════════════════════════════ */
+
+/* Professional Button Styles - Purple Border with Hover Fill */
+.btn-professional {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.5rem;
+  border: 2px solid #9440dd;
+  background: transparent;
+  color: #9440dd;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-professional:hover {
+  background: #9440dd;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(148, 64, 221, 0.3);
+}
+
+.btn-professional-sm {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.8125rem;
+  border: 2px solid #9440dd;
+  background: transparent;
+  color: #9440dd;
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.btn-professional-sm:hover {
+  background: #9440dd;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(148, 64, 221, 0.25);
+}
+
+.btn-professional-lg {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  border: 2px solid #9440dd;
+  background: transparent;
+  color: #9440dd;
+  font-weight: 700;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.btn-professional-lg:hover {
+  background: #9440dd;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(148, 64, 221, 0.35);
+}
+
+/* Card Hover Effect - Glowing Border */
+.card-glow-hover {
+  transition: all 0.3s ease;
+}
+
+.card-glow-hover:hover {
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.3), 
+              0 0 40px rgba(99, 102, 241, 0.2),
+              0 4px 20px rgba(0, 0, 0, 0.1);
+  border-color: rgba(147, 51, 234, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Apply to existing card classes */
+.card.card-glow-hover:hover,
+.venture-card.card-glow-hover:hover,
+.community-card.card-glow-hover:hover,
+.dash-card.card-glow-hover:hover {
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.3), 
+              0 0 40px rgba(99, 102, 241, 0.2),
+              0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: rgba(147, 51, 234, 0.5);
+}

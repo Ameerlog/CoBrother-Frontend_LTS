@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { coVentureAPI } from '../api/services';
+import { coVentureAPI, likeAPI, ventureAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
-import { likeAPI } from '../api/services';
 
 const STATUS_META = {
   PENDING:  { label: 'Pending',  color: '#c8a96e', bg: 'rgba(200,169,110,0.12)', icon: '⏳' },
@@ -21,39 +20,39 @@ export default function VentureDashboardPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1>Venture Dashboard</h1>
-            <p>Manage applications to your ventures and track your own.</p>
+            <h1 className="font-display text-3xl font-bold text-gray-900 m-0">Venture Dashboard</h1>
+            <p className="text-gray-600 mt-1">Manage applications to your ventures and track your own.</p>
           </div>
-          <button className="btn-secondary" onClick={() => navigate('/ventures')}>
+          <button className="px-4 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50" onClick={() => navigate('/ventures')}>
             ← Back to Ventures
           </button>
         </div>
 
-        <div className="filter-tabs">
-        <button
-          className={`filter-tab ${tab === 'likes' ? 'active' : ''}`}
-          onClick={() => setTab('likes')}
-        >
-          ❤️ Likes Received
-        </button>
+        <div className="flex gap-2 mb-6">
           <button
-            className={`filter-tab ${tab === 'incoming' ? 'active' : ''}`}
+            className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 ${tab === 'likes' ? 'bg-purple-600 text-white border-2 border-purple-600' : 'bg-white border-2 border-purple-400 text-purple-600 hover:bg-purple-50'}`}
+            onClick={() => setTab('likes')}
+          >
+            ❤️ Likes Received
+          </button>
+          <button
+            className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 ${tab === 'incoming' ? 'bg-purple-600 text-white border-2 border-purple-600' : 'bg-white border-2 border-purple-400 text-purple-600 hover:bg-purple-50'}`}
             onClick={() => setTab('incoming')}
           >
             📋 Incoming Applications
           </button>
           <button
-            className={`filter-tab ${tab === 'applied' ? 'active' : ''}`}
+            className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 ${tab === 'applied' ? 'bg-purple-600 text-white border-2 border-purple-600' : 'bg-white border-2 border-purple-400 text-purple-600 hover:bg-purple-50'}`}
             onClick={() => setTab('applied')}
           >
             🚀 My Applications
           </button>
         </div>
 
-        {tab === 'incoming' ? <IncomingApplications /> : <MyApplications />}
+        {tab === 'incoming' ? <IncomingApplications /> : tab === 'applied' ? <MyApplications /> : <LikesReceived />}
       </div>
     </AppLayout>
   );
@@ -123,13 +122,12 @@ function IncomingApplications() {
   return (
     <div>
       {/* Controls */}
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+      <div className="flex gap-3 items-center mb-6 flex-wrap">
+        <div className="flex gap-2">
           {['', 'PENDING', 'APPROVED', 'REJECTED'].map(s => (
             <button
               key={s}
-              className={`filter-tab ${statusFilter === s ? 'active' : ''}`}
-              style={{ fontSize: '0.8rem', padding: '0.35rem 0.85rem' }}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all duration-200 ${statusFilter === s ? 'bg-purple-600 text-white border-2 border-purple-600' : 'bg-white border-2 border-purple-400 text-purple-600 hover:bg-purple-50'}`}
               onClick={() => setStatusFilter(s)}
             >
               {s === '' ? 'All' : STATUS_META[s].label}
@@ -137,8 +135,7 @@ function IncomingApplications() {
           ))}
         </div>
         <button
-          className="btn-secondary"
-          style={{ marginLeft: 'auto', fontSize: '0.85rem' }}
+          className="ml-auto px-4 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={exportCSV}
           disabled={applications.length === 0}
         >
@@ -147,24 +144,24 @@ function IncomingApplications() {
       </div>
 
       {loading ? (
-        <div className="page-loading"><div className="spinner" /></div>
+        <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>
       ) : applications.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">📋</div>
-          <h3>No applications yet</h3>
-          <p>When someone applies to your ventures, they'll appear here.</p>
+        <div className="text-center py-20">
+          <div className="text-6xl mb-4">📋</div>
+          <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No applications yet</h3>
+          <p className="text-gray-600">When someone applies to your ventures, they'll appear here.</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className="flex flex-col gap-8">
           {Object.entries(grouped).map(([ventureName, apps]) => (
             <div key={ventureName}>
-              <h3 style={{ color: '#e0e0f0', marginBottom: '0.75rem', fontSize: '1rem', fontWeight: 600 }}>
+              <h3 className="text-gray-900 mb-3 text-base font-semibold">
                 {ventureName}
-                <span style={{ marginLeft: '0.5rem', color: '#a0a0b0', fontWeight: 400, fontSize: '0.85rem' }}>
+                <span className="ml-2 text-gray-600 font-normal text-sm">
                   ({apps.length} application{apps.length !== 1 ? 's' : ''})
                 </span>
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="flex flex-col gap-3">
                 {apps.map(app => (
                   <ApplicationCard
                     key={app.id}
@@ -189,51 +186,37 @@ function ApplicationCard({ app, expanded, onToggle, onApprove, onReject, actionL
   const s = STATUS_META[app.status] || STATUS_META.PENDING;
 
   return (
-    <div style={{
-      background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: '12px',
-      overflow: 'hidden',
-    }}>
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
       {/* Header row */}
       <div
-        style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', cursor: 'pointer' }}
+        className="flex items-center gap-4 p-4 cursor-pointer hover:bg-gray-50 transition-colors"
         onClick={onToggle}
       >
-        <div style={{
-          width: 38, height: 38, borderRadius: '50%',
-          background: 'rgba(255,255,255,0.07)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 700, color: '#c0c0d0', fontSize: '1rem', flexShrink: 0
-        }}>
+        <div className="w-[38px] h-[38px] rounded-full bg-purple-100 flex items-center justify-center font-bold text-purple-600 text-base flex-shrink-0">
           {app.fullName?.[0]?.toUpperCase() || '?'}
         </div>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 600, color: '#e0e0f0' }}>{app.fullName || 'Unknown'}</div>
-          <div style={{ fontSize: '0.8rem', color: '#a0a0b0' }}>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-gray-900">{app.fullName || 'Unknown'}</div>
+          <div className="text-xs text-gray-500">
             {app.phone || '—'}{app.location ? ` · ${app.location}` : ''}
           </div>
         </div>
 
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-          padding: '0.25rem 0.75rem', borderRadius: '20px',
-          background: s.bg, color: s.color, fontSize: '0.8rem', fontWeight: 500,
-          flexShrink: 0
-        }}>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium flex-shrink-0"
+          style={{ background: s.bg, color: s.color }}>
           {s.icon} {s.label}
         </div>
 
-        <span style={{ color: '#666', fontSize: '0.85rem', flexShrink: 0 }}>
+        <span className="text-gray-500 text-sm flex-shrink-0">
           {expanded ? '▲' : '▼'}
         </span>
       </div>
 
       {/* Expanded details */}
       {expanded && (
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '1rem 1.25rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+        <div className="border-t border-gray-100 p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             <Detail label="Full Name" value={app.fullName} />
             <Detail label="Phone" value={app.phone} />
             <Detail label="Location" value={app.location} />
@@ -242,26 +225,26 @@ function ApplicationCard({ app, expanded, onToggle, onApprove, onReject, actionL
           </div>
 
           {app.status === 'PENDING' && (
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+            <div className="flex gap-3 mt-2">
               <button
-                className="btn-primary btn-sm"
+                className="px-4 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 onClick={onApprove}
                 disabled={actionLoading !== null}
               >
-                {actionLoading === app.id + 'APPROVED' ? <span className="btn-spinner" /> : '✓ Approve'}
+                {actionLoading === app.id + 'APPROVED' ? <span className="w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin" /> : '✓ Approve'}
               </button>
               <button
-                className="btn-danger btn-sm"
+                className="px-4 py-2 bg-red-500 border border-red-500 text-white rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 onClick={onReject}
                 disabled={actionLoading !== null}
               >
-                {actionLoading === app.id + 'REJECTED' ? <span className="btn-spinner" /> : '✕ Reject'}
+                {actionLoading === app.id + 'REJECTED' ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : '✕ Reject'}
               </button>
             </div>
           )}
 
           {app.status !== 'PENDING' && (
-            <div style={{ fontSize: '0.82rem', color: '#888', marginTop: '0.25rem' }}>
+            <div className="text-xs text-gray-500 mt-1">
               Application has been {app.status.toLowerCase()}.
             </div>
           )}
@@ -283,49 +266,35 @@ function MyApplications() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="page-loading"><div className="spinner" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>;
 
   if (applications.length === 0) return (
-    <div className="empty-state">
-      <div className="empty-icon">🚀</div>
-      <h3>No applications yet</h3>
-      <p>Browse ventures and apply to co-venture with other founders.</p>
+    <div className="text-center py-20">
+      <div className="text-6xl mb-4">🚀</div>
+      <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No applications yet</h3>
+      <p className="text-gray-600">Browse ventures and apply to co-venture with other founders.</p>
     </div>
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+    <div className="flex flex-col gap-3">
       {applications.map(app => {
         const b = app.venture?.brandDetails || {};
         const s = STATUS_META[app.status] || STATUS_META.PENDING;
         return (
-          <div key={app.id} style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '12px',
-            padding: '1rem 1.25rem',
-            display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap'
-          }}>
+          <div key={app.id} className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4 flex-wrap shadow-sm">
             {b.logoUrl
-              ? <img src={b.logoUrl} alt={b.brandName} style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} />
-              : <div style={{
-                  width: 40, height: 40, borderRadius: 8,
-                  background: 'rgba(255,255,255,0.07)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontWeight: 700, color: '#c0c0d0'
-                }}>{b.brandName?.[0] || '?'}</div>
+              ? <img src={b.logoUrl} alt={b.brandName} className="w-10 h-10 rounded-lg object-cover" />
+              : <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center font-bold text-purple-600">{b.brandName?.[0] || '?'}</div>
             }
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 600, color: '#e0e0f0' }}>{b.brandName || 'Unknown Venture'}</div>
-              <div style={{ fontSize: '0.8rem', color: '#a0a0b0' }}>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-gray-900">{b.brandName || 'Unknown Venture'}</div>
+              <div className="text-xs text-gray-500">
                 {b.industry?.replace(/_/g, ' ')}{b.ventureType ? ` · ${TYPE_LABELS[b.ventureType] || b.ventureType}` : ''}
               </div>
             </div>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-              padding: '0.25rem 0.75rem', borderRadius: '20px',
-              background: s.bg, color: s.color, fontSize: '0.8rem', fontWeight: 500
-            }}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
+              style={{ background: s.bg, color: s.color }}>
               {s.icon} {s.label}
             </div>
           </div>
@@ -339,12 +308,11 @@ function MyApplications() {
 function Detail({ label, value }) {
   return (
     <div>
-      <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.2rem' }}>{label}</div>
-      <div style={{ fontSize: '0.9rem', color: '#d0d0e0' }}>{value || '—'}</div>
+      <div className="text-xs text-gray-500 mb-1">{label}</div>
+      <div className="text-sm text-gray-700">{value || '—'}</div>
     </div>
   );
 }
-
 
 function LikesReceived() {
   const [ventures, setVentures] = useState([]);
@@ -366,35 +334,30 @@ function LikesReceived() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="page-loading"><div className="spinner" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>;
 
   if (ventures.length === 0) return (
-    <div className="empty-state">
-      <div className="empty-icon">❤️</div>
-      <h3>No ventures listed yet</h3>
+    <div className="text-center py-20">
+      <div className="text-6xl mb-4">❤️</div>
+      <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No ventures listed yet</h3>
     </div>
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+    <div className="flex flex-col gap-3">
       {ventures.map(v => {
         const b = v.brandDetails || {};
         const ls = likeData[String(v.id)] || { liked: false, count: 0 };
         return (
-          <div key={v.id} style={{ display: 'flex', alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    padding: '1rem 1.25rem',
-                                    background: 'rgba(255,255,255,0.03)',
-                                    border: '1px solid rgba(255,255,255,0.08)',
-                                    borderRadius: 10, flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div key={v.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-[10px] flex-wrap gap-2 shadow-sm">
             <div>
-              <div style={{ fontWeight: 600, color: '#e0e0f0' }}>{b.brandName}</div>
-              <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+              <div className="font-semibold text-gray-900">{b.brandName}</div>
+              <div className="text-xs text-gray-500 mt-1">
                 {b.industry?.replace(/_/g, ' ')}
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontSize: '0.875rem', color: '#c86e6e', fontWeight: 600 }}>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-red-400 font-semibold">
                 ❤️ {ls.count} like{ls.count !== 1 ? 's' : ''}
               </span>
             </div>

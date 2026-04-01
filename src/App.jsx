@@ -30,6 +30,7 @@ import PurchasesPage from './pages/PurchasesPage';
 import AuctionsPage from './pages/AuctionsPage';
 import Home from './pages/Home';
 import JoinForm from './pages/JoinForm';
+import ContactPage from './pages/ContactPage';
 
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
           {/* Public */}
           <Route path="/" element={<Home />} />
           <Route path="/join-form" element={<JoinForm />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           {/* OAuth callback — path MUST match app.oauth2.redirect-uri in application.properties */}

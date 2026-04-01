@@ -17,8 +17,8 @@ export default function CoCreationAnalyticsPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <AppLayout><div className="page-loading"><div className="spinner" /></div></AppLayout>;
-  if (error)   return <AppLayout><div className="empty-state"><p>{error}</p></div></AppLayout>;
+  if (loading) return <AppLayout><div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div></AppLayout>;
+  if (error)   return <AppLayout><div className="text-center py-20"><p className="text-red-600">{error}</p></div></AppLayout>;
   if (!data)   return null;
 
   const viewEntries   = Object.entries(data.viewsByDay   || {});
@@ -29,19 +29,19 @@ export default function CoCreationAnalyticsPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page cocreation-analytics-page">
-        <div className="page-header cocreation-analytics-header">
+      <div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1>{data.softwareName}</h1>
-            <p>Analytics overview for this software listing.</p>
+            <h1 className="font-display text-3xl font-bold text-gray-900 m-0">{data.softwareName}</h1>
+            <p className="text-gray-600 mt-1">Analytics overview for this software listing.</p>
           </div>
-          <button className="btn-secondary cocreation-btn" onClick={() => navigate('/cocreation/dashboard')}>
+          <button className="px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-purple hover:bg-purple-50" onClick={() => navigate('/cocreation/dashboard')}>
             ← Dashboard
           </button>
         </div>
 
         {/* Top stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard label="Total Views"   value={data.totalViews}   icon="👁"  color="#c8a96e" />
           <StatCard label="Total Sales"   value={data.totalSales}   icon="💰"  color="#6ec896" />
           <StatCard label="Total Revenue" value={`₹${Number(data.totalRevenue).toLocaleString('en-IN')}`} icon="📈" color="#6ec896" />

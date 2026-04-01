@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { joinUsAPI } from '../api/services';
+import Confetti from '../components/common/Confetti';
 import {
   Network, Sparkles, Package, Store, ShieldCheck,
   Smartphone, MessageCircle, Laptop, MapPin, Workflow,
   Bell, MonitorCheck, Rocket, BadgeIndianRupee,
   ChevronDown, Timer, BadgePercent, Check, AlertCircle, ArrowLeft
 } from 'lucide-react';
+
+const SKILL_ENUM_MAP = {
+  CRM: 'CRM_SETUP',
+  'AI Bots': 'AI_SOCIAL_BOTS',
+  'SaaS Setup': 'SAAS_SETUP',
+};
 
 const JoinForm = () => {
   const navigate = useNavigate();
@@ -20,6 +27,7 @@ const JoinForm = () => {
   });
   const [errors, setErrors] = useState({});
   const [submitState, setSubmitState] = useState({ status: 'idle', message: '' });
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -61,35 +69,30 @@ const JoinForm = () => {
       setSubmitState({ status: 'loading', message: '' });
       
       const requestData = {
-        name: formData.fullName,
+        fullName: formData.fullName,
         email: formData.email,
-        phone: formData.whatsapp,
-        skills: formData.topSkill,
-        city: formData.cityPincode,
-        message: `Equipment available: ${formData.hasEquipment ? 'Yes (Laptop/Tablet)' : 'No'}`
+        phoneNumber: formData.whatsapp,
+        pinCode: formData.cityPincode,
+        skill: SKILL_ENUM_MAP[formData.topSkill],
+        equipment: formData.hasEquipment,
       };
       
-      const response = await joinUsAPI.submit(requestData);
-      
-      if (response.data && response.data.status === 'success') {
-        setSubmitState({
-          status: 'success',
-          message: 'Thank you! Our team will contact you soon.'
-        });
-        setFormData({
-          fullName: '',
-          email: '',
-          whatsapp: '',
-          cityPincode: '',
-          topSkill: 'CRM',
-          hasEquipment: false
-        });
-      } else {
-        setSubmitState({
-          status: 'error',
-          message: 'Failed to submit application. Please try again.'
-        });
-      }
+      await joinUsAPI.submit(requestData);
+
+      setSubmitState({
+        status: 'success',
+        message: 'Thank you! Our team will contact you soon.'
+      });
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 5000);
+      setFormData({
+        fullName: '',
+        email: '',
+        whatsapp: '',
+        cityPincode: '',
+        topSkill: 'CRM',
+        hasEquipment: false
+      });
     } catch (error) {
       console.error('Join Us error:', error);
       setSubmitState({
@@ -119,80 +122,81 @@ const JoinForm = () => {
   ];
 
   return (
-    <div className="join-form-page">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+      <Confetti show={showConfetti} />
       {/* Header */}
-      <header className="join-form-header">
-        <div className="join-form-header-container">
-          <button onClick={() => navigate('/')} className="join-form-back-btn">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-purple-600 transition-colors rounded-lg hover:bg-purple-50">
             <ArrowLeft size={18} />
-            <span>Back to Home</span>
+            <span className="font-semibold">Back to Home</span>
           </button>
-          <div className="join-form-logo">
-            <Network size={20} className="join-form-logo-icon" />
+          <div className="flex items-center gap-2 text-purple-600 font-bold text-lg">
+            <Network size={20} />
             <span>CoBrother Elite</span>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="join-form-hero">
-        <div className="join-form-hero-container">
-          <div className="join-form-badge">
-            <span className="join-form-badge-dot"></span>
+      <section className="py-16 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 border border-green-300 rounded-full text-sm font-semibold text-green-700 mb-6">
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             Now open · Up to 60% commission
           </div>
-          <h1 className="join-form-hero-title">
-            Join the <span className="join-form-gradient-text">CoBrother Elite</span>
+          <h1 className="font-display text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+            Join the <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">CoBrother Elite</span>
           </h1>
-          <p className="join-form-hero-desc">
-            Small businesses in India are buying <strong>AI and SaaS</strong>, but can't install it. 
-            We provide the software — <strong>you provide the deployment</strong> and earn up to 60%.
+          <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+            Small businesses in India are buying <strong className="text-gray-900">AI and SaaS</strong>, but can't install it. 
+            We provide the software — <strong className="text-gray-900">you provide the deployment</strong> and earn up to 60%.
           </p>
 
           {/* Stats */}
-          <div className="join-form-stats">
-            <div className="join-form-stat-card">
-              <p className="join-form-stat-value">60%</p>
-              <p className="join-form-stat-label">Commission</p>
+          <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+            <div className="p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
+              <p className="text-4xl font-bold font-display text-purple-600 mb-2">60%</p>
+              <p className="text-sm text-gray-600 font-semibold">Commission</p>
             </div>
-            <div className="join-form-stat-card">
-              <p className="join-form-stat-value">48h</p>
-              <p className="join-form-stat-label">Onboarding</p>
+            <div className="p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
+              <p className="text-4xl font-bold font-display text-indigo-600 mb-2">48h</p>
+              <p className="text-sm text-gray-600 font-semibold">Onboarding</p>
             </div>
-            <div className="join-form-stat-card">
-              <p className="join-form-stat-value">₹0</p>
-              <p className="join-form-stat-label">Joining fee</p>
+            <div className="p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
+              <p className="text-4xl font-bold font-display text-green-600 mb-2">₹0</p>
+              <p className="text-sm text-gray-600 font-semibold">Joining fee</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="join-form-main">
-        <div className="join-form-main-container">
-          <div className="join-form-grid">
+      <section className="py-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Info */}
-            <div className="join-form-info">
+            <div className="lg:col-span-2 space-y-8">
               {/* Workflow */}
-              <div className="join-form-workflow">
-                <h3 className="join-form-section-title">
-                  <Workflow size={20} />
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+                <h3 className="flex items-center gap-3 text-2xl font-bold text-gray-900 mb-6">
+                  <Workflow size={20} className="text-purple-600" />
                   The CoBrother Workflow
                 </h3>
-                <div className="join-form-workflow-steps">
+                <div className="space-y-4">
                   {[
                     { icon: Bell, title: 'Claim a Lead', desc: 'Get notified of a business in your area ready for AI.', color: '#9440dd' },
                     { icon: MapPin, title: 'On-Site Setup', desc: 'Visit the shop. Install Aultum CRM and AI Social Bots.', color: '#6366f1' },
                     { icon: MonitorCheck, title: 'Dashboard Handover', desc: 'Walk the owner through their new live dashboard.', color: '#0ea5e9' },
                     { icon: BadgeIndianRupee, title: 'Instant Commission', desc: 'Your 60% commission clears the moment integration goes live.', color: '#10b981' }
                   ].map((step, idx) => (
-                    <div key={idx} className="join-form-workflow-step">
-                      <div className="join-form-workflow-icon" style={{ backgroundColor: `${step.color}15`, borderColor: `${step.color}30` }}>
+                    <div key={idx} className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
+                      <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${step.color}15`, borderWidth: '2px', borderStyle: 'solid', borderColor: `${step.color}30` }}>
                         <step.icon size={18} style={{ color: step.color }} />
                       </div>
-                      <div className="join-form-workflow-content">
-                        <h4 style={{ color: step.color }}>{step.title}</h4>
-                        <p>{step.desc}</p>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-lg mb-1" style={{ color: step.color }}>{step.title}</h4>
+                        <p className="text-gray-600 text-sm">{step.desc}</p>
                       </div>
                     </div>
                   ))}
@@ -200,12 +204,12 @@ const JoinForm = () => {
               </div>
 
               {/* Details Cards */}
-              <div className="join-form-details">
-                <h3 className="join-form-section-title">
-                  <Sparkles size={20} />
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+                <h3 className="flex items-center gap-3 text-2xl font-bold text-gray-900 mb-6">
+                  <Sparkles size={20} className="text-purple-600" />
                   Everything you should know
                 </h3>
-                <div className="join-form-details-grid">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DetailCard
                     icon={Package}
                     title="What you install"
@@ -230,12 +234,12 @@ const JoinForm = () => {
               </div>
 
               {/* FAQ */}
-              <div className="join-form-faq">
-                <h3 className="join-form-section-title">
-                  <MessageCircle size={20} />
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+                <h3 className="flex items-center gap-3 text-2xl font-bold text-gray-900 mb-6">
+                  <MessageCircle size={20} className="text-purple-600" />
                   Frequently Asked Questions
                 </h3>
-                <div className="join-form-faq-list">
+                <div className="space-y-3">
                   {faqs.map((faq, idx) => (
                     <AccordionItem key={idx} q={faq.q} a={faq.a} />
                   ))}
@@ -244,133 +248,134 @@ const JoinForm = () => {
             </div>
 
             {/* Right Column - Form */}
-            <div className="join-form-sidebar">
-              <div className="join-form-card">
-                <div className="join-form-card-header">
-                  <h3>Claim your territory</h3>
-                  <p>Fill once — we route leads to you by area & skill.</p>
+            <div className="lg:col-span-1 sticky top-24 self-start">
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Claim your territory</h3>
+                  <p className="text-gray-600 text-sm">Fill once — we route leads to you by area & skill.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="join-form-form">
-                  <div className="join-form-field">
-                    <label>Full Name <span className="required">*</span></label>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
                       placeholder="Your full name"
-                      className={errors.fullName ? 'error' : ''}
+                      className={`w-full px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.fullName ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-purple-500'}`}
                     />
-                    {errors.fullName && <span className="join-form-error">{errors.fullName}</span>}
+                    {errors.fullName && <span className="text-xs text-red-500 mt-1 block">{errors.fullName}</span>}
                   </div>
 
-                  <div className="join-form-field">
-                    <label>Email <span className="required">*</span></label>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Email <span className="text-red-500">*</span></label>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="your.email@example.com"
-                      className={errors.email ? 'error' : ''}
+                      className={`w-full px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-purple-500'}`}
                     />
-                    {errors.email && <span className="join-form-error">{errors.email}</span>}
+                    {errors.email && <span className="text-xs text-red-500 mt-1 block">{errors.email}</span>}
                   </div>
 
-                  <div className="join-form-field">
-                    <label>WhatsApp <span className="required">*</span></label>
-                    <div className="join-form-phone-input">
-                      <span className="join-form-phone-prefix">+91</span>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp <span className="text-red-500">*</span></label>
+                    <div className="flex items-center gap-2">
+                      <span className="px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-semibold">+91</span>
                       <input
                         type="tel"
                         name="whatsapp"
                         value={formData.whatsapp}
                         onChange={handleChange}
                         placeholder="WhatsApp number"
-                        className={errors.whatsapp ? 'error' : ''}
+                        className={`flex-1 px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.whatsapp ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-purple-500'}`}
                       />
                     </div>
-                    {errors.whatsapp && <span className="join-form-error">{errors.whatsapp}</span>}
+                    {errors.whatsapp && <span className="text-xs text-red-500 mt-1 block">{errors.whatsapp}</span>}
                   </div>
 
-                  <div className="join-form-field">
-                    <label>City / Pincode <span className="required">*</span></label>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">City / Pincode <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       name="cityPincode"
                       value={formData.cityPincode}
                       onChange={handleChange}
                       placeholder="Hubballi / 580032"
-                      className={errors.cityPincode ? 'error' : ''}
+                      className={`w-full px-4 py-3 bg-white text-gray-900 placeholder:text-gray-400 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.cityPincode ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-purple-500'}`}
                     />
-                    {errors.cityPincode && <span className="join-form-error">{errors.cityPincode}</span>}
+                    {errors.cityPincode && <span className="text-xs text-red-500 mt-1 block">{errors.cityPincode}</span>}
                   </div>
 
-                  <div className="join-form-field">
-                    <label>Top Skill <span className="required">*</span></label>
-                    <select name="topSkill" value={formData.topSkill} onChange={handleChange}>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Top Skill <span className="text-red-500">*</span></label>
+                    <select name="topSkill" value={formData.topSkill} onChange={handleChange} className="w-full px-4 py-3 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all">
                       <option value="CRM">CRM Setup</option>
                       <option value="AI Bots">AI Social Bots</option>
                       <option value="SaaS Setup">SaaS Setup</option>
                     </select>
                   </div>
 
-                  <div className="join-form-equipment">
-                    <div className="join-form-equipment-info">
-                      <Laptop size={18} />
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <Laptop size={18} className="text-gray-600" />
                       <div>
-                        <p className="join-form-equipment-title">Equipment</p>
-                        <p className="join-form-equipment-desc">Laptop / Tablet available</p>
+                        <p className="text-sm font-semibold text-gray-900">Equipment</p>
+                        <p className="text-xs text-gray-600">Laptop / Tablet available</p>
                       </div>
                     </div>
-                    <label className="join-form-toggle">
+                    <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         name="hasEquipment"
                         checked={formData.hasEquipment}
                         onChange={handleChange}
+                        className="sr-only peer"
                       />
-                      <span className="join-form-toggle-slider"></span>
+                      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                     </label>
                   </div>
 
                   <button
                     type="submit"
-                    className="join-form-submit"
+                    className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={submitState.status === 'loading'}
                   >
                     {submitState.status === 'loading' ? 'Submitting...' : 'START EARNING 60% →'}
                   </button>
 
                   {submitState.status === 'success' && (
-                    <div className="join-form-message success">
-                      <Check size={16} />
+                    <div className="flex items-start gap-3 p-4 bg-green-100 border border-green-300 rounded-lg">
+                      <Check size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="join-form-message-title">Territory Claimed!</p>
-                        <p className="join-form-message-text">{submitState.message}</p>
+                        <p className="text-sm font-bold text-green-900">Territory Claimed!</p>
+                        <p className="text-xs text-green-700 mt-1">{submitState.message}</p>
                       </div>
                     </div>
                   )}
 
                   {submitState.status === 'error' && (
-                    <div className="join-form-message error">
-                      <AlertCircle size={16} />
+                    <div className="flex items-start gap-3 p-4 bg-red-100 border border-red-300 rounded-lg">
+                      <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="join-form-message-title">Error</p>
-                        <p className="join-form-message-text">{submitState.message}</p>
+                        <p className="text-sm font-bold text-red-900">Error</p>
+                        <p className="text-xs text-red-700 mt-1">{submitState.message}</p>
                       </div>
                     </div>
                   )}
 
-                  <p className="join-form-disclaimer">
+                  <p className="text-xs text-center text-gray-500">
                     No spam · No joining fee · Get matched within 48h
                   </p>
                 </form>
               </div>
 
               {/* Trust Badges */}
-              <div className="join-form-trust-badges">
+              <div className="grid grid-cols-2 gap-3 mt-6">
                 <TrustBadge icon={Timer} text="Zero wait time" />
                 <TrustBadge icon={BadgePercent} text="Up to 60% cut" />
                 <TrustBadge icon={ShieldCheck} text="No joining fee" />
@@ -385,18 +390,18 @@ const JoinForm = () => {
 };
 
 const DetailCard = ({ icon: Icon, title, items }) => (
-  <div className="join-form-detail-card">
-    <div className="join-form-detail-header">
-      <div className="join-form-detail-icon">
-        <Icon size={18} />
+  <div className="p-5 bg-gray-50 rounded-xl border border-gray-200 hover:border-purple-300 transition-colors">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+        <Icon size={18} className="text-purple-600" />
       </div>
-      <h4>{title}</h4>
+      <h4 className="font-bold text-gray-900">{title}</h4>
     </div>
-    <ul className="join-form-detail-list">
+    <ul className="space-y-2">
       {items.map((item, i) => (
-        <li key={i}>
-          <span className="join-form-dot"></span>
-          {item}
+        <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
+          <span className="w-1.5 h-1.5 bg-purple-600 rounded-full mt-1.5 flex-shrink-0"></span>
+          <span>{item}</span>
         </li>
       ))}
     </ul>
@@ -406,14 +411,14 @@ const DetailCard = ({ icon: Icon, title, items }) => (
 const AccordionItem = ({ q, a }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="join-form-accordion-item">
-      <button type="button" onClick={() => setOpen(!open)} className="join-form-accordion-btn">
-        <span>{q}</span>
-        <ChevronDown size={16} className={`join-form-accordion-icon ${open ? 'open' : ''}`} />
+    <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <button type="button" onClick={() => setOpen(!open)} className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors">
+        <span className="font-semibold text-gray-900">{q}</span>
+        <ChevronDown size={16} className={`text-gray-600 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="join-form-accordion-body">
-          <p>{a}</p>
+        <div className="px-4 pb-4 pt-0">
+          <p className="text-sm text-gray-600">{a}</p>
         </div>
       )}
     </div>
@@ -421,11 +426,11 @@ const AccordionItem = ({ q, a }) => {
 };
 
 const TrustBadge = ({ icon: Icon, text }) => (
-  <div className="join-form-trust-badge">
-    <div className="join-form-trust-icon">
-      <Icon size={14} />
+  <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
+    <div className="w-6 h-6 bg-purple-600 rounded-md flex items-center justify-center flex-shrink-0">
+      <Icon size={14} className="text-white" />
     </div>
-    <p>{text}</p>
+    <p className="text-xs font-semibold text-gray-900">{text}</p>
   </div>
 );
 

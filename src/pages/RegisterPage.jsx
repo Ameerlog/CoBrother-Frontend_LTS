@@ -27,13 +27,16 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="auth-page">
-        <div className="auth-bg"><div className="auth-bg-orb orb-1" /><div className="auth-bg-orb orb-2" /></div>
-        <div className="auth-card success-card">
-          <div className="success-icon">✉</div>
-          <h2>Check your inbox</h2>
-          <p>We've sent a verification link to <strong>{form.email}</strong>. Click it to activate your account.</p>
-          <Link to="/login" className="btn-primary full-width" style={{ display:'block', textAlign:'center', marginTop:'1.5rem' }}>
+      <div className="min-h-screen flex items-center justify-center p-8 relative overflow-hidden bg-gradient-to-b from-gray-50 to-indigo-50">
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <div className="absolute w-[500px] h-[500px] bg-purple/16 rounded-full blur-[80px] opacity-70 -top-[150px] -right-[100px]" />
+          <div className="absolute w-[400px] h-[400px] bg-blue-500/12 rounded-full blur-[80px] opacity-70 -bottom-[100px] -left-[100px]" />
+        </div>
+        <div className="relative z-10 w-full max-w-[440px] bg-white/92 p-10 rounded-[20px] shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-white/60 backdrop-blur-xl text-center">
+          <div className="text-5xl mb-4">✉</div>
+          <h2 className="font-display text-2xl font-bold text-gray-900 mb-3">Check your inbox</h2>
+          <p className="text-gray-600 mb-6">We've sent a verification link to <strong>{form.email}</strong>. Click it to activate your account.</p>
+          <Link to="/login" className="block w-full px-6 py-3 bg-white border-2 border-purple-400 text-purple-600 rounded-full font-semibold text-sm text-center cursor-pointer transition-all duration-200 hover:bg-purple-50 mt-6">
             Back to Login
           </Link>
         </div>
@@ -42,43 +45,43 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-bg">
-        <div className="auth-bg-orb orb-1" />
-        <div className="auth-bg-orb orb-2" />
-        <div className="auth-bg-grid" />
+    <div className="min-h-screen flex items-center justify-center p-8 relative overflow-hidden bg-gradient-to-b from-gray-50 to-indigo-50">
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute w-[500px] h-[500px] bg-purple/16 rounded-full blur-[80px] opacity-70 -top-[150px] -right-[100px]" />
+        <div className="absolute w-[400px] h-[400px] bg-blue-500/12 rounded-full blur-[80px] opacity-70 -bottom-[100px] -left-[100px]" />
+        <div className="absolute inset-0 opacity-65" style={{backgroundImage: 'linear-gradient(rgba(148,163,184,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.14) 1px, transparent 1px)', backgroundSize: '60px 60px'}} />
       </div>
 
-      <div className="auth-card">
-        <div className="auth-brand">
-          <img src={coBrotherLogo} alt="CoBrother" className="auth-logo-image" />
-          <h1>Create Account</h1>
-          <p>Join the CoBrother community</p>
+      <div className="relative z-10 w-full max-w-[440px] bg-white/92 p-10 rounded-[20px] shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-white/60 backdrop-blur-xl">
+        <div className="text-center mb-8">
+          <img src={coBrotherLogo} alt="CoBrother" className="w-[100px] h-auto object-contain mx-auto mb-4 block" />
+          <h1 className="font-display text-[2rem] font-semibold text-gray-900">Create Account</h1>
+          <p className="text-gray-600 text-[0.95rem] mt-1.5">Join the CoBrother community</p>
         </div>
 
-        {error && <div className="form-error">{error}</div>}
+        {error && <div className="px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-[10px] text-red-400 text-sm mb-4">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label>Email</label>
-            <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@example.com" required />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Email</label>
+            <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@example.com" required className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-purple-500 focus:shadow-[0_0_0_3px_rgba(147,51,234,0.1)]" />
           </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Min. 8 characters" required />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Password</label>
+            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Min. 8 characters" required className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-purple-500 focus:shadow-[0_0_0_3px_rgba(147,51,234,0.1)]" />
           </div>
-          <div className="form-group">
-            <label>Confirm Password</label>
-            <input name="confirm" type="password" value={form.confirm} onChange={handleChange} placeholder="Repeat password" required />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Confirm Password</label>
+            <input name="confirm" type="password" value={form.confirm} onChange={handleChange} placeholder="Repeat password" required className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-purple-500 focus:shadow-[0_0_0_3px_rgba(147,51,234,0.1)]" />
           </div>
-          <button type="submit" className="btn-primary full-width" disabled={loading}>
-            {loading ? <span className="btn-spinner" /> : 'Create Account'}
+          <button type="submit" className="w-full px-6 py-3 bg-white border-2 border-purple-400 text-purple-600 rounded-full font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" disabled={loading}>
+            {loading ? <span className="w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin" /> : 'Create Account'}
           </button>
         </form>
 
-        <div className="auth-links">
+        <div className="flex gap-2 justify-center mt-6 text-sm text-gray-500">
           <span>Already have an account?</span>
-          <Link to="/login">Sign In</Link>
+          <Link to="/login" className="text-purple-600 font-medium hover:underline">Sign In</Link>
         </div>
       </div>
     </div>

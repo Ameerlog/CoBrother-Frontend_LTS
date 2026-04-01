@@ -157,9 +157,16 @@ export const auctionAPI = {
 };
 
 export const feedbackAPI = {
-  submit: (feedbackType) => api.post('/api/v1/feedback', { feedback: feedbackType }),
+  submit: (payload) => api.post('/api/v1/feedback', payload),
 };
 
 export const joinUsAPI = {
-  submit: (data) => api.post('/api/v1/join-us', data),
+  submit: (data) => api.post('/api/v1/becobrother', data),
+};
+
+// ─── Public APIs (no auth required) ──────────────────────────────────────────
+export const publicAPI = {
+  getDomains:   () => api.get('/public/api/v1/domains'),
+  getVentures:  () => api.get('/public/api/v1/ventures'),
+  getSoftwares: () => api.get('/public/api/v1/softwares'),
 };

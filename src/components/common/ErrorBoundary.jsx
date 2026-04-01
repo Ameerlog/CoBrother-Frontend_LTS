@@ -17,46 +17,30 @@ export default class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{
-          minHeight: '100vh', display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', gap: '1rem',
-          background: '#0d0d14', padding: '2rem', textAlign: 'center',
-        }}>
-          <div style={{ fontSize: '3rem' }}>⚠️</div>
-          <h1 style={{ fontFamily: 'Cormorant Garamond, serif', color: '#e0e0f0',
-                       fontSize: '2rem' }}>
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-8 text-center bg-gradient-to-b from-gray-50 to-indigo-50">
+          <div className="text-5xl">⚠️</div>
+          <h1 className="font-display text-gray-900 text-[2rem] font-semibold">
             Something went wrong
           </h1>
-          <p style={{ color: '#888', maxWidth: 400, lineHeight: 1.6 }}>
+          <p className="text-gray-600 max-w-[400px] leading-relaxed">
             An unexpected error occurred. Please refresh the page or go back to the dashboard.
           </p>
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+          <div className="flex gap-3 mt-2">
             <button
               onClick={() => window.location.reload()}
-              style={{
-                background: 'rgba(200,169,110,0.15)', border: '1px solid rgba(200,169,110,0.3)',
-                borderRadius: 8, padding: '0.6rem 1.25rem', color: '#c8a96e',
-                cursor: 'pointer', fontSize: '0.875rem',
-              }}
+              className="bg-white border-2 border-purple-400 text-purple-600 rounded-full px-5 py-2.5 cursor-pointer text-sm font-semibold hover:bg-purple-50 transition-all duration-200"
             >
               ↺ Refresh
             </button>
             <button
               onClick={() => { this.setState({ hasError: false }); window.location.href = '/dashboard'; }}
-              style={{
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 8, padding: '0.6rem 1.25rem', color: '#a0a0b0',
-                cursor: 'pointer', fontSize: '0.875rem',
-              }}
+              className="bg-white border-2 border-gray-300 text-gray-700 rounded-full px-5 py-2.5 cursor-pointer text-sm font-semibold hover:bg-gray-50 transition-all duration-200"
             >
               ← Dashboard
             </button>
           </div>
           {import.meta.env.DEV && (
-            <pre style={{ marginTop: '1rem', fontSize: '0.72rem', color: '#666',
-                          maxWidth: 600, textAlign: 'left', whiteSpace: 'pre-wrap',
-                          background: 'rgba(255,0,0,0.05)', padding: '1rem',
-                          borderRadius: 8, border: '1px solid rgba(255,0,0,0.1)' }}>
+            <pre className="mt-4 text-[0.72rem] text-gray-600 max-w-[600px] text-left whitespace-pre-wrap bg-red-500/5 p-4 rounded-lg border border-red-500/10">
               {this.state.error?.toString()}
             </pre>
           )}

@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
+import VentureIcon from '../assets/Coventure_logo.png';
+import DomainsIcon from '../assets/CoBranding.png';
+import TechnologyIcon from '../assets/CoCreation.png';
+import AuctionIcon from '../assets/Auction.png';
 
 const STATUS_COLORS = {
   PAYMENT_PENDING:   '#c8a96e',
@@ -83,36 +87,37 @@ export default function AdminDashboardPage() {
   };
 
   const tabs = [
-    { id: 'coventures',         label: '📋 CoVentures'       },
-    { id: 'domains',            label: '◇ Domains'           },
-    { id: 'domain-enquiries',   label: '📩 Domain Enquiries' },
-    { id: 'cocreations',        label: '⟁ CoCreations'       },
-    { id: 'requests',           label: '◆ CoBrother Requests'},
-    { id: 'auctions', label: '🔨 Auctions' },
+    { id: 'coventures',         label: 'CoVentures', icon: VentureIcon       },
+    { id: 'domains',            label: 'Domains', icon: DomainsIcon           },
+    { id: 'domain-enquiries',   label: 'Domain Enquiries', icon: null },
+    { id: 'cocreations',        label: 'CoCreations', icon: TechnologyIcon       },
+    { id: 'requests',           label: 'CoBrother Requests', icon: null},
+    { id: 'auctions', label: 'Auctions', icon: AuctionIcon },
   ];
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1>Admin Dashboard</h1>
-            <p>Manage all platform activity.</p>
+            <h1 className="font-display text-3xl font-bold text-gray-900 m-0">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1">Manage all platform activity.</p>
           </div>
         </div>
 
-        <div className="filter-tabs" style={{ marginBottom: '1.5rem' }}>
+        <div className="flex gap-4 mb-6">
           {tabs.map(t => (
             <button key={t.id}
               className={`filter-tab ${tab === t.id ? 'active' : ''}`}
               onClick={() => setTab(t.id)}>
+              {t.icon && <img src={t.icon} alt="" className="inline-block w-4 h-4 mr-1.5 object-contain" />}
               {t.label}
             </button>
           ))}
         </div>
 
         {loading ? (
-          <div className="page-loading"><div className="spinner" /></div>
+          <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>
         ) : tab === 'domain-enquiries' ? (
           <DomainEnquiriesTable
             enquiries={data}
@@ -123,7 +128,7 @@ export default function AdminDashboardPage() {
         ) : tab === 'requests' ? (
           <RequestsTable requests={requests} />
         ) : data.length === 0 ? (
-          <div className="empty-state"><h3>No records found</h3></div>
+          <div className="text-center py-20"><h3 className="font-display text-2xl font-bold text-gray-900">No records found</h3></div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {data.map(item => (
@@ -182,15 +187,15 @@ function AdminRow({ item, tabType, onForward, onTakeDown, onRestore }) {
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.03)',
-      border: `1px solid ${item.takenDown ? 'rgba(200,110,110,0.25)' : 'rgba(255,255,255,0.08)'}`,
+      background: '#ffffff',
+      border: `1px solid ${item.takenDown ? 'rgba(200,110,110,0.25)' : '#e5e7eb'}`,
       borderRadius: 10, overflow: 'hidden',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem',
                     padding: '1rem 1.25rem', cursor: 'pointer' }}
            onClick={() => setExpanded(v => !v)}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, color: '#e0e0f0', display: 'flex',
+          <div style={{ fontWeight: 600, color: '#111827', display: 'flex',
                         alignItems: 'center', gap: '0.5rem' }}>
             {getTitle()}
             {item.takenDown && (
@@ -202,15 +207,15 @@ function AdminRow({ item, tabType, onForward, onTakeDown, onRestore }) {
               </span>
             )}
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+          <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: '0.2rem' }}>
             ID: {item.id}
           </div>
         </div>
-        <span style={{ color: '#666', fontSize: '0.85rem' }}>{expanded ? '▲' : '▼'}</span>
+        <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{expanded ? '▲' : '▼'}</span>
       </div>
 
       {expanded && (
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '1rem 1.25rem' }}>
+        <div style={{ borderTop: '1px solid #e5e7eb', padding: '1rem 1.25rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem',
                         marginBottom: '1rem' }}>
             <div>
@@ -218,8 +223,8 @@ function AdminRow({ item, tabType, onForward, onTakeDown, onRestore }) {
               {lister ? (
                 <>
                   <div style={valueStyle}>{lister.firstname} {lister.lastname}</div>
-                  <div style={{ fontSize: '0.78rem', color: '#888' }}>{lister.email}</div>
-                  <div style={{ fontSize: '0.78rem', color: '#888' }}>{lister.phoneNumber || '—'}</div>
+                  <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{lister.email}</div>
+                  <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{lister.phoneNumber || '—'}</div>
                 </>
               ) : <div style={valueStyle}>—</div>}
             </div>
@@ -228,8 +233,8 @@ function AdminRow({ item, tabType, onForward, onTakeDown, onRestore }) {
               {applicant ? (
                 <>
                   <div style={valueStyle}>{applicant.firstname} {applicant.lastname}</div>
-                  <div style={{ fontSize: '0.78rem', color: '#888' }}>{applicant.email}</div>
-                  <div style={{ fontSize: '0.78rem', color: '#888' }}>{applicant.phoneNumber || '—'}</div>
+                  <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{applicant.email}</div>
+                  <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{applicant.phoneNumber || '—'}</div>
                 </>
               ) : <div style={valueStyle}>Not yet</div>}
             </div>
@@ -272,7 +277,7 @@ function AdminRow({ item, tabType, onForward, onTakeDown, onRestore }) {
 
 function AuctionsAdminTable({ auctions }) {
   if (!auctions.length) return (
-    <div className="empty-state"><h3>No auctions yet</h3></div>
+    <div className="text-center py-20"><h3 className="font-display text-2xl font-bold text-gray-900">No auctions yet</h3></div>
   );
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -293,17 +298,17 @@ function AuctionAdminRow({ auction, bids }) {
   const domain = auction.domain || {};
 
   return (
-    <div style={{ background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10,
+    <div style={{ background: '#ffffff',
+                  border: '1px solid #e5e7eb', borderRadius: 10,
                   overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem',
                     padding: '1rem 1.25rem', cursor: 'pointer' }}
            onClick={() => setExpanded(v => !v)}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, color: '#e0e0f0' }}>
+          <div style={{ fontWeight: 600, color: '#111827' }}>
             {domain.domainName}{domain.domainExtension}
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+          <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: '0.2rem' }}>
             {auction.totalBids} bids · Status: {auction.status}
           </div>
         </div>
@@ -315,16 +320,16 @@ function AuctionAdminRow({ auction, bids }) {
               : 'No bids'}
           </div>
           {auction.currentWinner && (
-            <div style={{ fontSize: '0.72rem', color: '#888' }}>
+            <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>
               {auction.currentWinner.firstname} {auction.currentWinner.lastname}
             </div>
           )}
         </div>
-        <span style={{ color: '#666' }}>{expanded ? '▲' : '▼'}</span>
+        <span style={{ color: '#9ca3af' }}>{expanded ? '▲' : '▼'}</span>
       </div>
 
       {expanded && (
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)',
+        <div style={{ borderTop: '1px solid #e5e7eb',
                       padding: '1rem 1.25rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
                         gap: '1rem', marginBottom: '1rem' }}>
@@ -332,7 +337,7 @@ function AuctionAdminRow({ auction, bids }) {
               <div style={valueStyle}>
                 {domain.listedBy?.firstname} {domain.listedBy?.lastname}
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#888' }}>
+              <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>
                 {domain.listedBy?.email}
               </div>
             </div>
@@ -342,7 +347,7 @@ function AuctionAdminRow({ auction, bids }) {
                   ? `${auction.currentWinner.firstname} ${auction.currentWinner.lastname}`
                   : '—'}
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#888' }}>
+              <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>
                 {auction.currentWinner?.email || ''}
               </div>
             </div>
@@ -360,18 +365,18 @@ function AuctionAdminRow({ auction, bids }) {
             <div>
               <div style={labelStyle}>All Bids ({bids.length})</div>
               <div style={{ maxHeight: 200, overflowY: 'auto', marginTop: '0.5rem',
-                            background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '0.5rem' }}>
+                            background: '#f9fafb', borderRadius: 8, padding: '0.5rem', border: '1px solid #e5e7eb' }}>
                 {bids.map((bid, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between',
                                         padding: '0.4rem 0.5rem', fontSize: '0.8rem',
-                                        borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <span style={{ color: '#c0c0d0' }}>{bid.bidderName}</span>
-                    <span style={{ color: bid.isWinningBid ? '#6ec896' : '#c8a96e',
+                                        borderBottom: '1px solid #e5e7eb' }}>
+                    <span style={{ color: '#111827', fontWeight: 500 }}>{bid.bidderName}</span>
+                    <span style={{ color: bid.isWinningBid ? '#059669' : '#7c3aed',
                                    fontWeight: 600 }}>
                       ₹{Number(bid.amount).toLocaleString('en-IN')}
                       {bid.isWinningBid && ' 🏆'}
                     </span>
-                    <span style={{ color: '#666' }}>
+                    <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>
                       {bid.bidTime
                         ? new Date(bid.bidTime).toLocaleString('en-IN',
                             { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })
@@ -390,9 +395,9 @@ function AuctionAdminRow({ auction, bids }) {
 
 function DomainEnquiriesTable({ enquiries, onForward }) {
   if (enquiries.length === 0) return (
-    <div className="empty-state">
-      <h3>No domain enquiries yet</h3>
-      <p>Enquiries for domains above ₹5,00,000 will appear here.</p>
+    <div className="text-center py-20">
+      <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No domain enquiries yet</h3>
+      <p className="text-gray-600">Enquiries for domains above ₹5,00,000 will appear here.</p>
     </div>
   );
 
@@ -401,15 +406,15 @@ function DomainEnquiriesTable({ enquiries, onForward }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       {enquiries.map(e => (
-        <div key={e.id} style={{ padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.03)',
-                                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10 }}>
+        <div key={e.id} style={{ padding: '1rem 1.25rem', background: '#ffffff',
+                                  border: '1px solid #e5e7eb', borderRadius: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between',
                         flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <div>
-              <div style={{ fontWeight: 600, color: '#e0e0f0' }}>
+              <div style={{ fontWeight: 600, color: '#111827' }}>
                 {e.domain?.domainName}{e.domain?.domainExtension}
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+              <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: '0.2rem' }}>
                 ₹{Number(e.domain?.askingPrice || 0).toLocaleString('en-IN')}
               </div>
             </div>
@@ -424,15 +429,15 @@ function DomainEnquiriesTable({ enquiries, onForward }) {
             <div>
               <div style={labelStyle}>Enquirer</div>
               <div style={valueStyle}>{e.fullName}</div>
-              <div style={{ fontSize: '0.78rem', color: '#888' }}>{e.email}</div>
-              <div style={{ fontSize: '0.78rem', color: '#888' }}>{e.phone}</div>
+              <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{e.email}</div>
+              <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{e.phone}</div>
             </div>
             <div>
               <div style={labelStyle}>Domain Lister</div>
               <div style={valueStyle}>
                 {e.domain?.listedBy?.firstname} {e.domain?.listedBy?.lastname}
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#888' }}>{e.domain?.listedBy?.email}</div>
+              <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{e.domain?.listedBy?.email}</div>
             </div>
           </div>
 
@@ -458,18 +463,18 @@ function DomainEnquiriesTable({ enquiries, onForward }) {
 
 function RequestsTable({ requests }) {
   if (requests.length === 0) return (
-    <div className="empty-state"><h3>No CoBrother requests yet</h3></div>
+    <div className="text-center py-20"><h3 className="font-display text-2xl font-bold text-gray-900">No CoBrother requests yet</h3></div>
   );
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       {requests.map(r => (
-        <div key={r.id} style={{ padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.03)',
-                                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10 }}>
+        <div key={r.id} style={{ padding: '1rem 1.25rem', background: '#ffffff',
+                                  border: '1px solid #e5e7eb', borderRadius: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between',
                         flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
             <div>
-              <span style={{ fontWeight: 600, color: '#e0e0f0' }}>{r.entityTitle}</span>
-              <span style={{ fontSize: '0.75rem', color: '#888', marginLeft: '0.5rem' }}>
+              <span style={{ fontWeight: 600, color: '#111827' }}>{r.entityTitle}</span>
+              <span style={{ fontSize: '0.75rem', color: '#6b7280', marginLeft: '0.5rem' }}>
                 {r.requestType}
               </span>
             </div>
@@ -478,15 +483,15 @@ function RequestsTable({ requests }) {
               {r.status?.replace(/_/g, ' ')}
             </span>
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#888' }}>
+          <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>
             Lister: {r.listerName} · {r.listerEmail}
           </div>
           {r.applicantName && (
-            <div style={{ fontSize: '0.78rem', color: '#888' }}>
+            <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>
               Applicant: {r.applicantName} · {r.applicantEmail}
             </div>
           )}
-          <div style={{ fontSize: '0.78rem', color: '#666', marginTop: '0.3rem' }}>
+          <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: '0.3rem' }}>
             CoBrother: {r.assignedCoBrother?.firstname} {r.assignedCoBrother?.lastname}
           </div>
         </div>
@@ -636,7 +641,7 @@ function TakeDownModal({ target, onConfirm, onClose }) {
 }
 
 const labelStyle = {
-  fontSize: '0.72rem', fontWeight: 600, color: '#888',
+  fontSize: '0.72rem', fontWeight: 600, color: '#6b7280',
   textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem',
 };
-const valueStyle = { fontSize: '0.9rem', color: '#e0e0f0', fontWeight: 500 };
+const valueStyle = { fontSize: '0.9rem', color: '#111827', fontWeight: 500 };

@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { domainAPI, cocreationAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
+import PurchaseIcon from '../assets/purchase.png';
+import DomainsIcon from '../assets/CoBranding.png';
+import SoftwareIcon from '../assets/CoCreation.png';
+import CoBrotherIcon from '../assets/Community-profileicon.png';
 
 export default function PurchasesPage() {
   const navigate                      = useNavigate();
@@ -37,32 +41,31 @@ export default function PurchasesPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div>
+        <div className="mb-6">
           <div>
-            <h1>My Purchases</h1>
-            <p>All your domain and software purchases in one place.</p>
+            <h1 className="font-display text-3xl font-bold text-gray-900 m-0">My Purchases</h1>
+            <p className="text-gray-600 mt-1">All your domain and software purchases in one place.</p>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                      gap: '1rem', marginBottom: '2rem' }}>
-          <StatCard label="Total Purchases"  value={totalItems}                  icon="🛒" />
-          <StatCard label="Domains"          value={completedDomains.length}     icon="◇" color="#6eadc8" />
-          <StatCard label="Software"         value={completedSoftware.length}    icon="⟁" color="#a06ec8" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <StatCard label="Total Purchases"  value={totalItems}                  iconSrc={PurchaseIcon} />
+          <StatCard label="Domains"          value={completedDomains.length}     iconSrc={DomainsIcon} color="#6eadc8" />
+          <StatCard label="Software"         value={completedSoftware.length}    iconSrc={SoftwareIcon} color="#a06ec8" />
           <StatCard label="CoBrother Active"
             value={completedSoftware.filter(p => p.coBrotherHelpPaid).length}
-            icon="◆" color="#6ec896" />
+            iconSrc={CoBrotherIcon} color="#6ec896" />
         </div>
 
-        <div className="filter-tabs" style={{ marginBottom: '1.5rem' }}>
+        <div className="flex gap-2 mb-6">
           {[
             { id: 'all',      label: `All (${totalItems})` },
-            { id: 'domains',  label: `◇ Domains (${completedDomains.length})` },
-            { id: 'software', label: `⟁ Software (${completedSoftware.length})` },
+            { id: 'domains',  label: `Domains (${completedDomains.length})` },
+            { id: 'software', label: `Software (${completedSoftware.length})` },
           ].map(t => (
             <button key={t.id}
-              className={`filter-tab ${tab === t.id ? 'active' : ''}`}
+              className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 ${tab === t.id ? 'bg-purple text-white' : 'bg-white border border-gray-300 text-gray-700 hover:border-purple hover:bg-purple-50'}`}
               onClick={() => setTab(t.id)}>
               {t.label}
             </button>
@@ -70,19 +73,19 @@ export default function PurchasesPage() {
         </div>
 
         {loading ? (
-          <div className="page-loading"><div className="spinner" /></div>
+          <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>
         ) : displayItems.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">🛒</div>
-            <h3>No purchases yet</h3>
-            <p>Browse domains and software to make your first purchase.</p>
-            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-              <button className="btn-outline-venture" onClick={() => navigate('/domains')}>Browse Domains</button>
-              <button className="btn-outline-venture" onClick={() => navigate('/cocreation')}>Browse Software</button>
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">🛒</div>
+            <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No purchases yet</h3>
+            <p className="text-gray-600 mb-6">Browse domains and software to make your first purchase.</p>
+            <div className="flex gap-3 justify-center">
+              <button className="px-5 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-purple hover:bg-purple-50" onClick={() => navigate('/domains')}>Browse Domains</button>
+              <button className="px-5 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-purple hover:bg-purple-50" onClick={() => navigate('/cocreation')}>Browse Software</button>
             </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+          <div className="flex flex-col gap-3.5">
             {displayItems.map((item) =>
               item._type === 'domain' ? (
                 <DomainPurchaseRow key={'d-' + item.id} domain={item} />
@@ -107,22 +110,21 @@ export default function PurchasesPage() {
       )}
 
       {helpSuccess && (
-        <div className="modal-overlay" onClick={() => setHelpSuccess(null)}>
-          <div className="modal-card" style={{ maxWidth: 440, textAlign: 'center' }}>
-            <div className="modal-glow" />
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>◆</div>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
-                         marginBottom: '0.5rem', color: '#e0e0f0' }}>CoBrother Help Activated!</h2>
-            <p style={{ color: '#a0a0b0', marginBottom: '1.25rem', lineHeight: 1.6 }}>
-              A CoBrother will reach out within <strong style={{ color: '#c8a96e' }}>24 hours</strong>{' '}
-              to help with <strong style={{ color: '#e0e0f0' }}>{helpSuccess.software?.name}</strong>.
-            </p>
-            <div style={{ padding: '0.875rem', background: 'rgba(110,200,150,0.08)',
-                          border: '1px solid rgba(110,200,150,0.2)', borderRadius: 10,
-                          marginBottom: '1.5rem', fontSize: '0.82rem', color: '#6ec896' }}>
-              ✓ ₹1,000 paid · CoBrother assigned · Expect contact via email
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn" onClick={() => setHelpSuccess(null)}>
+          <div className="relative w-full max-w-[440px] bg-white border border-gray-200 rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] text-center animate-slideUp">
+            <div className="absolute -top-24 -right-24 w-[300px] h-[300px] rounded-full bg-purple-100/30 blur-3xl pointer-events-none" />
+            <div className="relative z-10 p-8">
+              <div className="text-5xl mb-4">◆</div>
+              <h2 className="font-display text-[1.75rem] font-semibold text-gray-900 mb-2">CoBrother Help Activated!</h2>
+              <p className="text-gray-500 mb-5 leading-relaxed">
+                A CoBrother will reach out within <strong className="text-purple-600">24 hours</strong>{' '}
+                to help with <strong className="text-gray-900">{helpSuccess.software?.name}</strong>.
+              </p>
+              <div className="px-3.5 py-3 bg-green-500/8 border border-green-500/20 rounded-[10px] mb-6 text-xs text-green-400">
+                ✓ ₹1,000 paid · CoBrother assigned · Expect contact via email
+              </div>
+              <button className="w-full px-6 py-2.5 bg-white border-2 border-purple-400 text-purple-600 rounded-full font-semibold text-sm transition-all duration-200 hover:bg-purple-50" onClick={() => setHelpSuccess(null)}>Done</button>
             </div>
-            <button className="btn-primary" onClick={() => setHelpSuccess(null)} style={{ width: '100%' }}>Done</button>
           </div>
         </div>
       )}
@@ -132,32 +134,26 @@ export default function PurchasesPage() {
 
 function DomainPurchaseRow({ domain }) {
   return (
-    <div style={{ padding: '1.25rem 1.5rem', background: '#ffffff',
-                  border: '1px solid #e5e7eb', borderRadius: 12,
-                  boxShadow: '0 1px 3px rgba(17,24,39,0.06)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+    <div className="p-5 bg-white border border-gray-200 rounded-xl shadow-sm">
+      <div className="flex justify-between flex-wrap gap-3">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0369a1',
-                           background: '#e0f2fe', border: '1px solid #bae6fd',
-                           padding: '0.15rem 0.45rem', borderRadius: 4 }}>◇ Domain</span>
-            {domain.verified && <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#059669' }}>✓ Verified</span>}
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-bold text-sky-700 bg-sky-100 border border-sky-200 px-2 py-0.5 rounded">◇ Domain</span>
+            {domain.verified && <span className="text-xs font-bold text-green-600">✓ Verified</span>}
           </div>
-          <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#111827' }}>
+          <div className="font-bold text-lg text-gray-900">
             {domain.domainName}{domain.domainExtension}
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{domain.pricingDemand}</div>
+          <div className="text-xs text-gray-600">{domain.pricingDemand}</div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontWeight: 700, color: '#059669' }}>
+        <div className="text-right">
+          <div className="font-display text-xl font-bold text-green-600">
             ₹{Number(domain.askingPrice).toLocaleString('en-IN')}
           </div>
-          <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>✓ Payment Confirmed</div>
+          <div className="text-xs text-gray-600">✓ Payment Confirmed</div>
         </div>
       </div>
-      <div style={{ marginTop: '0.875rem', padding: '0.75rem 1rem',
-                    background: '#fffbeb', border: '1px solid #fde68a',
-                    borderRadius: 8, fontSize: '0.82rem', color: '#92400e' }}>
+      <div className="mt-3.5 px-4 py-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-900">
         ⏳ Domain transfer in progress — seller will initiate within 24 hours.
       </div>
     </div>
@@ -170,76 +166,62 @@ function SoftwarePurchaseRow({ purchase, onGetHelp }) {
   const confirmed = purchase.completionStatus === 'CONFIRMED';
 
   return (
-    <div style={{ padding: '1.25rem 1.5rem', background: '#ffffff',
-                  border: `1px solid ${helpPaid ? '#a7f3d0' : '#e5e7eb'}`,
-                  borderRadius: 12, boxShadow: '0 1px 3px rgba(17,24,39,0.06)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.3rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7c3aed',
-                           background: '#ede9fe', border: '1px solid #c4b5fd',
-                           padding: '0.15rem 0.45rem', borderRadius: 4 }}>⟁ Software</span>
-            {confirmed && <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#059669' }}>✓ Completed</span>}
-            {helpPaid && <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#059669',
-                                        background: '#ecfdf5', border: '1px solid #a7f3d0',
-                                        padding: '0.15rem 0.45rem', borderRadius: 4 }}>◆ CoBrother Active</span>}
+    <div className={`p-5 bg-white rounded-xl shadow-sm ${helpPaid ? 'border border-green-300' : 'border border-gray-200'}`}>
+      <div className="flex justify-between flex-wrap gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-bold text-purple-700 bg-purple-100 border border-purple-200 px-2 py-0.5 rounded">⟁ Software</span>
+            {confirmed && <span className="text-xs font-bold text-green-600">✓ Completed</span>}
+            {helpPaid && <span className="text-xs font-bold text-green-600 bg-green-100 border border-green-200 px-2 py-0.5 rounded">◆ CoBrother Active</span>}
           </div>
-          <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#111827' }}>{sw.name || '—'}</div>
+          <div className="font-bold text-lg text-gray-900">
+            {sw.name || '—'}
+          </div>
           {sw.description && (
-            <div style={{ fontSize: '0.78rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap', maxWidth: 400 }}>{sw.description}</div>
+            <div className="text-xs text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap max-w-[400px]">
+              {sw.description}
+            </div>
           )}
         </div>
-        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontWeight: 700, color: '#7c3aed' }}>
+        <div className="text-right flex-shrink-0">
+          <div className="font-display text-xl font-bold text-purple-700">
             ₹{Number(sw.price || 0).toLocaleString('en-IN')}
           </div>
-          {helpPaid && <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>+ ₹1,000 CoBrother</div>}
-          <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>✓ Payment Confirmed</div>
+          {helpPaid && <div className="text-xs text-gray-600">+ ₹1,000 CoBrother</div>}
+          <div className="text-xs text-gray-600">✓ Payment Confirmed</div>
         </div>
       </div>
 
       {sw.githubLink && (
-        <div style={{ marginTop: '0.875rem', padding: '0.75rem 1rem',
-                      background: '#f9fafb', border: '1px solid #e5e7eb',
-                      borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: '0.82rem', color: '#374151' }}>🔗 GitHub Repository</span>
-          <a href={sw.githubLink} target="_blank" rel="noreferrer"
-             style={{ fontSize: '0.8rem', color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>
+        <div className="mt-3.5 p-4 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-between">
+          <span className="text-xs text-gray-600">🔗 GitHub Repository</span>
+          <a href={sw.githubLink} target="_blank" rel="noreferrer" className="text-xs text-purple-600 font-bold hover:text-purple-700 transition-all duration-200">
             Open →
           </a>
         </div>
       )}
 
-      <div style={{ marginTop: '0.875rem' }}>
+      <div className="mt-3.5">
         {helpPaid ? (
-          <div style={{ padding: '0.875rem 1rem', background: '#ecfdf5',
-                        border: '1px solid #a7f3d0', borderRadius: 10 }}>
-            <div style={{ fontWeight: 600, color: '#059669', fontSize: '0.88rem', marginBottom: '0.4rem' }}>
+          <div className="p-4 bg-green-100 border border-green-200 rounded-lg">
+            <div className="font-bold text-sm text-green-600 mb-1">
               ◆ CoBrother Helper Assigned
             </div>
-            <div style={{ fontSize: '0.8rem', color: '#6b7280', lineHeight: 1.6 }}>
+            <div className="text-xs text-gray-600 leading-relaxed">
               Check your email for introduction details from your assigned CoBrother.
             </div>
           </div>
         ) : (
-          <div style={{ padding: '0.875rem 1rem', background: '#faf5ff',
-                        border: '1px solid #ddd6fe', borderRadius: 10,
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="p-4 bg-purple-50 border border-purple-100 rounded-lg flex items-center justify-between flex-wrap gap-3">
             <div>
-              <div style={{ fontWeight: 600, color: '#7c3aed', fontSize: '0.88rem', marginBottom: '0.2rem' }}>
+              <div className="font-bold text-sm text-purple-700 mb-1">
                 Need help getting started?
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#6b7280', lineHeight: 1.5 }}>
+              <div className="text-xs text-gray-600 leading-relaxed">
                 Get a dedicated CoBrother to guide you through setup and deployment.
               </div>
             </div>
-            <button onClick={onGetHelp}
-              style={{ padding: '0.5rem 1.1rem', borderRadius: 8, fontSize: '0.82rem',
-                       fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
-                       background: '#ede9fe', border: '1px solid #c4b5fd',
-                       color: '#7c3aed' }}>
+            <button onClick={onGetHelp} className="px-5 py-2 bg-purple-100 border border-purple-200 text-purple-700 rounded-full text-sm font-bold cursor-pointer transition-all duration-200 hover:bg-purple-200">
               Get Help — ₹1,000
             </button>
           </div>
@@ -281,69 +263,63 @@ function CoBrotherHelpModal({ purchase, onClose, onSuccess }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card" style={{ maxWidth: 500 }}>
-        <div className="modal-glow" />
-        <button className="modal-close" onClick={onClose}>✕</button>
-        <div className="modal-header">
-          <div className="modal-badge" style={{ background: '#ede9fe', color: '#7c3aed',
-                                                border: '1px solid #c4b5fd' }}>◆ CoBrother Help</div>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="relative w-full max-w-[500px] bg-white border border-gray-200 rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] text-center animate-slideUp">
+        <div className="absolute -top-24 -right-24 w-[300px] h-[300px] rounded-full bg-purple-100/30 blur-3xl pointer-events-none" />
+        <div className="relative z-10 p-8">
+          <div className="modal-badge" style={{ background: '#ede9fe', color: '#7c3aed', border: '1px solid #c4b5fd' }}>◆ CoBrother Help</div>
           <h2>{sw.name}</h2>
           <p>Get a dedicated expert to help you succeed with this software.</p>
         </div>
-        <div style={{ margin: '1.25rem 0', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-          {['Dedicated CoBrother assigned within 24 hours',
-            'Personalised onboarding and setup guidance',
-            'Help with deployment, configuration, and integration',
-            'Direct communication channel with your helper'].map((line, i) => (
-            <div key={i} style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
-              <span style={{ color: '#059669', fontSize: '0.875rem', marginTop: '0.1rem' }}>✓</span>
-              <span style={{ fontSize: '0.83rem', color: '#6b7280', lineHeight: 1.5 }}>{line}</span>
+        <div className="p-8">
+          <div className="mb-6">
+            {['Dedicated CoBrother assigned within 24 hours',
+              'Personalised onboarding and setup guidance',
+              'Help with deployment, configuration, and integration',
+              'Direct communication channel with your helper'].map((line, i) => (
+              <div key={i} className="flex items-center gap-2 mb-3">
+                <span className="text-green-600 text-sm">✓</span>
+                <span className="text-gray-600 text-sm leading-relaxed">{line}</span>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+            <div className="text-xs text-gray-600 font-bold uppercase mb-2">Billing Summary</div>
+            <div className="flex justify-between mb-2">
+              <span className="text-gray-600 text-sm">Software (already paid)</span>
+              <span className="text-gray-600 text-sm">₹{Number(sw.price || 0).toLocaleString('en-IN')}</span>
             </div>
-          ))}
-        </div>
-        <div style={{ background: '#ffffff', border: '1px solid #e5e7eb',
-                      borderRadius: 10, padding: '1rem', marginBottom: '1.25rem' }}>
-          <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase',
-                        letterSpacing: '0.06em', marginBottom: '0.75rem' }}>Billing Summary</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.3rem 0', fontSize: '0.85rem' }}>
-            <span style={{ color: '#6b7280' }}>Software (already paid)</span>
-            <span style={{ color: '#6b7280' }}>₹{Number(sw.price || 0).toLocaleString('en-IN')}</span>
+            <div className="flex justify-between mb-2">
+              <span className="text-gray-600 text-sm">CoBrother Helper Fee</span>
+              <span className="text-gray-600 text-sm font-bold">₹1,000</span>
+            </div>
+            <div className="h-1 bg-gray-200 mb-2" />
+            <div className="flex justify-between items-center">
+              <span className="font-bold text-gray-900 text-sm">Paying Today</span>
+              <span className="font-display text-lg font-bold text-purple-700">₹1,000</span>
+            </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.3rem 0', fontSize: '0.85rem' }}>
-            <span style={{ color: '#6b7280' }}>CoBrother Helper Fee</span>
-            <span style={{ color: '#6b7280', fontWeight: 500 }}>₹1,000</span>
+          {error && <div className="p-4 bg-red-100 border border-red-200 rounded-lg text-xs text-red-600 mb-6">{error}</div>}
+          <div className="flex gap-3">
+            <button className="w-full px-6 py-2.5 bg-purple-100 border border-purple-200 text-purple-700 rounded-full text-sm font-bold cursor-pointer transition-all duration-200 hover:bg-purple-200" onClick={handlePay} disabled={loading}>
+              {loading ? <span className="spinner" /> : 'Pay ₹1,000 — Get Help →'}
+            </button>
+            <button className="w-full px-6 py-2.5 bg-gray-100 border border-gray-200 text-gray-700 rounded-full text-sm font-bold cursor-pointer transition-all duration-200 hover:bg-gray-200" onClick={onClose}>Cancel</button>
           </div>
-          <div style={{ height: 1, background: '#e5e7eb', margin: '0.625rem 0' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>Paying Today</span>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 700, color: '#7c3aed' }}>₹1,000</span>
-          </div>
-        </div>
-        {error && <div style={{ padding: '0.75rem', background: '#fef2f2',
-                                border: '1px solid #fde2e2', borderRadius: 8,
-                                marginBottom: '1rem', fontSize: '0.82rem', color: '#ef4444' }}>{error}</div>}
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn-primary" onClick={handlePay} disabled={loading}
-            style={{ flex: 1, background: '#ede9fe', border: '1px solid #c4b5fd',
-                     color: '#7c3aed' }}>
-            {loading ? <span className="btn-spinner" /> : 'Pay ₹1,000 — Get Help →'}
-          </button>
-          <button className="btn-ghost" onClick={onClose}>Cancel</button>
         </div>
       </div>
     </div>
   );
 }
 
-function StatCard({ label, value, icon, color = '#111827' }) {
+function StatCard({ label, value, iconSrc, color = '#111827' }) {
   return (
-    <div style={{ padding: '1.25rem', background: '#ffffff',
-                  border: '1px solid #e5e7eb', borderRadius: 12,
-                  boxShadow: '0 1px 3px rgba(17,24,39,0.06)' }}>
-      <div style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{icon}</div>
-      <div style={{ fontSize: '1.4rem', fontWeight: 700, color, fontFamily: 'Cormorant Garamond, serif' }}>{value}</div>
-      <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600, marginTop: '0.2rem' }}>{label}</div>
+    <div className="p-5 bg-white border border-gray-200 rounded-xl shadow-sm">
+      <div className="w-8 h-8 mb-2">
+        <img src={iconSrc} alt={label} className="w-full h-full object-contain" />
+      </div>
+      <div className="text-2xl font-bold font-display" style={{ color }}>{value}</div>
+      <div className="text-xs text-gray-600 font-semibold mt-1">{label}</div>
     </div>
   );
 }

@@ -36,18 +36,18 @@ export default function EditVenturePage() {
 
   if (fetching) return (
     <AppLayout>
-      <div className="page-loading">
-        <div className="spinner" />
+      <div className="flex items-center justify-center py-20">
+        <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
       </div>
     </AppLayout>
   );
 
   return (
     <AppLayout>
-      <div className="form-page venture-form-page">
-        <div className="form-page-header">
-          <h1>Edit Venture</h1>
-          <p>Update your venture details.</p>
+      <div className="max-w-full w-full">
+        <div className="mb-8">
+          <h1 className="font-display text-[2rem] font-bold text-gray-900 m-0 mb-2">Edit Venture</h1>
+          <p className="text-gray-600">Update your venture details.</p>
         </div>
         <VentureForm
           initialData={venture}

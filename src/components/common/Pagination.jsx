@@ -22,16 +22,14 @@ export default function Pagination({ page, totalPages, onPage, totalCount, pageS
     };
   
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    gap: '0.75rem', marginTop: '2rem' }}>
+      <div className="flex flex-col items-center gap-3 mt-8">
         {/* Result count */}
-        <div style={{ fontSize: '0.78rem', color: '#666' }}>
+        <div className="text-[0.78rem] text-gray-600">
           Showing {from}–{to} of {totalCount} results
         </div>
   
         {/* Page buttons */}
-        <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center',
-                      flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div className="flex gap-1.5 items-center flex-wrap justify-center">
           {/* Prev */}
           <PageBtn
             label="←"
@@ -41,8 +39,7 @@ export default function Pagination({ page, totalPages, onPage, totalCount, pageS
   
           {getPages().map((p, i) =>
             p === '…' ? (
-              <span key={`ellipsis-${i}`}
-                style={{ color: '#555', padding: '0 0.25rem', fontSize: '0.85rem' }}>
+              <span key={`ellipsis-${i}`} className="text-gray-600 px-1 text-[0.85rem]">
                 …
               </span>
             ) : (
@@ -71,25 +68,13 @@ export default function Pagination({ page, totalPages, onPage, totalCount, pageS
       <button
         onClick={onClick}
         disabled={disabled}
-        style={{
-          width: label === '←' || label === '→' ? 36 : 36,
-          height: 36,
-          borderRadius: 8,
-          border: active
-            ? '1px solid rgba(200,169,110,0.5)'
-            : '1px solid rgba(255,255,255,0.08)',
-          background: active
-            ? 'rgba(200,169,110,0.15)'
+        className={`w-9 h-9 rounded-lg border text-[0.85rem] transition-all duration-150 flex items-center justify-center ${
+          active
+            ? 'border-purple-400 bg-purple-50 text-purple-600 font-bold'
             : disabled
-            ? 'transparent'
-            : 'rgba(255,255,255,0.03)',
-          color: active ? '#c8a96e' : disabled ? '#444' : '#a0a0b0',
-          fontWeight: active ? 700 : 400,
-          fontSize: '0.85rem',
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          transition: 'all 0.15s',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
+            ? 'border-gray-200 bg-transparent text-gray-400 cursor-not-allowed'
+            : 'border-gray-200 bg-white text-gray-600 cursor-pointer hover:bg-gray-50'
+        }`}
       >
         {label}
       </button>

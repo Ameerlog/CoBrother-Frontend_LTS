@@ -92,13 +92,17 @@ export default function AuctionPage() {
 
   if (loading) return (
     <AppLayout>
-      <div className="page-loading"><div className="spinner" /></div>
+      <div className="flex justify-center items-center py-20">
+        <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin" />
+      </div>
     </AppLayout>
   );
 
   if (!auction) return (
     <AppLayout>
-      <div className="empty-state"><h3>Auction not found</h3></div>
+      <div className="text-center py-20">
+        <h3 className="font-display text-2xl font-bold text-gray-900">Auction not found</h3>
+      </div>
     </AppLayout>
   );
 
@@ -106,39 +110,29 @@ export default function AuctionPage() {
 
   return (
     <AppLayout>
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 1rem' }}>
+      <div className="max-w-[1100px] mx-auto px-4">
 
         {/* ── Header ── */}
-        <div style={{ marginBottom: '2rem' }}>
-          <button className="btn-ghost btn-sm auction-back-btn" onClick={() => navigate('/domains')}
-            style={{ marginBottom: '1rem' }}>
+        <div className="mb-8">
+          <button className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors mb-4" onClick={() => navigate('/domains')}>
             ← Back to Domains
           </button>
-          <div style={{ display: 'flex', alignItems: 'flex-start',
-                        justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem',
-                            flexWrap: 'wrap', marginBottom: '0.5rem' }}>
-                <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.25rem',
-                             fontWeight: 700, color: '#111827', margin: 0 }}>
+              <div className="flex items-center gap-3 flex-wrap mb-2">
+                <h1 className="font-display text-4xl font-bold text-gray-900 m-0">
                   {domain.domainName}{domain.domainExtension}
                 </h1>
                 {domain.verified && (
-                  <span style={{ padding: '0.25rem 0.6rem', borderRadius: 6,
-                                 fontSize: '0.75rem', fontWeight: 700, color: '#6ec896',
-                                 background: 'rgba(110,200,150,0.1)',
-                                 border: '1px solid rgba(110,200,150,0.3)' }}>
+                  <span className="px-2.5 py-1 rounded-md text-xs font-bold text-green-600 bg-green-100 border border-green-300">
                     ✓ Verified
                   </span>
                 )}
                 <StatusBadge status={auction.status} />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%',
-                               background: connected ? '#6ec896' : '#c86e6e',
-                               display: 'inline-block' }} />
-                <span style={{ fontSize: '0.78rem',
-                               color: connected ? '#6ec896' : '#c86e6e' }}>
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${connected ? 'bg-green-600' : 'bg-red-600'}`} />
+                <span className={`text-xs ${connected ? 'text-green-600' : 'text-red-600'}`}>
                   {connected ? 'Live' : 'Reconnecting…'}
                 </span>
               </div>
@@ -146,17 +140,11 @@ export default function AuctionPage() {
 
             {/* Countdown */}
             {isActive && (
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.72rem', color: '#888', marginBottom: '0.25rem',
-                              textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div className="text-right">
+                <div className="text-xs text-gray-500 mb-1 uppercase tracking-wider">
                   {auction.status === 'EXTENDED' ? '⚡ Extended — Ends in' : 'Ends in'}
                 </div>
-                <div style={{
-                  fontFamily: 'Cormorant Garamond, serif',
-                  fontSize: '2rem', fontWeight: 700,
-                  color: isUrgent ? '#c86e6e' : '#c8a96e',
-                  animation: isUrgent ? 'pulse 1s infinite' : 'none',
-                }}>
+                <div className={`font-display text-3xl font-bold ${isUrgent ? 'text-red-600 animate-pulse' : 'text-indigo-600'}`}>
                   {timeLeft}
                 </div>
               </div>
@@ -164,89 +152,59 @@ export default function AuctionPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px',
-                      gap: '1.5rem', alignItems: 'start' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start">
 
           {/* ── Left: Bid info + history ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="flex flex-col gap-4">
 
             {/* Current bid stats card */}
-            <div style={{
-              padding: '1.5rem',
-              background: flashBid ? 'rgba(110,200,150,0.08)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${flashBid
-                ? 'rgba(110,200,150,0.4)'
-                : 'rgba(255,255,255,0.08)'}`,
-              borderRadius: 14,
-              transition: 'all 0.3s',
-            }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-                            gap: '1.5rem', flexWrap: 'wrap' }}>
+            <div className={`p-6 border rounded-[14px] transition-all duration-300 ${flashBid ? 'bg-green-50 border-green-300' : 'bg-white border-gray-200'}`}>
+              <div className="grid grid-cols-3 gap-6">
                 <div>
-                  <div style={statLabel}>Current Highest Bid</div>
-                  <div style={{
-                    fontFamily: 'Cormorant Garamond, serif',
-                    fontSize: '2rem', fontWeight: 700,
-                    color: auction.currentHighestBid > 0 ? '#6ec896' : '#888',
-                  }}>
+                  <div className="text-[0.72rem] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Current Highest Bid</div>
+                  <div className={`font-display text-[2rem] font-bold ${auction.currentHighestBid > 0 ? 'text-green-600' : 'text-gray-400'}`}>
                     {auction.currentHighestBid > 0
                       ? `₹${Number(auction.currentHighestBid).toLocaleString('en-IN')}`
                       : 'No bids yet'}
                   </div>
                   {auction.currentWinnerName && (
-                    <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.25rem' }}>
+                    <div className="text-[0.78rem] text-gray-400 mt-1">
                       Leading: {auction.currentWinnerName}
                     </div>
                   )}
                 </div>
                 <div>
-                  <div style={statLabel}>Starting Bid</div>
-                  <div style={{ fontFamily: 'Cormorant Garamond, serif',
-                                fontSize: '1.5rem', fontWeight: 700, color: '#c8a96e' }}>
+                  <div className="text-[0.72rem] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Starting Bid</div>
+                  <div className="font-display text-[1.5rem] font-bold text-amber-600">
                     ₹{Number(auction.minBidPrice).toLocaleString('en-IN')}
                   </div>
                 </div>
                 <div>
-                  <div style={statLabel}>Total Bids</div>
-                  <div style={{ fontFamily: 'Cormorant Garamond, serif',
-                                fontSize: '2rem', fontWeight: 700, color: '#111827' }}>
+                  <div className="text-[0.72rem] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Total Bids</div>
+                  <div className="font-display text-[2rem] font-bold text-gray-900">
                     {auction.totalBids}
                   </div>
                 </div>
               </div>
 
               {isActive && auction.currentHighestBid > 0 && (
-                <div style={{ marginTop: '1rem', padding: '0.75rem 1rem',
-                              background: 'rgba(200,169,110,0.08)',
-                              border: '1px solid rgba(200,169,110,0.2)', borderRadius: 8,
-                              fontSize: '0.82rem', color: '#c8a96e' }}>
+                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-[0.82rem] text-amber-800">
                   Next minimum bid:{' '}
                   <strong>₹{Number(minNextBid).toLocaleString('en-IN')}</strong>
-                  <span style={{ color: '#666', marginLeft: '0.5rem' }}>
-                    (5% above current)
-                  </span>
+                  <span className="text-gray-500 ml-2">(5% above current)</span>
                 </div>
               )}
             </div>
 
             {/* Bid History */}
-            <div style={{ background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          borderRadius: 14, overflow: 'hidden' }}>
-              <div style={{ padding: '1rem 1.25rem',
-                            borderBottom: '1px solid rgba(0,0,0,0.08)',
-                            fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>
+            <div className="bg-white border border-gray-200 rounded-[14px] overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-100 font-semibold text-gray-900 text-[0.9rem]">
                 Bid History
-                <span style={{ color: '#6b7280', fontWeight: 400,
-                               marginLeft: '0.5rem', fontSize: '0.8rem' }}>
-                  ({bids.length} bids)
-                </span>
+                <span className="text-gray-500 font-normal ml-2 text-[0.8rem]">({bids.length} bids)</span>
               </div>
-              <div ref={bidListRef}
-                   style={{ maxHeight: 360, overflowY: 'auto', padding: '0.5rem 0' }}>
+              <div ref={bidListRef} className="max-h-[360px] overflow-y-auto py-2">
                 {bids.length === 0 ? (
-                  <div style={{ padding: '2rem', textAlign: 'center',
-                                color: '#666', fontSize: '0.875rem' }}>
+                  <div className="p-8 text-center text-gray-400 text-[0.875rem]">
                     No bids yet. Be the first to bid!
                   </div>
                 ) : (
@@ -260,21 +218,17 @@ export default function AuctionPage() {
 
             {/* UNSOLD — lister options */}
             {isOwner && auction.status === 'UNSOLD' && (
-              <div style={{ padding: '1.25rem',
-                            background: 'rgba(200,169,110,0.06)',
-                            border: '1px solid rgba(200,169,110,0.2)', borderRadius: 12 }}>
-                <div style={{ fontWeight: 600, color: '#c8a96e', marginBottom: '0.5rem' }}>
-                  Auction ended with no bids
-                </div>
-                <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
+              <div className="p-5 bg-amber-50 border border-amber-200 rounded-[12px]">
+                <div className="font-semibold text-amber-700 mb-2">Auction ended with no bids</div>
+                <p className="text-gray-500 text-[0.875rem] mb-4">
                   You can re-auction with new settings, or take the listing down.
                 </p>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  <button className="btn-primary"
+                <div className="flex gap-3">
+                  <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white font-semibold text-sm rounded-[10px] border-none cursor-pointer transition-colors hover:bg-indigo-700"
                     onClick={() => setReAuctionModal(true)}>
                     ↺ Re-Auction
                   </button>
-                  <button className="btn-danger"
+                  <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 font-semibold text-sm rounded-[10px] border border-red-200 cursor-pointer transition-colors hover:bg-red-100"
                     onClick={async () => {
                       try {
                         await auctionAPI.close(auction.id);
@@ -291,24 +245,17 @@ export default function AuctionPage() {
 
             {/* ENDED — winner announcement */}
             {auction.status === 'ENDED' && (
-              <div style={{ padding: '1.5rem', textAlign: 'center',
-                            background: 'rgba(110,200,150,0.06)',
-                            border: '1px solid rgba(110,200,150,0.2)', borderRadius: 14 }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🏆</div>
-                <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem',
-                             color: '#6ec896', marginBottom: '0.5rem' }}>
-                  Auction Won!
-                </h3>
-                <p style={{ color: '#6b7280' }}>
-                  <strong style={{ color: '#111827' }}>
-                    {auction.currentWinnerName || 'A bidder'}
-                  </strong>
+              <div className="p-6 text-center bg-green-50 border border-green-200 rounded-[14px]">
+                <div className="text-[2.5rem] mb-2">🏆</div>
+                <h3 className="font-display text-[1.5rem] text-green-700 mb-2">Auction Won!</h3>
+                <p className="text-gray-500">
+                  <strong className="text-gray-900">{auction.currentWinnerName || 'A bidder'}</strong>
                   {' '}won with a bid of{' '}
-                  <strong style={{ color: '#6ec896' }}>
+                  <strong className="text-green-700">
                     ₹{Number(auction.currentHighestBid).toLocaleString('en-IN')}
                   </strong>
                 </p>
-                <p style={{ fontSize: '0.82rem', color: '#6b7280', marginTop: '0.5rem' }}>
+                <p className="text-[0.82rem] text-gray-500 mt-2">
                   Our admin team will coordinate the transfer.
                 </p>
               </div>
@@ -316,38 +263,31 @@ export default function AuctionPage() {
           </div>
 
           {/* ── Right: Bid placement + info ── */}
-          <div style={{ position: 'sticky', top: '1.5rem',
-                        display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="sticky top-6 flex flex-col gap-4">
 
             {/* Bid form — only for non-owner, active auction */}
             {isActive && !isOwner && (
-              <div style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)',
-                            border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14 }}>
-                <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.25rem',
-                             marginBottom: '1.25rem', color: '#0f172a' }}>
+              <div className="p-6 bg-white border border-gray-200 rounded-[14px]">
+                <h3 className="font-display text-[1.25rem] font-semibold text-gray-900 mb-5">
                   Place Your Bid
                 </h3>
 
                 {/* Quick bid buttons */}
                 {minNextBid > 0 && (
-                  <div style={{ marginBottom: '1rem' }}>
-                    <div style={statLabel}>Quick Bid</div>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap',
-                                  marginTop: '0.5rem' }}>
+                  <div className="mb-4">
+                    <div className="text-[0.72rem] font-semibold text-gray-400 uppercase tracking-wider mb-2">Quick Bid</div>
+                    <div className="flex gap-2 flex-wrap">
                       {[1, 1.1, 1.25].map(mult => {
                         const quickAmount = Math.ceil(minNextBid * mult / 100) * 100;
                         const selected = bidAmount === String(quickAmount);
                         return (
                           <button key={mult}
                             onClick={() => setBidAmount(String(quickAmount))}
-                            style={{
-                              padding: '0.4rem 0.75rem', borderRadius: 8,
-                              fontSize: '0.78rem', cursor: 'pointer', fontWeight: 600,
-                              background: selected ? 'rgba(200,169,110,0.2)' : 'rgba(255,255,255,0.05)',
-                              border: `1px solid ${selected ? 'rgba(200,169,110,0.5)' : 'rgba(255,255,255,0.1)'}`,
-                              color: selected ? '#c8a96e' : '#6b7280',
-                              transition: 'all 0.15s',
-                            }}>
+                            className={`px-3 py-1.5 rounded-lg text-[0.78rem] cursor-pointer font-semibold transition-all ${
+                              selected
+                                ? 'bg-indigo-50 border border-indigo-400 text-indigo-700'
+                                : 'bg-gray-50 border border-gray-200 text-gray-500 hover:border-indigo-300'
+                            }`}>
                             ₹{Number(quickAmount).toLocaleString('en-IN')}
                           </button>
                         );
@@ -356,9 +296,8 @@ export default function AuctionPage() {
                   </div>
                 )}
 
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label style={{ fontSize: '0.78rem', color: '#6b7280',
-                                  marginBottom: '0.5rem', display: 'block', fontWeight: 600 }}>
+                <div className="flex flex-col gap-1.5 mb-4">
+                  <label className="text-[0.78rem] text-gray-500 font-semibold block uppercase tracking-wider">
                     YOUR BID AMOUNT (₹)
                   </label>
                   <input
@@ -367,46 +306,32 @@ export default function AuctionPage() {
                     onChange={e => { setBidAmount(e.target.value); setBidError(''); }}
                     placeholder={`Min ₹${Number(minNextBid).toLocaleString('en-IN')}`}
                     min={minNextBid}
-                    style={{ 
-                      fontSize: '1.1rem', 
-                      fontWeight: 600,
-                      background: '#f3f4f6',
-                      color: '#111827',
-                      border: '2px solid #e5e7eb',
-                      padding: '0.75rem 1rem',
-                      borderRadius: '8px'
-                    }}
+                    className="text-[1.1rem] font-semibold bg-gray-50 text-gray-900 border-2 border-gray-200 px-4 py-3 rounded-lg w-full outline-none focus:border-indigo-400 transition-colors"
                     onKeyDown={e => e.key === 'Enter' && handleBid()}
                   />
                 </div>
 
                 {bidError && (
-                  <div style={{ padding: '0.75rem', background: 'rgba(200,110,110,0.08)',
-                                border: '1px solid rgba(200,110,110,0.25)', borderRadius: 8,
-                                marginBottom: '1rem', fontSize: '0.82rem', color: '#c86e6e' }}>
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4 text-[0.82rem] text-red-600">
                     {bidError}
                   </div>
                 )}
 
                 {bidSuccess && (
-                  <div style={{ padding: '0.75rem', background: 'rgba(110,200,150,0.08)',
-                                border: '1px solid rgba(110,200,150,0.25)', borderRadius: 8,
-                                marginBottom: '1rem', fontSize: '0.82rem', color: '#6ec896' }}>
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-4 text-[0.82rem] text-green-700">
                     ✓ {bidSuccess}
                   </div>
                 )}
 
-                <button className="btn-primary auction-bid-btn" onClick={handleBid}
-                  disabled={bidLoading || !bidAmount}
-                  style={{ width: '100%', fontSize: '1rem', padding: '0.75rem' }}>
-                  {bidLoading ? <span className="btn-spinner" /> :
+                <button className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 text-white font-semibold text-base rounded-[10px] border-none cursor-pointer transition-colors hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleBid}
+                  disabled={bidLoading || !bidAmount}>
+                  {bidLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> :
                     `Place Bid${bidAmount
                       ? ` — ₹${Number(bidAmount).toLocaleString('en-IN')}`
                       : ''} →`}
                 </button>
 
-                <p style={{ fontSize: '0.72rem', color: '#374151', marginTop: '0.75rem',
-                            textAlign: 'center', lineHeight: 1.5 }}>
+                <p className="text-[0.72rem] text-gray-500 mt-3 text-center leading-relaxed">
                   By bidding you commit to purchasing this domain if you win.
                   Each bid must be at least 5% above the current highest bid.
                 </p>
@@ -415,22 +340,18 @@ export default function AuctionPage() {
 
             {/* Owner — can't bid on own listing */}
             {isOwner && isActive && (
-              <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)',
-                            border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14,
-                            textAlign: 'center' }}>
-                <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>👑</div>
-                <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+              <div className="p-5 bg-white border border-gray-200 rounded-[14px] text-center">
+                <div className="text-[1.5rem] mb-2">👑</div>
+                <p className="text-gray-500 text-[0.875rem]">
                   This is your auction. You cannot bid on your own listing.
                 </p>
               </div>
             )}
 
             {/* Auction info card */}
-            <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14 }}>
-              <div style={{ ...statLabel, color: '#111827' }}>Auction Info</div>
-              <div style={{ display: 'flex', flexDirection: 'column',
-                            gap: '0.6rem', marginTop: '0.75rem' }}>
+            <div className="p-5 bg-white border border-gray-200 rounded-[14px]">
+              <div className="text-[0.72rem] font-semibold text-gray-900 uppercase tracking-wider mb-3">Auction Info</div>
+              <div className="flex flex-col gap-2.5">
                 <InfoRow label="Duration"
                   value={auction.duration?.replace(/_/g, ' ')} />
                 <InfoRow label="Started"
@@ -453,10 +374,7 @@ export default function AuctionPage() {
                           hour: '2-digit', minute: '2-digit' })
                     : '—'} />
                 {auction.status === 'EXTENDED' && (
-                  <div style={{ padding: '0.5rem 0.75rem',
-                                background: 'rgba(200,169,110,0.08)',
-                                border: '1px solid rgba(200,169,110,0.25)',
-                                borderRadius: 6, fontSize: '0.75rem', color: '#c8a96e' }}>
+                  <div className="px-3 py-2 bg-amber-50 border border-amber-200 rounded-md text-[0.75rem] text-amber-800">
                     ⚡ Extended due to last-minute bid
                   </div>
                 )}
@@ -494,35 +412,26 @@ function BidRow({ bid, isLatest, isWinner }) {
     : '';
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: '1rem',
-      padding: '0.75rem 1.25rem',
-      background: isLatest ? 'rgba(110,200,150,0.04)' : 'transparent',
-      borderLeft: isLatest ? '3px solid #6ec896' : '3px solid transparent',
-      transition: 'all 0.3s',
-    }}>
-      <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                    background: isWinner ? 'rgba(200,169,110,0.15)' : '#f3f4f6',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.75rem', fontWeight: 700,
-                    color: isWinner ? '#c8a96e' : '#374151' }}>
+    <div className={`flex items-center gap-4 px-5 py-3 transition-all ${
+      isLatest ? 'bg-green-50 border-l-[3px] border-l-green-400' : 'bg-transparent border-l-[3px] border-l-transparent'
+    }`}>
+      <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${
+        isWinner ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'
+      }`}>
         {isWinner ? '🏆' : bid.bidderName?.[0]?.toUpperCase() || '?'}
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#111827' }}>
+      <div className="flex-1 min-w-0">
+        <div className="font-semibold text-[0.875rem] text-gray-900">
           {bid.bidderName || 'Anonymous'}
           {isWinner && (
-            <span style={{ marginLeft: '0.4rem', fontSize: '0.68rem',
-                           color: '#c8a96e', fontWeight: 700 }}>
-              WINNER
-            </span>
+            <span className="ml-1.5 text-[0.68rem] text-amber-600 font-bold">WINNER</span>
           )}
         </div>
-        <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>{bidTimeStr}</div>
+        <div className="text-[0.72rem] text-gray-400">{bidTimeStr}</div>
       </div>
-      <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
-                    fontWeight: 700, color: isLatest ? '#6ec896' : '#c8a96e',
-                    flexShrink: 0 }}>
+      <div className={`font-display text-[1.1rem] font-bold flex-shrink-0 ${
+        isLatest ? 'text-green-600' : 'text-amber-600'
+      }`}>
         ₹{Number(bid.amount).toLocaleString('en-IN')}
       </div>
     </div>
@@ -543,8 +452,7 @@ function StatusBadge({ status }) {
   return (
     <span style={{
       padding: '0.3rem 0.75rem', borderRadius: 20, fontSize: '0.78rem', fontWeight: 700,
-      color: config.color, background: config.color + '18',
-      border: `1px solid ${config.color}33`,
+      color: config.color, background: config.color + '18', border: `1px solid ${config.color}33`,
     }}>
       {config.label}
     </span>
@@ -554,9 +462,9 @@ function StatusBadge({ status }) {
 // ─── Info Row ─────────────────────────────────────────────────────────────────
 function InfoRow({ label, value }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
-      <span style={{ color: '#4b5563' }}>{label}</span>
-      <span style={{ color: '#111827', fontWeight: 600 }}>{value || '—'}</span>
+    <div className="flex justify-between text-[0.82rem]">
+      <span className="text-gray-500">{label}</span>
+      <span className="text-gray-900 font-semibold">{value || '—'}</span>
     </div>
   );
 }
@@ -586,25 +494,25 @@ function ReAuctionModal({ auctionId, onClose, onSuccess }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card" style={{ maxWidth: 440 }}>
-        <div className="modal-glow" />
-        <button className="modal-close" onClick={onClose}>✕</button>
-        <div className="modal-header">
-          <div className="modal-badge">Re-Auction</div>
-          <h2>Start a New Auction</h2>
-          <p>Set new parameters for your re-auction.</p>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="relative w-full max-w-[440px] bg-white border border-gray-200 rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] p-8">
+        <div className="absolute -top-24 -right-24 w-[300px] h-[300px] rounded-full bg-indigo-100/30 blur-3xl pointer-events-none" />
+        <button className="absolute top-4 right-4 z-20 bg-transparent border-none text-gray-400 text-xl cursor-pointer transition-colors hover:text-gray-700" onClick={onClose}>✕</button>
+        <div className="mb-6">
+          <div className="inline-flex items-center px-2.5 py-0.5 bg-indigo-50 border border-indigo-200 rounded-full text-[0.72rem] font-semibold text-indigo-600 uppercase tracking-wide mb-2">Re-Auction</div>
+          <h2 className="font-display text-[1.75rem] font-semibold text-gray-900 mb-1">Start a New Auction</h2>
+          <p className="text-sm text-gray-500">Set new parameters for your re-auction.</p>
         </div>
-        <form onSubmit={handleSubmit} className="venture-form" style={{ marginTop: '1.25rem' }}>
-          <div className="form-group">
-            <label>New Minimum Bid (₹) <span className="required">*</span></label>
-            <input type="number" min="1" value={form.minBidPrice}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">New Minimum Bid (₹) <span className="text-red-500">*</span></label>
+            <input className="px-3 py-2 border border-gray-300 rounded-[8px] text-gray-900 bg-white outline-none focus:border-indigo-500 transition-all" type="number" min="1" value={form.minBidPrice}
               onChange={e => setForm(f => ({ ...f, minBidPrice: e.target.value }))}
               placeholder="e.g. 5000" required />
           </div>
-          <div className="form-group">
-            <label>Auction Duration <span className="required">*</span></label>
-            <select value={form.duration}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Auction Duration <span className="text-red-500">*</span></label>
+            <select className="px-3 py-2 border border-gray-300 rounded-[8px] text-gray-900 bg-white outline-none focus:border-indigo-500 transition-all" value={form.duration}
               onChange={e => setForm(f => ({ ...f, duration: e.target.value }))}>
               <option value="ONE_DAY">1 Day</option>
               <option value="SEVEN_DAYS">7 Days</option>
@@ -612,21 +520,15 @@ function ReAuctionModal({ auctionId, onClose, onSuccess }) {
               <option value="THIRTY_DAYS">30 Days</option>
             </select>
           </div>
-          {error && <div className="form-error">{error}</div>}
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-            <button type="submit" className="btn-primary" disabled={loading}
-              style={{ flex: 1 }}>
-              {loading ? <span className="btn-spinner" /> : 'Start Re-Auction →'}
+          {error && <div className="text-sm text-red-500">{error}</div>}
+          <div className="flex gap-3 mt-1">
+            <button type="submit" className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white font-semibold text-sm rounded-[10px] border-none cursor-pointer transition-colors hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled={loading}>
+              {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> : 'Start Re-Auction →'}
             </button>
-            <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
+            <button type="button" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-transparent text-gray-500 font-semibold text-sm rounded-[10px] border border-gray-200 cursor-pointer transition-colors hover:bg-gray-100" onClick={onClose}>Cancel</button>
           </div>
         </form>
       </div>
     </div>
   );
 }
-
-const statLabel = {
-  fontSize: '0.72rem', fontWeight: 600, color: '#888',
-  textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem',
-};

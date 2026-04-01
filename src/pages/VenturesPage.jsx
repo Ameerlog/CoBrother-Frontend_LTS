@@ -95,28 +95,28 @@ export default function VenturesPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page ventures-main-page">
-        <div className="page-header ventures-header">
+      <div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1>Ventures</h1>
-            <p>Discover and co-venture on exciting opportunities.</p>
+            <h1 className="font-display text-3xl font-bold text-gray-900 m-0">Ventures</h1>
+            <p className="text-gray-600 mt-1">Discover and co-venture on exciting opportunities.</p>
           </div>
-          <div className="ventures-header-actions">
-            <button className="btn-secondary ventures-btn" onClick={() => navigate('/ventures/dashboard')}>
-              <img src={DashboardIcon} alt="Dashboard" style={{width: '18px', height: '18px', marginRight: '6px'}} /> Dashboard
+          <div className="flex gap-3 flex-wrap">
+            <button className="px-4 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50 flex items-center gap-2" onClick={() => navigate('/ventures/dashboard')}>
+              <img src={DashboardIcon} alt="Dashboard" style={{width: '18px', height: '18px'}} /> Dashboard
             </button>
-            <button className="btn-secondary ventures-btn" onClick={() => navigate('/ventures/analytics')}>
+            <button className="px-4 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50" onClick={() => navigate('/ventures/analytics')}>
               📈 Analytics
             </button>
-            <Link to="/ventures/new" className="btn-primary ventures-btn-primary">+ List Venture</Link>
+            <Link to="/ventures/new" className="px-5 py-2 bg-indigo-600 text-white rounded-full text-sm font-semibold transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg border-none">+ List Venture</Link>
           </div>
         </div>
 
         {/* ── Tabs ── */}
-        <div className="filter-tabs">
-          <button className={`filter-tab ${filterTab === 'all'  ? 'active' : ''}`}
+        <div className="flex gap-2 mb-6">
+          <button className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 ${filterTab === 'all' ? 'bg-purple-600 text-white border-2 border-purple-600' : 'bg-white border-2 border-purple-400 text-purple-600 hover:bg-purple-50'}`}
             onClick={() => setFilterTab('all')}>All Ventures</button>
-          <button className={`filter-tab ${filterTab === 'mine' ? 'active' : ''}`}
+          <button className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 ${filterTab === 'mine' ? 'bg-purple-600 text-white border-2 border-purple-600' : 'bg-white border-2 border-purple-400 text-purple-600 hover:bg-purple-50'}`}
             onClick={() => setFilterTab('mine')}>My Ventures</button>
         </div>
 
@@ -135,37 +135,37 @@ export default function VenturesPage() {
 
         {/* ── Result count ── */}
         {!loading && allVentures.length > 0 && (
-          <div className="ventures-result-count">
+          <div className="text-sm text-gray-600 mb-4">
             {totalCount} venture{totalCount !== 1 ? 's' : ''} found
           </div>
         )}
 
         {/* ── Content ── */}
         {loading ? (
-          <div className="ventures-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : paginated.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">◈</div>
-            <h3>
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">◈</div>
+            <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">
               {activeFilterCount > 0 ? 'No ventures match your filters' :
                filterTab === 'mine' ? "You haven't listed any ventures yet" :
                'No ventures listed yet'}
             </h3>
-            <p>
+            <p className="text-gray-600 mb-6">
               {activeFilterCount > 0
                 ? 'Try adjusting your search or filters.'
                 : 'Be the first to list a venture and attract co-venturers.'}
             </p>
             {activeFilterCount > 0
-              ? <button className="btn-secondary ventures-btn" onClick={clearAll}>Clear Filters</button>
-              : <Link to="/ventures/new" className="btn-primary ventures-btn-primary">List Your Venture</Link>
+              ? <button className="px-4 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50" onClick={clearAll}>Clear Filters</button>
+              : <Link to="/ventures/new" className="px-5 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold transition-all duration-200 hover:bg-purple-50">+ List Venture</Link>
             }
           </div>
         ) : (
           <>
-            <div className="ventures-grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {paginated.map(v => (
                 <VentureCard
                   key={v.id}
@@ -223,51 +223,51 @@ function VentureCard({ venture, isOwner, onView, onApply, onEdit, onDelete,
   const b = venture.brandDetails || {};
   const shortDesc = `${b.description?.slice(0, 130) || ''}${b.description?.length > 130 ? '…' : ''}`;
   return (
-    <div className="venture-card venture-card-pro" onClick={onView} style={{ cursor: 'pointer' }}>
-      <div className="venture-card-left">
-        <div className="venture-card-top">
+    <div className="card-glow-hover p-5 bg-white border border-gray-200 rounded-[14px] shadow-sm cursor-pointer flex flex-col" onClick={onView}>
+      <div className="flex flex-col flex-1">
+        <div className="flex items-start gap-3 mb-4">
           {b.ventureImageUrl
-            ? <img src={b.ventureImageUrl} alt={b.brandName} className="venture-logo" />
-            : <div className="venture-logo-placeholder">{b.brandName?.[0] || '?'}</div>
+            ? <img src={b.ventureImageUrl} alt={b.brandName} className="w-12 h-12 rounded-[10px] object-cover flex-shrink-0" />
+            : <div className="w-12 h-12 rounded-[10px] bg-indigo-50 border border-indigo-200 flex items-center justify-center font-display text-xl font-bold text-indigo-600 flex-shrink-0">{b.brandName?.[0] || '?'}</div>
           }
-          <div className="venture-card-meta">
-            <span className="venture-industry">{b.industry?.replace(/_/g, ' ')}</span>
-            <span className="venture-type">{TYPE_LABELS[b.ventureType] || b.ventureType}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex gap-2 flex-wrap mb-1">
+              <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded">{b.industry?.replace(/_/g, ' ')}</span>
+              <span className="px-2 py-0.5 bg-purple-50 text-purple-600 text-xs font-semibold rounded">{TYPE_LABELS[b.ventureType] || b.ventureType}</span>
+            </div>
+            {isOwner && <div className="inline-block px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded">Owner</div>}
           </div>
-          {isOwner && <div className="owner-badge">Owner</div>}
         </div>
-        <h3 className="venture-name">{b.brandName}</h3>
-        <p className="venture-desc">{shortDesc}</p>
+        <h3 className="font-display text-lg font-bold text-gray-900 mb-2">{b.brandName}</h3>
+        <p className="text-sm text-gray-600 mb-3 line-clamp-3 flex-1">{shortDesc}</p>
         {b.dealValue && (
-          <div className="venture-deal">₹{Number(b.dealValue).toLocaleString('en-IN')}</div>
+          <div className="text-lg font-bold text-green-600 mb-3">₹{Number(b.dealValue).toLocaleString('en-IN')}</div>
         )}
       </div>
 
-      <div className="venture-card-center">
-        <div className="venture-stats venture-stats-row">
-          <span title="Views">👁 {venture.views || 0}</span>
-          <span title="Applications">📋 {venture.coVentureApplicationCount || 0}</span>
+      <div className="border-t border-gray-100 pt-3 mb-3">
+        <div className="flex items-center gap-4 text-sm text-gray-600">
+          <span title="Views" className="flex items-center gap-1">👁 {venture.views || 0}</span>
+          <span title="Applications" className="flex items-center gap-1">📋 {venture.coVentureApplicationCount || 0}</span>
           <LikeButton liked={likeState?.liked} count={likeState?.count} onToggle={onLike} />
         </div>
       </div>
 
-      <div className="venture-card-right">
-        <div className="venture-card-actions venture-card-actions-pro" onClick={e => e.stopPropagation()}>
-          {isOwner ? (
-            <>
-              <button className="btn-secondary btn-sm ventures-btn" onClick={onEdit}>Edit</button>
-              <button className="btn-danger btn-sm" onClick={onDelete}>Delete</button>
-            </>
-          ) : (
-            <button className="btn-primary btn-sm ventures-btn-primary" onClick={onApply}>Co-Venture →</button>
-          )}
-          {b.website && (
-            <a href={b.website} target="_blank" rel="noreferrer"
-               className="btn-ghost btn-sm venture-icon-btn" onClick={e => e.stopPropagation()}>
-              <ArrowUpRight size={17} />
-            </a>
-          )}
-        </div>
+      <div className="flex gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
+        {isOwner ? (
+          <>
+            <button className="px-3 py-1.5 bg-white border-2 border-purple-400 text-purple-600 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50" onClick={onEdit}>Edit</button>
+            <button className="px-3 py-1.5 bg-red-500 border border-red-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600" onClick={onDelete}>Delete</button>
+          </>
+        ) : (
+          <button className="px-3 py-1.5 bg-white border-2 border-purple-400 text-purple-600 rounded-lg text-xs font-semibold transition-all duration-200 hover:bg-purple-50" onClick={onApply}>Co-Venture →</button>
+        )}
+        {b.website && (
+          <a href={b.website} target="_blank" rel="noreferrer"
+             className="px-3 py-1.5 bg-white border-2 border-purple-400 text-purple-600 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50 flex items-center justify-center" onClick={e => e.stopPropagation()}>
+            <ArrowUpRight size={17} />
+          </a>
+        )}
       </div>
     </div>
   );
@@ -292,166 +292,148 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
   const c = (detail || venture)?.contactInfo  || {};
 
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card venture-detail-modal" style={{ maxWidth: 620, maxHeight: '90vh', overflowY: 'auto' }}>
-        <div className="modal-glow" />
-        <button className="modal-close" onClick={onClose}>✕</button>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="relative w-full max-w-[620px] max-h-[90vh] overflow-y-auto bg-white border border-gray-200 rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] animate-slideUp">
+        <div className="absolute -top-24 -right-24 w-[300px] h-[300px] rounded-full bg-purple-100/30 blur-3xl pointer-events-none" />
+        <button className="absolute top-4 right-4 z-20 bg-transparent border-none text-gray-400 text-xl cursor-pointer transition-colors duration-200 hover:text-gray-700" onClick={onClose}>✕</button>
 
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-            <div className="spinner" />
+          <div className="flex justify-center p-12">
+            <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
           </div>
         ) : (
           <>
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem',
-                          marginBottom: '1.5rem' }}>
-              {b.ventureImageUrl
-                ? <img src={b.ventureImageUrl} alt={b.brandName}
-                       style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
-                : <div style={{ width: 56, height: 56, borderRadius: 12,
-                                background: '#eef2ff',
-                                border: '1px solid #c7d2fe',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem',
-                                fontWeight: 700, color: '#4f46e5' }}>
-                    {b.brandName?.[0] || '?'}
+            <div className="relative z-10 p-8 pb-6">
+              <div className="flex items-center gap-4 mb-6">
+                {b.ventureImageUrl
+                  ? <img src={b.ventureImageUrl} alt={b.brandName}
+                         className="w-14 h-14 rounded-xl object-cover" />
+                  : <div className="w-14 h-14 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center font-display text-2xl font-bold text-indigo-600">
+                      {b.brandName?.[0] || '?'}
+                    </div>
+                }
+                <div>
+                  <h2 className="font-display text-[1.75rem] font-semibold text-gray-900 m-0">{b.brandName}</h2>
+                  <div className="flex gap-2 flex-wrap mt-1">
+                    {b.industry && (
+                      <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded">{b.industry.replace(/_/g, ' ')}</span>
+                    )}
+                    {b.ventureType && (
+                      <span className="px-2 py-0.5 bg-purple-50 text-purple-600 text-xs font-semibold rounded">
+                        {TYPE_LABELS[b.ventureType] || b.ventureType}
+                      </span>
+                    )}
                   </div>
-              }
-              <div>
-                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
-                             fontWeight: 600 }}>{b.brandName}</h2>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap',
-                              marginTop: '0.3rem' }}>
-                  {b.industry && (
-                    <span className="venture-industry">{b.industry.replace(/_/g, ' ')}</span>
-                  )}
-                  {b.ventureType && (
-                    <span className="venture-type">
-                      {TYPE_LABELS[b.ventureType] || b.ventureType}
-                    </span>
-                  )}
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="flex gap-4 mb-6 flex-wrap">
+                {b.dealValue && (
+                  <div className="px-4 py-2 bg-green-50 border border-green-300 rounded-lg text-sm text-green-700">
+                    💰 ₹{Number(b.dealValue).toLocaleString('en-IN')}
+                  </div>
+                )}
+                <div className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600">
+                  👁 {(detail?.views ?? venture.views) || 0} views
+                </div>
+                <div className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600">
+                  📋 {(detail?.coVentureApplicationCount ??
+                       venture.coVentureApplicationCount) || 0} applications
                 </div>
               </div>
             </div>
 
-            {/* Stats */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem',
-                          flexWrap: 'wrap' }}>
-              {b.dealValue && (
-                <div style={{ padding: '0.5rem 1rem', background: '#ecfdf5',
-                              border: '1px solid #a7f3d0', borderRadius: 8,
-                              fontSize: '0.875rem', color: '#047857' }}>
-                  💰 ₹{Number(b.dealValue).toLocaleString('en-IN')}
-                </div>
+            <div className="relative z-10 px-8">
+              {b.description && (
+                <Section title="About">
+                  <p className="text-gray-700 leading-relaxed text-sm">
+                    {b.description}
+                  </p>
+                </Section>
               )}
-              <div style={{ padding: '0.5rem 1rem', background: '#f9fafb',
-                            border: '1px solid #e5e7eb', borderRadius: 8,
-                            fontSize: '0.875rem', color: '#6b7280' }}>
-                👁 {(detail?.views ?? venture.views) || 0} views
-              </div>
-              <div style={{ padding: '0.5rem 1rem', background: '#f9fafb',
-                            border: '1px solid #e5e7eb', borderRadius: 8,
-                            fontSize: '0.875rem', color: '#6b7280' }}>
-                📋 {(detail?.coVentureApplicationCount ??
-                     venture.coVentureApplicationCount) || 0} applications
-              </div>
+
+              {(c.email || c.phoneNumber) && (
+                <Section title="Contact">
+                  <div className="grid grid-cols-2 gap-3">
+                    {c.email       && <DetailItem label="Email" value={c.email} />}
+                    {c.phoneNumber && <DetailItem label="Phone" value={c.phoneNumber} />}
+                  </div>
+                </Section>
+              )}
+
+              {(b.website || b.videoUrl) && (
+                <Section title="Links">
+                  <div className="flex gap-3 flex-wrap">
+                    {b.website && (
+                      <a href={b.website} target="_blank" rel="noreferrer"
+                         className="px-4 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50">🌐 Website ↗</a>
+                    )}
+                    {b.videoUrl && (
+                      <a href={b.videoUrl} target="_blank" rel="noreferrer"
+                         className="px-4 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50">🎬 Video ↗</a>
+                    )}
+                  </div>
+                </Section>
+              )}
+
+              {(detail || venture).stage && (
+                <Section title="Current Stage">
+                  <span className="inline-block px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-full text-xs text-indigo-600">
+                    {{ IDEA: '💡 Idea', MVP: '🛠 MVP',
+                       REVENUE_GENERATING: '💰 Revenue Generating',
+                       SCALING: '🚀 Scaling' }[(detail || venture).stage]}
+                  </span>
+                </Section>
+              )}
+
+              {(detail || venture).lookingFor && (
+                <Section title="Looking For">
+                  <p className="text-gray-700 leading-relaxed text-sm m-0">
+                    {(detail || venture).lookingFor}
+                  </p>
+                </Section>
+              )}
+
+              {(detail || venture).currentProblem && (
+                <Section title="Current Challenge">
+                  <p className="text-gray-700 leading-relaxed text-sm m-0">
+                    {(detail || venture).currentProblem}
+                  </p>
+                </Section>
+              )}
+
+              {detail?.listedBy && (
+                <Section title="Listed By">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center font-bold text-indigo-600 text-sm">
+                      {detail.listedBy.firstname?.[0]?.toUpperCase() || '?'}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900 text-sm">
+                        {detail.listedBy.firstname} {detail.listedBy.lastname}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {detail.listedBy.email}
+                      </div>
+                    </div>
+                  </div>
+                </Section>
+              )}
             </div>
-
-            {b.description && (
-              <Section title="About">
-                <p style={{ color: '#374151', lineHeight: 1.7, fontSize: '0.9rem' }}>
-                  {b.description}
-                </p>
-              </Section>
-            )}
-
-            {(c.email || c.phoneNumber) && (
-              <Section title="Contact">
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                  {c.email       && <DetailItem label="Email" value={c.email} />}
-                  {c.phoneNumber && <DetailItem label="Phone" value={c.phoneNumber} />}
-                </div>
-              </Section>
-            )}
-
-            {(b.website || b.videoUrl) && (
-              <Section title="Links">
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  {b.website && (
-                    <a href={b.website} target="_blank" rel="noreferrer"
-                       className="btn-ghost btn-sm">🌐 Website ↗</a>
-                  )}
-                  {b.videoUrl && (
-                    <a href={b.videoUrl} target="_blank" rel="noreferrer"
-                       className="btn-ghost btn-sm">🎬 Video ↗</a>
-                  )}
-                </div>
-              </Section>
-            )}
-
-            {(detail || venture).stage && (
-              <Section title="Current Stage">
-                <span style={{ padding: '0.35rem 0.75rem', background: '#eef2ff',
-                               border: '1px solid #c7d2fe', borderRadius: 999,
-                               fontSize: '0.8rem', color: '#4f46e5' }}>
-                  {{ IDEA: '💡 Idea', MVP: '🛠 MVP',
-                     REVENUE_GENERATING: '💰 Revenue Generating',
-                     SCALING: '🚀 Scaling' }[(detail || venture).stage]}
-                </span>
-              </Section>
-            )}
-
-            {(detail || venture).lookingFor && (
-              <Section title="Looking For">
-                <p style={{ color: '#374151', lineHeight: 1.6, fontSize: '0.9rem', margin: 0 }}>
-                  {(detail || venture).lookingFor}
-                </p>
-              </Section>
-            )}
-
-            {(detail || venture).currentProblem && (
-              <Section title="Current Challenge">
-                <p style={{ color: '#374151', lineHeight: 1.6, fontSize: '0.9rem', margin: 0 }}>
-                  {(detail || venture).currentProblem}
-                </p>
-              </Section>
-            )}
-
-            {detail?.listedBy && (
-              <Section title="Listed By">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%',
-                                background: '#eef2ff',
-                                border: '1px solid #c7d2fe',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontWeight: 700, color: '#4f46e5', fontSize: '0.9rem' }}>
-                    {detail.listedBy.firstname?.[0]?.toUpperCase() || '?'}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>
-                      {detail.listedBy.firstname} {detail.listedBy.lastname}
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>
-                      {detail.listedBy.email}
-                    </div>
-                  </div>
-                </div>
-              </Section>
-            )}
 
             {/* Actions */}
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem',
-                          flexWrap: 'wrap' }}>
+            <div className="relative z-10 px-8 pb-8 flex gap-3 flex-wrap">
               {isOwner ? (
                 <>
-                  <button className="btn-secondary" onClick={onEdit}>✏ Edit</button>
-                  <button className="btn-danger" onClick={onDelete}>Delete</button>
+                  <button className="px-5 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50" onClick={onEdit}>✏ Edit</button>
+                  <button className="px-5 py-2 bg-red-500 border border-red-500 text-white rounded-[10px] text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600" onClick={onDelete}>Delete</button>
                 </>
               ) : (
-                <button className="btn-primary" onClick={onApply}>Co-Venture →</button>
+                <button className="px-5 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold transition-all duration-200 hover:bg-purple-50" onClick={onApply}>Co-Venture →</button>
               )}
-              <button className="btn-ghost" onClick={onClose}>Close</button>
+              <button className="px-5 py-2 bg-white border-2 border-gray-300 text-gray-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-gray-50" onClick={onClose}>Close</button>
             </div>
           </>
         )}
@@ -462,10 +444,8 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
 
 function Section({ title, children }) {
   return (
-    <div style={{ marginBottom: '1.25rem' }}>
-      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6b7280',
-                    textTransform: 'uppercase', letterSpacing: '0.06em',
-                    marginBottom: '0.6rem' }}>{title}</div>
+    <div className="mb-5">
+      <div className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">{title}</div>
       {children}
     </div>
   );
@@ -474,8 +454,8 @@ function Section({ title, children }) {
 function DetailItem({ label, value }) {
   return (
     <div>
-      <div style={{ fontSize: '0.72rem', color: '#6b7280', marginBottom: '0.2rem' }}>{label}</div>
-      <div style={{ fontSize: '0.875rem', color: '#111827' }}>{value}</div>
+      <div className="text-xs text-gray-600 mb-1">{label}</div>
+      <div className="text-sm text-gray-900">{value}</div>
     </div>
   );
 }

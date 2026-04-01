@@ -71,51 +71,41 @@ export default function DomainVerificationModal({ domain, onClose, onVerified })
   };
 
   return (
-    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card" style={{ maxWidth: 560, maxHeight: '90vh', overflowY: 'auto' }}>
-        <div className="modal-glow" />
-        <button className="modal-close" onClick={onClose}>✕</button>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="relative w-full max-w-[560px] max-h-[90vh] overflow-y-auto bg-white border border-gray-200 rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] animate-slideUp">
+        <div className="absolute -top-24 -right-24 w-[300px] h-[300px] rounded-full bg-purple-100/30 blur-3xl pointer-events-none" />
+        <button className="absolute top-4 right-4 z-20 bg-transparent border-none text-gray-400 text-xl cursor-pointer transition-colors duration-200 hover:text-gray-700" onClick={onClose}>✕</button>
 
         {/* ── Choose method ── */}
         {step === 'choose' && (
           <>
-            <div className="modal-header">
-              <div className="modal-badge">Domain Verification</div>
-              <h2>{fullDomain}</h2>
-              <p>Prove you own this domain to get a verified badge on your listing.</p>
+            <div className="relative z-10 p-8 pb-6">
+              <div className="inline-block px-3 py-1 bg-purple-50 text-purple-600 text-xs font-bold rounded-full border border-purple-200 mb-3">Domain Verification</div>
+              <h2 className="font-display text-2xl font-semibold text-gray-900 m-0 mb-2">{fullDomain}</h2>
+              <p className="text-gray-500 text-sm">Prove you own this domain to get a verified badge on your listing.</p>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '1.5rem 0' }}>
+            <div className="relative z-10 px-8 pb-8 flex flex-col gap-3">
               {METHODS.map(m => (
                 <div key={m.id}
                   onClick={() => !loading && handleInit(m.id)}
-                  style={{
-                    padding: '1rem 1.25rem', borderRadius: 10, cursor: loading ? 'not-allowed' : 'pointer',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    background: 'rgba(255,255,255,0.03)',
-                    transition: 'all 0.15s', opacity: loading ? 0.6 : 1,
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+                  className={`p-4 rounded-[10px] border border-gray-200 bg-gray-50 transition-all duration-150 hover:bg-purple-50 hover:border-purple-300 ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.3rem' }}>
-                    <span style={{ fontSize: '1.25rem' }}>{m.icon}</span>
-                    <span style={{ fontWeight: 600, color: '#e0e0f0', fontSize: '0.95rem' }}>{m.label}</span>
-                    <span style={{ marginLeft: 'auto', fontSize: '0.68rem', fontWeight: 700,
-                                   color: m.badgeColor, background: `${m.badgeColor}18`,
-                                   border: `1px solid ${m.badgeColor}33`,
-                                   padding: '0.15rem 0.5rem', borderRadius: 4 }}>
+                  <div className="flex items-center gap-3 mb-1">
+                    <span className="text-xl">{m.icon}</span>
+                    <span className="font-semibold text-gray-900 text-sm">{m.label}</span>
+                    <span className="ml-auto text-xs font-bold px-2 py-0.5 rounded" style={{ color: m.badgeColor, background: `${m.badgeColor}18`, border: `1px solid ${m.badgeColor}33` }}>
                       {m.badge}
                     </span>
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#888', paddingLeft: '2rem' }}>{m.desc}</p>
+                  <p className="m-0 text-xs text-gray-500 pl-8">{m.desc}</p>
                 </div>
               ))}
             </div>
 
-            {error && <div className="form-error">{error}</div>}
-            {loading && <div style={{ textAlign: 'center', color: '#888', fontSize: '0.875rem' }}>
-              <span className="btn-spinner" style={{ display: 'inline-block', marginRight: '0.5rem' }} />
+            {error && <div className="p-3 bg-red-100 border border-red-200 rounded-lg text-sm text-red-600">{error}</div>}
+            {loading && <div className="text-center text-gray-500 text-sm">
+              <span className="inline-block w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin mr-2" />
               Initiating verification…
             </div>}
           </>
@@ -124,47 +114,44 @@ export default function DomainVerificationModal({ domain, onClose, onVerified })
         {/* ── Instructions ── */}
         {step === 'instructions' && instructions && (
           <>
-            <div className="modal-header">
-              <div className="modal-badge">
+            <div className="relative z-10 p-8 pb-6">
+              <div className="inline-block px-3 py-1 bg-purple-50 text-purple-600 text-xs font-bold rounded-full border border-purple-200 mb-3">
                 {METHODS.find(m => m.id === method)?.icon} {METHODS.find(m => m.id === method)?.label}
               </div>
-              <h2>Follow these steps</h2>
+              <h2 className="font-display text-2xl font-semibold text-gray-900 m-0">Follow these steps</h2>
             </div>
 
             {/* Step-by-step instructions */}
-            <div style={{ margin: '1.25rem 0', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <div className="relative z-10 px-8 flex flex-col gap-2.5">
               {instructions.instructions?.map((line, i) => (
-                <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                  <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(200,169,110,0.15)',
-                                  border: '1px solid rgba(200,169,110,0.3)', color: '#c8a96e',
-                                  fontSize: '0.7rem', fontWeight: 700, flexShrink: 0,
-                                  display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div key={i} className="flex gap-3 items-start">
+                  <span className="w-[22px] h-[22px] rounded-full bg-purple-100 border border-purple-200 text-purple-600 text-xs font-bold flex-shrink-0 flex items-center justify-center">
                     {i + 1}
                   </span>
-                  <span style={{ fontSize: '0.83rem', color: '#c0c0d0', lineHeight: 1.5 }}>{line}</span>
+                  <span className="text-xs text-gray-600 leading-relaxed">{line}</span>
                 </div>
               ))}
             </div>
 
             {/* DNS TXT copy box */}
             {method === 'DNS_TXT' && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <div style={labelStyle}>TXT Record Value</div>
+              <div className="relative z-10 px-8 mb-5">
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">TXT Record Value</div>
                 <CopyBox value={instructions.recordValue} />
               </div>
             )}
 
             {/* Meta tag copy box */}
             {method === 'META_TAG' && (
-              <div style={{ marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="relative z-10 px-8 mb-5 flex flex-col gap-3">
                 <div>
-                  <div style={labelStyle}>Meta Tag</div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Meta Tag</div>
                   <CopyBox value={instructions.metaTag} mono />
                 </div>
                 <div>
-                  <div style={labelStyle}>OR — File Path & Content</div>
-                  <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.3rem' }}>
-                    Upload to: <code style={{ color: '#c8a96e' }}>{instructions.filePath}</code>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">OR — File Path & Content</div>
+                  <div className="text-sm text-gray-500 mb-1">
+                    Upload to: <code className="text-purple-600">{instructions.filePath}</code>
                   </div>
                   <CopyBox value={instructions.fileContent} />
                 </div>
@@ -173,45 +160,45 @@ export default function DomainVerificationModal({ domain, onClose, onVerified })
 
             {/* WHOIS email OTP input */}
             {method === 'WHOIS_EMAIL' && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <div style={labelStyle}>Enter Verification Code</div>
-                <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.75rem' }}>
-                  Sent to: <strong style={{ color: '#c8a96e' }}>{instructions.maskedEmail}</strong>
+              <div className="relative z-10 px-8 mb-5">
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Enter Verification Code</div>
+                <p className="text-sm text-gray-500 mb-3">
+                  Sent to: <strong className="text-purple-600">{instructions.maskedEmail}</strong>
                 </p>
                 <input
                   value={otpCode}
                   onChange={e => setOtpCode(e.target.value.toUpperCase())}
                   placeholder="Enter 6-digit code"
                   maxLength={6}
-                  style={{ letterSpacing: '0.3em', fontSize: '1.1rem', textAlign: 'center' }}
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors tracking-[0.3em] text-lg text-center"
                 />
               </div>
             )}
 
             {checkResult && !checkResult.verified && (
-              <div style={{ padding: '0.875rem 1rem', background: 'rgba(200,110,110,0.08)',
-                            border: '1px solid rgba(200,110,110,0.25)', borderRadius: 8,
-                            marginBottom: '1rem', fontSize: '0.83rem', color: '#c86e6e' }}>
-                ✕ {checkResult.message}
+              <div className="relative z-10 px-8 mb-4">
+                <div className="p-3.5 bg-red-500/8 border border-red-500/25 rounded-lg text-xs text-red-400">
+                  {checkResult.message}
+                </div>
               </div>
             )}
 
-            {error && <div className="form-error" style={{ marginBottom: '1rem' }}>{error}</div>}
+            {error && <div className="relative z-10 px-8 mb-4"><div className="p-3 bg-red-100 border border-red-200 rounded-lg text-sm text-red-600">{error}</div></div>}
 
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button className="btn-primary" onClick={handleCheck} disabled={loading} style={{ flex: 1 }}>
+            <div className="relative z-10 px-8 pb-8 flex gap-3">
+              <button className="flex-1 px-5 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" onClick={handleCheck} disabled={loading}>
                 {loading
-                  ? <><span className="btn-spinner" /> Checking…</>
+                  ? <><span className="w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin" /> Checking…</>
                   : method === 'WHOIS_EMAIL' ? 'Verify Code →' : 'Check Verification →'
                 }
               </button>
-              <button className="btn-ghost" onClick={() => { setStep('choose'); setCheckResult(null); setError(''); }}>
+              <button className="px-5 py-2 bg-white border-2 border-gray-300 text-gray-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-gray-50" onClick={() => { setStep('choose'); setCheckResult(null); setError(''); }}>
                 ← Back
               </button>
             </div>
 
             {method !== 'WHOIS_EMAIL' && (
-              <p style={{ fontSize: '0.75rem', color: '#555', marginTop: '0.75rem', textAlign: 'center' }}>
+              <p className="relative z-10 px-8 pb-8 text-xs text-gray-600 text-center">
                 {method === 'DNS_TXT'
                   ? 'DNS changes can take a few minutes to propagate. If it fails, wait 5 mins and try again.'
                   : 'Make sure your website is publicly accessible before checking.'}
@@ -222,16 +209,16 @@ export default function DomainVerificationModal({ domain, onClose, onVerified })
 
         {/* ── Success ── */}
         {step === 'done' && (
-          <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem', marginBottom: '0.5rem' }}>
+          <div className="relative z-10 p-8 text-center">
+            <div className="text-5xl mb-4">✅</div>
+            <h2 className="font-display text-[1.75rem] font-semibold mb-2">
               Domain Verified!
             </h2>
-            <p style={{ color: '#a0a0b0', marginBottom: '1.5rem' }}>
-              <strong style={{ color: '#6ec896' }}>{fullDomain}</strong> is now verified.
+            <p className="text-gray-500 mb-6">
+              <strong className="text-green-600">{fullDomain}</strong> is now verified.
               Your listing shows a verified badge to buyers.
             </p>
-            <button className="btn-primary" onClick={onClose} style={{ width: '100%' }}>Done</button>
+            <button className="w-full px-6 py-2.5 bg-white border-2 border-purple-400 text-purple-600 rounded-full font-semibold text-sm transition-all duration-200 hover:bg-purple-50" onClick={onClose}>Done</button>
           </div>
         )}
       </div>
@@ -248,26 +235,18 @@ function CopyBox({ value, mono }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem',
-                  background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 8, padding: '0.75rem 1rem' }}>
-      <code style={{ flex: 1, fontSize: mono ? '0.72rem' : '0.82rem',
-                     color: '#c8a96e', wordBreak: 'break-all', fontFamily: 'monospace' }}>
+    <div className="flex items-center gap-2 bg-gray-100 border border-gray-200 rounded-lg px-4 py-3">
+      <code className={`flex-1 text-purple-600 break-all font-mono ${mono ? 'text-xs' : 'text-sm'}`}>
         {value}
       </code>
       <button onClick={handleCopy}
-        style={{ background: copied ? 'rgba(110,200,150,0.15)' : 'rgba(255,255,255,0.07)',
-                 border: `1px solid ${copied ? 'rgba(110,200,150,0.3)' : 'rgba(255,255,255,0.1)'}`,
-                 borderRadius: 6, padding: '0.3rem 0.6rem', cursor: 'pointer',
-                 color: copied ? '#6ec896' : '#888', fontSize: '0.75rem', whiteSpace: 'nowrap',
-                 transition: 'all 0.2s' }}>
+        className={`px-2.5 py-1.5 rounded-md cursor-pointer text-xs whitespace-nowrap transition-all duration-200 ${
+          copied
+            ? 'bg-green-100 border border-green-300 text-green-600'
+            : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'
+        }`}>
         {copied ? '✓ Copied' : 'Copy'}
       </button>
     </div>
   );
 }
-
-const labelStyle = {
-  fontSize: '0.72rem', fontWeight: 600, color: '#888',
-  textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem'
-};

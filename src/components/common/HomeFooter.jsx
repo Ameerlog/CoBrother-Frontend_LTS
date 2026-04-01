@@ -1,6 +1,5 @@
 import { useLanguage } from '../../context/LanguageContext';
 import { getTranslation } from '../../locales/translations';
-import '../../styles/HomeFooter.css';
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -46,10 +45,10 @@ export default function HomeFooter() {
   const { language } = useLanguage();
 
   return (
-    <footer className="home-footer">
-      <div className="home-footer-container">
+    <footer className="bg-white border-t border-gray-200 py-8 mt-auto">
+      <div className="max-w-[1200px] mx-auto flex flex-col items-center gap-5 text-center px-4">
         {/* Social Icons */}
-        <div className="home-footer-social">
+        <div className="flex items-center gap-4">
           {socials.map(({ href, label, Icon }) => (
             <a
               key={label}
@@ -57,17 +56,17 @@ export default function HomeFooter() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={label}
-              className="home-footer-social-link"
+              className="w-5 h-5 text-gray-500 transition-all duration-200 hover:text-purple-600 hover:scale-110"
             >
               <Icon />
             </a>
           ))}
         </div>
 
-        <p className="home-footer-text">
+        <p className="text-gray-500 text-sm my-0.5 font-body">
           {getTranslation(language, 'footerCopyright')}
         </p>
-        <p className="home-footer-text">
+        <p className="text-gray-500 text-sm my-0.5 font-body">
           {getTranslation(language, 'footerMade')}
         </p>
       </div>

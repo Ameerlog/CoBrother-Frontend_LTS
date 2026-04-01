@@ -62,84 +62,72 @@ export default function NotificationsPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page">
-        <div className="page-header">
+      <div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1>Notifications</h1>
-            <p>{unread.length} unread notification{unread.length !== 1 ? 's' : ''}</p>
+            <h1 className="font-display text-3xl font-bold text-gray-900 m-0">Notifications</h1>
+            <p className="text-gray-600 mt-1">{unread.length} unread notification{unread.length !== 1 ? 's' : ''}</p>
           </div>
           {unread.length > 0 && (
-            <button className="btn-secondary" onClick={handleMarkAllRead}>
+            <button className="px-5 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-purple hover:bg-purple-50" onClick={handleMarkAllRead}>
               ✓ Mark all as read
             </button>
           )}
         </div>
 
-        <div className="filter-tabs" style={{ marginBottom: '1.5rem' }}>
-          <button className={`filter-tab ${filter === 'all'    ? 'active' : ''}`} onClick={() => setFilter('all')}>
+        <div className="flex gap-2 mb-6">
+          <button className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 ${filter === 'all' ? 'bg-purple text-white' : 'bg-white border border-gray-300 text-gray-700 hover:border-purple hover:bg-purple-50'}`} onClick={() => setFilter('all')}>
             All ({notifications.length})
           </button>
-          <button className={`filter-tab ${filter === 'unread' ? 'active' : ''}`} onClick={() => setFilter('unread')}>
+          <button className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 ${filter === 'unread' ? 'bg-purple text-white' : 'bg-white border border-gray-300 text-gray-700 hover:border-purple hover:bg-purple-50'}`} onClick={() => setFilter('unread')}>
             Unread ({unread.length})
           </button>
         </div>
 
         {loading ? (
-          <div className="page-loading"><div className="spinner" /></div>
+          <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>
         ) : filtered.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">🔔</div>
-            <h3>{filter === 'unread' ? 'All caught up!' : 'No notifications yet'}</h3>
-            <p>{filter === 'unread' ? 'No unread notifications.' : 'Activity will show up here.'}</p>
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">🔔</div>
+            <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">{filter === 'unread' ? 'All caught up!' : 'No notifications yet'}</h3>
+            <p className="text-gray-600">{filter === 'unread' ? 'No unread notifications.' : 'Activity will show up here.'}</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div className="flex flex-col gap-2">
             {filtered.map(n => {
               const color = TYPE_COLORS[n.type] || '#c8a96e';
               return (
                 <div key={n.id}
                   onClick={() => handleClick(n)}
-                  style={{
-                    display: 'flex', alignItems: 'flex-start', gap: '1rem',
-                    padding: '1rem 1.25rem',
-                    background: n.read ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.055)',
-                    border: `1px solid ${n.read ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.14)'}`,
-                    borderRadius: 10, cursor: n.link ? 'pointer' : 'default',
-                    transition: 'background 0.15s',
-                  }}>
+                  className={`flex items-start gap-4 p-4 rounded-[10px] transition-all duration-150 ${n.read ? 'bg-white/5 border border-white/10' : 'bg-white/10 border border-white/20'} ${n.link ? 'cursor-pointer hover:bg-white/15' : 'cursor-default'}`}>
 
                   {/* Icon */}
-                  <div style={{
-                    width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '1.1rem',
-                    background: `${color}18`, border: `1px solid ${color}33`
-                  }}>
+                  <div className="w-[38px] h-[38px] rounded-[10px] flex-shrink-0 flex items-center justify-center text-lg"
+                    style={{
+                      background: `${color}18`,
+                      border: `1px solid ${color}33`
+                    }}>
                     {TYPE_ICONS[n.type] || '🔔'}
                   </div>
 
                   {/* Content */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between',
-                                  alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      <span style={{ fontWeight: n.read ? 500 : 700, fontSize: '0.9rem',
-                                     color: n.read ? '#c0c0d0' : '#e0e0f0' }}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2 flex-wrap">
+                      <span className={`text-sm ${n.read ? 'font-medium text-gray-400' : 'font-bold text-gray-200'}`}>
                         {n.title}
                       </span>
-                      <span style={{ fontSize: '0.72rem', color: '#666', whiteSpace: 'nowrap' }}>
+                      <span className="text-xs text-gray-500 whitespace-nowrap">
                         {timeAgo(n.createdAt)}
                       </span>
                     </div>
-                    <p style={{ margin: '0.2rem 0 0', fontSize: '0.82rem',
-                                color: n.read ? '#888' : '#a8a8c0', lineHeight: 1.4 }}>
+                    <p className={`mt-1 text-xs leading-relaxed ${n.read ? 'text-gray-500' : 'text-gray-400'}`}>
                       {n.message}
                     </p>
                   </div>
 
                   {/* Unread dot */}
                   {!n.read && (
-                    <div style={{ width: 8, height: 8, borderRadius: '50%',
-                                  background: color, flexShrink: 0, marginTop: 6 }} />
+                    <div className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{ background: color }} />
                   )}
                 </div>
               );

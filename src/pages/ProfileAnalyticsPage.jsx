@@ -6,26 +6,21 @@ import {
 } from 'recharts';
 import { analyticsAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
+import CommunityProfileIcon from '../assets/Community-profileicon.png';
 
 const COLORS = ['#c8a96e','#6e9ec8','#6ec896','#c86e6e','#9b6ec8','#c8b06e'];
 
 const StatCard = ({ label, value, sub, color = '#c8a96e' }) => (
-  <div style={{
-    padding: '1.5rem', background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12,
-  }}>
-    <div style={{ fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
-    <div style={{ fontSize: '2rem', fontWeight: 700, color, fontFamily: 'JetBrains Mono, monospace', marginTop: '0.35rem' }}>{value}</div>
-    {sub && <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.2rem' }}>{sub}</div>}
+  <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
+    <div className="text-xs text-gray-500 uppercase tracking-wider">{label}</div>
+    <div className="text-3xl font-bold font-mono mt-1.5" style={{ color }}>{value}</div>
+    {sub && <div className="text-sm text-gray-600 mt-0.5">{sub}</div>}
   </div>
 );
 
 const ChartCard = ({ title, children }) => (
-  <div style={{
-    padding: '1.5rem', background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12,
-  }}>
-    <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#c0c0d0', marginBottom: '1.25rem' }}>{title}</div>
+  <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
+    <div className="text-sm font-semibold text-gray-300 mb-5">{title}</div>
     {children}
   </div>
 );
@@ -33,8 +28,8 @@ const ChartCard = ({ title, children }) => (
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#1a1a24', border: '1px solid #2a2a3a', borderRadius: 8, padding: '0.6rem 0.9rem', fontSize: '0.82rem' }}>
-      <div style={{ color: '#888', marginBottom: '0.25rem' }}>{label}</div>
+    <div className="bg-gray-900 border border-gray-700 rounded-lg px-3.5 py-2.5 text-xs">
+      <div className="text-gray-500 mb-1">{label}</div>
       {payload.map((p, i) => (
         <div key={i} style={{ color: p.color || '#c8a96e' }}>{p.name}: <strong>{p.value}</strong></div>
       ))}
@@ -69,30 +64,30 @@ export default function ProfileAnalyticsPage() {
 
   return (
     <AppLayout>
-      <div style={{ maxWidth: 1100 }}>
-        <div className="page-header">
+      <div className="max-w-[1100px]">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.25rem' }}>Profile Analytics</h1>
-            <p style={{ color: '#8a8099', marginTop: '0.3rem' }}>See who's viewing your community profile.</p>
+            <h1 className="font-display text-4xl font-bold text-gold m-0">Profile Analytics</h1>
+            <p className="text-gray-600 mt-1">See who's viewing your community profile.</p>
           </div>
-          <button className="btn-secondary" onClick={() => navigate('/community')}>← Back</button>
+          <button className="px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-purple hover:bg-purple-50" onClick={() => navigate('/community')}>← Back</button>
         </div>
 
         {loading ? (
-          <div className="page-loading"><div className="spinner" /></div>
+          <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>
         ) : error ? (
-          <div className="form-error">{error}</div>
+          <div className="p-4 bg-red-100 border border-red-200 rounded-lg text-sm text-red-600">{error}</div>
         ) : !analytics ? null : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="flex flex-col gap-6">
 
             {/* Stat cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <StatCard label="Total Profile Views" value={analytics.totalViews/2} sub="All time" />
               <StatCard label="Views This Week" value={analytics.viewsThisWeek/2} sub="Last 7 days" color="#6ec896" />
             </div>
 
             {/* Views over time */}
-            <ChartCard title="👁 Profile Views Over Last 30 Days">
+            <ChartCard title={<><img src={CommunityProfileIcon} alt="" className="inline-block w-4 h-4 mr-2 object-contain" />Profile Views Over Last 30 Days</>}>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={viewsData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />

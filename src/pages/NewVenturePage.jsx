@@ -28,10 +28,10 @@ export default function NewVenturePage() {
 
   return (
     <AppLayout>
-      <div className="form-page venture-form-page">
-        <div className="form-page-header">
-          <h1>List a New Venture</h1>
-          <p>Fill in the details to attract the right co-venturers.</p>
+      <div className="max-w-full w-full">
+        <div className="mb-8">
+          <h1 className="font-display text-[2rem] font-bold text-gray-900 m-0 mb-2">List a New Venture</h1>
+          <p className="text-gray-600">Fill in the details to attract the right co-venturers.</p>
         </div>
         <VentureForm
           onSubmit={handleSubmit}

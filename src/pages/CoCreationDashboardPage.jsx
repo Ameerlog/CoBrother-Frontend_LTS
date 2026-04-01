@@ -47,18 +47,18 @@ export default function CoCreationDashboardPage() {
 
   return (
     <AppLayout>
-      <div className="ventures-page cocreation-dashboard-page">
-        <div className="page-header cocreation-dashboard-header">
+      <div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1>CoCreation Dashboard</h1>
-            <p>Manage your software listings and purchases.</p>
+            <h1 className="font-display text-3xl font-bold text-gray-900 m-0">CoCreation Dashboard</h1>
+            <p className="text-gray-600 mt-1">Manage your software listings and purchases.</p>
           </div>
-          <button className="btn-secondary cocreation-btn" onClick={() => navigate('/cocreation')}>
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50" onClick={() => navigate('/cocreation')}>
             <ArrowLeft size={16} /> Back to CoCreation
           </button>
         </div>
 
-        <div className="cocreation-stats-grid">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
           <StatCard label="Total Listings" value={listings.length} icon={<Boxes size={18} />} />
           <StatCard label="Total Sales" value={listings.reduce((s, x) => s + (x.purchaseCount || 0), 0)}
                     icon={<IndianRupee size={18} />} color="#047857" />
@@ -74,16 +74,16 @@ export default function CoCreationDashboardPage() {
         </div>
 
         {/* Tabs */}
-        <div className="filter-tabs cocreation-filter-tabs">
-          <button className={`filter-tab ${tab === 'listings'  ? 'active' : ''}`}
+        <div className="flex gap-2 mb-6">
+          <button className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 ${tab === 'listings' ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:border-indigo-400 hover:bg-indigo-50'}`}
             onClick={() => setTab('listings')}>
             My Listings ({listings.length})
           </button>
-          <button className={`filter-tab ${tab === 'purchases' ? 'active' : ''}`}
+          <button className={`px-5 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 relative ${tab === 'purchases' ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:border-indigo-400 hover:bg-indigo-50'}`}
             onClick={() => setTab('purchases')}>
             My Purchases ({completedPurchases.length})
             {pendingConfirm > 0 && (
-              <span className="cocreation-tab-badge">
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                 {pendingConfirm}
               </span>
             )}
@@ -91,18 +91,18 @@ export default function CoCreationDashboardPage() {
         </div>
 
         {loading ? (
-          <div className="page-loading"><div className="spinner" /></div>
+          <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin" /></div>
         ) : tab === 'listings' ? (
           listings.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">⟁</div>
-              <h3>No listings yet</h3>
-              <button className="btn-primary" onClick={() => navigate('/cocreation')}>
+            <div className="text-center py-20">
+              <div className="text-6xl mb-4">⟁</div>
+              <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No listings yet</h3>
+              <button className="px-5 py-2 bg-indigo-600 text-white rounded-full text-sm font-semibold transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg border-none cursor-pointer" onClick={() => navigate('/cocreation')}>
                 List Software
               </button>
             </div>
           ) : (
-            <div className="cocreation-row-list">
+            <div className="flex flex-col gap-3">
               {listings.map(s => (
                 <ListingRow
                   key={s.id}
@@ -114,15 +114,15 @@ export default function CoCreationDashboardPage() {
           )
         ) : (
           completedPurchases.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">🛒</div>
-              <h3>No purchases yet</h3>
-              <button className="btn-primary" onClick={() => navigate('/cocreation')}>
+            <div className="text-center py-20">
+              <div className="text-6xl mb-4">🛒</div>
+              <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No purchases yet</h3>
+              <button className="px-5 py-2 bg-indigo-600 text-white rounded-full text-sm font-semibold transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg border-none cursor-pointer" onClick={() => navigate('/cocreation')}>
                 Browse Software
               </button>
             </div>
           ) : (
-            <div className="cocreation-row-list">
+            <div className="flex flex-col gap-3">
               {completedPurchases.map(p => (
                 <PurchaseRow
                   key={p.id}
@@ -138,32 +138,28 @@ export default function CoCreationDashboardPage() {
 
       {/* GitHub link reveal modal */}
       {githubModal && (
-        <div className="modal-overlay" onClick={() => setGithubModal(null)}>
-          <div className="modal-card cocreation-light-modal" style={{ maxWidth: 440, textAlign: 'center' }}
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setGithubModal(null)}>
+          <div className="relative w-full max-w-[440px] text-center bg-white border border-gray-200 rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] p-8"
                onClick={e => e.stopPropagation()}>
-            <div className="modal-glow" />
-            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🔓</div>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', marginBottom: '0.5rem',
-                         color: '#e0e0f0' }}>
+            <div className="absolute -top-24 -right-24 w-[300px] h-[300px] rounded-full bg-indigo-100/30 blur-3xl pointer-events-none" />
+            <div className="text-[2.5rem] mb-4">🔓</div>
+            <h2 className="font-display text-[1.75rem] text-gray-900 mb-2">
               Purchase Confirmed!
             </h2>
-            <p style={{ color: '#a0a0b0', marginBottom: '1.25rem' }}>
-              Thanks for confirming <strong style={{ color: '#e0e0f0' }}>
+            <p className="text-gray-500 mb-5">
+              Thanks for confirming <strong className="text-gray-900">
                 {githubModal.softwareName}</strong>.
             </p>
-            <div style={{ padding: '0.875rem', background: 'rgba(110,200,150,0.08)',
-                          border: '1px solid rgba(110,200,150,0.2)', borderRadius: 8,
-                          marginBottom: '1.25rem', wordBreak: 'break-all' }}>
-              <div style={{ fontSize: '0.72rem', color: '#888', marginBottom: '0.4rem' }}>
+            <div className="p-3.5 bg-green-50 border border-green-200 rounded-lg mb-5 break-all">
+              <div className="text-[0.72rem] text-gray-400 mb-1.5">
                 🔗 GitHub Repository
               </div>
               <a href={githubModal.link} target="_blank" rel="noreferrer"
-                 style={{ color: '#6ec896', fontWeight: 600, fontSize: '0.875rem' }}>
+                 className="text-green-600 font-semibold text-sm no-underline hover:underline">
                 {githubModal.link}
               </a>
             </div>
-            <button className="btn-primary" onClick={() => setGithubModal(null)}
-              style={{ width: '100%' }}>
+            <button className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white font-semibold text-sm rounded-[10px] border-none cursor-pointer transition-colors hover:bg-indigo-700" onClick={() => setGithubModal(null)}>
               Done
             </button>
           </div>
@@ -179,67 +175,54 @@ function ListingRow({ item, onAnalytics }) {
   const sales = item.purchaseCount || 0;
 
   return (
-    <div style={{ background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 10, overflow: 'hidden' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem',
-                    padding: '1rem 1.25rem', cursor: 'pointer' }}
+    <div className="bg-white border border-gray-200 rounded-[10px] overflow-hidden">
+      <div className="flex items-center gap-4 px-5 py-4 cursor-pointer"
            onClick={() => setExpanded(v => !v)}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, color: '#e0e0f0', fontSize: '0.95rem' }}>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-gray-900 text-[0.95rem]">
             {item.name}
             {item.official && (
-              <span style={{ marginLeft: '0.5rem', fontSize: '0.68rem', color: '#c8a96e',
-                             background: 'rgba(200,169,110,0.12)',
-                             border: '1px solid rgba(200,169,110,0.3)',
-                             padding: '0.1rem 0.4rem', borderRadius: 4, fontWeight: 700 }}>
+              <span className="ml-2 text-[0.68rem] text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded font-bold">
                 ✦ Official
               </span>
             )}
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+          <div className="text-[0.78rem] text-gray-400 mt-0.5">
             {item.category?.replace(/_/g, ' ')} · {item.pricingDemand}
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexShrink: 0 }}>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
-                          fontWeight: 700, color: '#c8a96e' }}>
+        <div className="flex items-center gap-5 flex-shrink-0">
+          <div className="text-right">
+            <div className="font-display text-[1.1rem] font-bold text-indigo-600">
               ₹{Number(item.price).toLocaleString('en-IN')}
             </div>
-            <div style={{ fontSize: '0.72rem', color: '#888' }}>per sale</div>
+            <div className="text-[0.72rem] text-gray-400">per sale</div>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem',
-                          fontWeight: 700, color: '#6ec896' }}>
+          <div className="text-center">
+            <div className="font-display text-[1.3rem] font-bold text-green-600">
               {sales}
             </div>
-            <div style={{ fontSize: '0.68rem', color: '#888' }}>
+            <div className="text-[0.68rem] text-gray-400">
               {sales === 1 ? 'buyer' : 'buyers'}
             </div>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
-                          fontWeight: 700, color: '#6ec896' }}>
+          <div className="text-right">
+            <div className="font-display text-[1.1rem] font-bold text-green-600">
               ₹{Number(item.price * sales).toLocaleString('en-IN')}
             </div>
-            <div style={{ fontSize: '0.72rem', color: '#888' }}>revenue</div>
+            <div className="text-[0.72rem] text-gray-400">revenue</div>
           </div>
-          <span style={{ color: '#666', fontSize: '0.85rem' }}>{expanded ? '▲' : '▼'}</span>
+          <span className="text-gray-400 text-sm">{expanded ? '▲' : '▼'}</span>
         </div>
       </div>
 
       {expanded && (
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)',
-                      padding: '0.875rem 1.25rem',
-                      display: 'flex', gap: '0.75rem', flexWrap: 'wrap',
-                      alignItems: 'center' }}>
-          <button className="btn-ghost btn-sm" onClick={onAnalytics}
-            style={{ fontSize: '0.78rem' }}>
+        <div className="border-t border-gray-100 px-5 py-3.5 flex gap-3 flex-wrap items-center">
+          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-transparent text-gray-500 font-semibold text-xs rounded-lg border border-gray-200 cursor-pointer transition-colors hover:bg-gray-50" onClick={onAnalytics}>
             📊 Analytics
           </button>
-          <span style={{ fontSize: '0.78rem', color: '#888' }}>
+          <span className="text-[0.78rem] text-gray-400">
             👁 {item.views || 0} views · ✦ {sales} paid
             {sales > 0 && ` · Revenue: ₹${Number(item.price * sales).toLocaleString('en-IN')}`}
           </span>
@@ -259,49 +242,29 @@ function PurchaseRow({ purchase, onConfirm, confirming }) {
   const helpPaid     = purchase.coBrotherHelpPaid;
 
   return (
-    <div style={{
-      background: 'rgba(255,255,255,0.03)',
-      border: `1px solid ${isConfirmed
-        ? 'rgba(110,200,150,0.2)'
-        : isPending
-        ? 'rgba(160,110,200,0.2)'
-        : 'rgba(255,255,255,0.08)'}`,
-      borderRadius: 10, overflow: 'hidden',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem',
-                    padding: '1rem 1.25rem', cursor: 'pointer' }}
+    <div className={`bg-white border rounded-[10px] overflow-hidden ${isConfirmed ? 'border-green-200' : isPending ? 'border-purple-200' : 'border-gray-200'}`}>
+      <div className="flex items-center gap-4 px-5 py-4 cursor-pointer"
            onClick={() => setExpanded(v => !v)}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, color: '#e0e0f0', fontSize: '0.95rem',
-                        display: 'flex', alignItems: 'center', gap: '0.5rem',
-                        flexWrap: 'wrap' }}>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-gray-900 text-[0.95rem] flex items-center gap-2 flex-wrap">
             {sw.name || '—'}
             {isConfirmed && (
-              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#6ec896',
-                             background: 'rgba(110,200,150,0.1)',
-                             border: '1px solid rgba(110,200,150,0.3)',
-                             padding: '0.1rem 0.4rem', borderRadius: 4 }}>
+              <span className="text-[0.68rem] font-bold text-green-600 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded">
                 ✓ Confirmed
               </span>
             )}
             {isPending && (
-              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#a06ec8',
-                             background: 'rgba(160,110,200,0.1)',
-                             border: '1px solid rgba(160,110,200,0.3)',
-                             padding: '0.1rem 0.4rem', borderRadius: 4 }}>
+              <span className="text-[0.68rem] font-bold text-purple-600 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded">
                 ⏳ Awaiting Confirmation
               </span>
             )}
             {helpPaid && (
-              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#6ec896',
-                             background: 'rgba(110,200,150,0.1)',
-                             border: '1px solid rgba(110,200,150,0.3)',
-                             padding: '0.1rem 0.4rem', borderRadius: 4 }}>
+              <span className="text-[0.68rem] font-bold text-green-600 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded">
                 ◆ CoBrother Active
               </span>
             )}
           </div>
-          <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.2rem' }}>
+          <div className="text-[0.78rem] text-gray-400 mt-0.5">
             {sw.category?.replace(/_/g, ' ')} · Purchased{' '}
             {purchase.soldAt
               ? new Date(purchase.soldAt).toLocaleDateString('en-IN',
@@ -310,37 +273,31 @@ function PurchaseRow({ purchase, onConfirm, confirming }) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
-                          fontWeight: 700, color: '#a06ec8' }}>
+        <div className="flex items-center gap-4 flex-shrink-0">
+          <div className="text-right">
+            <div className="font-display text-[1.1rem] font-bold text-purple-600">
               ₹{Number(sw.price || 0).toLocaleString('en-IN')}
             </div>
             {purchase.coBrotherOptIn && !helpPaid && (
-              <div style={{ fontSize: '0.68rem', color: '#888' }}>+ ₹1,000 pending</div>
+              <div className="text-[0.68rem] text-gray-400">+ ₹1,000 pending</div>
             )}
             {helpPaid && (
-              <div style={{ fontSize: '0.68rem', color: '#888' }}>+ ₹1,000 CoBrother</div>
+              <div className="text-[0.68rem] text-gray-400">+ ₹1,000 CoBrother</div>
             )}
           </div>
-          <span style={{ color: '#666', fontSize: '0.85rem' }}>{expanded ? '▲' : '▼'}</span>
+          <span className="text-gray-400 text-sm">{expanded ? '▲' : '▼'}</span>
         </div>
       </div>
 
       {expanded && (
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)',
-                      padding: '1rem 1.25rem' }}>
+        <div className="border-t border-gray-100 px-5 py-4">
 
           {/* GitHub access */}
           {sw.githubLink && (
-            <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8,
-                          marginBottom: '0.875rem',
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.82rem', color: '#c0c0d0' }}>🔗 GitHub Repository</span>
+            <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg mb-3.5 flex items-center justify-between">
+              <span className="text-[0.82rem] text-gray-500">🔗 GitHub Repository</span>
               <a href={sw.githubLink} target="_blank" rel="noreferrer"
-                 style={{ fontSize: '0.8rem', color: '#6ec896', fontWeight: 600,
-                          textDecoration: 'none' }}>
+                 className="text-sm text-green-600 font-semibold no-underline hover:underline">
                 Open →
               </a>
             </div>
@@ -348,27 +305,23 @@ function PurchaseRow({ purchase, onConfirm, confirming }) {
 
           {/* CoBrother status */}
           {helpPaid ? (
-            <div style={{ padding: '0.75rem 1rem', background: 'rgba(110,200,150,0.07)',
-                          border: '1px solid rgba(110,200,150,0.2)', borderRadius: 8,
-                          marginBottom: '0.875rem', fontSize: '0.82rem', color: '#6ec896' }}>
+            <div className="px-4 py-3 bg-green-50 border border-green-200 rounded-lg mb-3.5 text-[0.82rem] text-green-700">
               ◆ CoBrother assigned — check your email for introduction details.
             </div>
           ) : null}
 
           {/* Action buttons */}
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div className="flex gap-3 flex-wrap">
             {isPending && (
               <button
-                className="btn-primary btn-sm"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white font-semibold text-xs rounded-lg border-none cursor-pointer transition-colors hover:bg-indigo-700 disabled:opacity-50"
                 onClick={onConfirm}
-                disabled={confirming}
-                style={{ fontSize: '0.78rem' }}>
-                {confirming ? <span className="btn-spinner" /> : '✓ Mark as Complete'}
+                disabled={confirming}>
+                {confirming ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> : '✓ Mark as Complete'}
               </button>
             )}
             {isConfirmed && (
-              <span style={{ fontSize: '0.78rem', color: '#6ec896', fontWeight: 600,
-                             alignSelf: 'center' }}>
+              <span className="text-[0.78rem] text-green-600 font-semibold self-center">
                 ✓ Purchase confirmed
               </span>
             )}
@@ -381,12 +334,12 @@ function PurchaseRow({ purchase, onConfirm, confirming }) {
 
 function StatCard({ label, value, icon, color = '#111827' }) {
   return (
-    <div className="cocreation-stat-card">
-      <div className="cocreation-stat-icon">{icon}</div>
-      <div className="cocreation-stat-value" style={{ color }}>
+    <div className="p-4 bg-white border border-gray-200 rounded-[12px] shadow-sm flex flex-col gap-1">
+      <div className="text-indigo-500 mb-1">{icon}</div>
+      <div className="font-display text-2xl font-bold" style={{ color }}>
         {value}
       </div>
-      <div className="cocreation-stat-label">{label}</div>
+      <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">{label}</div>
     </div>
   );
 }

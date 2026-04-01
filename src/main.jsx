@@ -1,6 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import './tailwind.css'
 import './index.css'
+import './styles/professional-ui.css'
 import App from './App.jsx'
 import ErrorBoundary from './components/common/ErrorBoundary.jsx'
 

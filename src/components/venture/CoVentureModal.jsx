@@ -65,16 +65,16 @@ export default function CoVentureModal({ venture, onClose }) {
     .replace('NINETY_TEN','90:10').replace('NEGOTIABLE','Negotiable') || '';
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card coventure-light-modal">
-        <div className="modal-glow" />
-        <button className="modal-close" onClick={onClose}>✕</button>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="relative w-full max-w-[580px] bg-white border border-gray-200 rounded-[18px] shadow-[0_20px_60px_rgba(17,24,39,0.14)] overflow-hidden animate-slideUp">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-purple-50 opacity-50 blur-3xl pointer-events-none" />
+        <button className="absolute top-4 right-4 z-20 bg-transparent border-none text-gray-400 text-xl cursor-pointer transition-colors duration-200 hover:text-gray-900" onClick={onClose}>✕</button>
 
-        {/* ── Checking state ─────────────────────────────────────────────── */}
+        {/* ── Checking state ────────────────────────────────────────────────────────── */}
         {checking && (
-          <div className="modal-checking">
-            <div className="spinner" style={{ width: 32, height: 32 }} />
-            <p>Checking your application status…</p>
+          <div className="relative z-10 p-12 text-center">
+            <div className="w-8 h-8 border-2 border-indigo-600/30 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-600">Checking your application status…</p>
           </div>
         )}
 
@@ -88,44 +88,45 @@ export default function CoVentureModal({ venture, onClose }) {
           />
         )}
 
-        {/* ── Success after submitting ───────────────────────────────────── */}
+        {/* ── Success after submitting ─────────────────────────────────────────────────────── */}
         {!checking && !existingStatus && success && (
-          <div className="modal-success">
-            <div className="success-icon">✓</div>
-            <h3>Application Submitted!</h3>
-            <p>
+          <div className="relative z-10 text-center p-8">
+            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4">✓</div>
+            <h3 className="font-display text-xl font-bold text-gray-900 mb-3">Application Submitted!</h3>
+            <p className="text-gray-600 mb-6">
               Your co-venture application for{' '}
               <strong>{b.brandName}</strong> is under review.
               We'll notify you once a decision is made.
             </p>
-            <button className="btn-primary" onClick={onClose}>Done</button>
+            <button className="px-6 py-2.5 bg-purple border border-purple text-white rounded-[10px] font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-purple-dark" onClick={onClose}>Done</button>
           </div>
         )}
 
-        {/* ── Application form ───────────────────────────────────────────── */}
+        {/* ── Application form ────────────────────────────────────────────────────────── */}
         {!checking && !existingStatus && !success && (
           <>
-            <div className="modal-header">
-              <div className="modal-badge">Co-Venture Application</div>
-              <h2>Apply to <span className="coventure-name-accent">{b.brandName}</span></h2>
-              <p>{typeLabel}{typeLabel && b.industry ? ' · ' : ''}{b.industry?.replace(/_/g, ' ')}</p>
+            <div className="relative z-10 p-8 pb-6">
+              <div className="inline-block px-2.5 py-1 bg-purple-50 text-purple-600 text-xs font-bold rounded-md mb-4">Co-Venture Application</div>
+              <h2 className="font-display text-2xl font-bold text-gray-900 tracking-tight m-0 mb-2">Apply to <span className="text-purple">{b.brandName}</span></h2>
+              <p className="text-gray-600 font-semibold text-sm m-0 mb-6">{typeLabel}{typeLabel && b.industry ? ' · ' : ''}{b.industry?.replace(/_/g, ' ')}</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="modal-form">
-              <div className="form-group">
-                <label>Full Name <span className="required">*</span></label>
+            <form onSubmit={handleSubmit} className="relative z-10 px-8 flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">Full Name <span className="text-red-400">*</span></label>
                 <input
                   name="fullName"
                   value={form.fullName}
                   onChange={handleChange}
                   placeholder="Your legal name"
                   required
+                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Phone <span className="required">*</span></label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-bold text-gray-900">Phone <span className="text-red-400">*</span></label>
                   <input
                     name="phone"
                     value={form.phone}
@@ -135,32 +136,35 @@ export default function CoVentureModal({ venture, onClose }) {
                     pattern="[0-9]{10}"
                     title="Enter a valid 10-digit phone number"
                     required
+                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
                   />
                 </div>
-                <div className="form-group">
-                  <label>Location</label>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-bold text-gray-900">Location</label>
                   <input
                     name="location"
                     value={form.location}
                     onChange={handleChange}
                     placeholder="City, State"
+                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
                   />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>GST Number <span className="optional">(optional)</span></label>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">GST Number <span className="text-gray-400 text-xs">(optional)</span></label>
                 <input
                   name="gstNo"
                   value={form.gstNo}
                   onChange={handleChange}
                   placeholder="22AAAAA0000A1Z5"
                   maxLength={15}
+                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
                 />
               </div>
 
-              <div className="form-group">
-                <label>How can you help? <span className="required">*</span></label>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">How can you help? <span className="text-red-400">*</span></label>
                 <textarea
                   name="description"
                   value={form.description}
@@ -168,13 +172,14 @@ export default function CoVentureModal({ venture, onClose }) {
                   placeholder="Describe how you can contribute to this venture — your skills, experience, network, or how you'd solve their current challenge..."
                   rows={4}
                   required
+                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 resize-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
                 />
               </div>
 
-              {error && <div className="form-error">{error}</div>}
+              {error && <div className="px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-[10px] text-red-400 text-sm">{error}</div>}
 
-              <button type="submit" className="btn-primary full-width" disabled={loading}>
-                {loading ? <span className="btn-spinner" /> : 'Submit Application →'}
+              <button type="submit" className="w-full px-6 py-2.5 bg-purple border border-purple text-white rounded-[10px] font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-purple-dark flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled={loading}>
+                {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Submit Application →'}
               </button>
             </form>
           </>
@@ -190,21 +195,26 @@ function AlreadyApplied({ venture, status, typeLabel, onClose }) {
   const b = venture?.brandDetails || {};
 
   return (
-    <div className="already-applied">
-      <div className="modal-header" style={{ marginBottom: '1.5rem' }}>
-        <div className="modal-badge">Co-Venture Application</div>
-        <h2>{b.brandName}</h2>
-        <p>{typeLabel}{typeLabel && b.industry ? ' · ' : ''}{b.industry?.replace(/_/g, ' ')}</p>
+    <div className="relative z-10 p-8">
+      <div className="mb-6">
+        <div className="inline-block px-2.5 py-1 bg-purple-50 text-purple-600 text-xs font-bold rounded-md mb-4">Co-Venture Application</div>
+        <h2 className="font-display text-2xl font-bold text-gray-900 m-0 mb-2">{b.brandName}</h2>
+        <p className="text-gray-600 font-semibold text-sm m-0">{typeLabel}{typeLabel && b.industry ? ' · ' : ''}{b.industry?.replace(/_/g, ' ')}</p>
       </div>
 
       <div
-        className="applied-status-box"
-        style={{ '--status-color': s.color, '--status-bg': s.bg, '--status-border': s.border }}
+        className="flex items-start gap-4 p-4 rounded-[14px] mb-6"
+        style={{ 
+          backgroundColor: s.bg, 
+          borderWidth: '1px', 
+          borderStyle: 'solid', 
+          borderColor: s.border 
+        }}
       >
-        <div className="applied-status-icon">{s.icon}</div>
+        <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0" style={{ backgroundColor: s.bg, color: s.color }}>{s.icon}</div>
         <div>
-          <div className="applied-status-title">{s.text}</div>
-          <div className="applied-status-sub">
+          <div className="font-semibold text-sm mb-1" style={{ color: s.color }}>{s.text}</div>
+          <div className="text-xs text-gray-600">
             {status === 'PENDING'  && 'The venture owner is reviewing your application.'}
             {status === 'APPROVED' && 'Congratulations! Your application has been accepted.'}
             {status === 'REJECTED' && 'Your application was not accepted for this venture.'}
@@ -212,11 +222,11 @@ function AlreadyApplied({ venture, status, typeLabel, onClose }) {
         </div>
       </div>
 
-      <p className="applied-notice">
+      <p className="text-sm text-gray-600 mb-6">
         You have already applied to this venture. Each venture allows only one application per user.
       </p>
 
-      <button className="btn-primary full-width" onClick={onClose} style={{ marginTop: '0.5rem' }}>
+      <button className="w-full px-6 py-2.5 bg-purple border border-purple text-white rounded-[10px] font-semibold text-sm cursor-pointer transition-all duration-200 hover:bg-purple-dark" onClick={onClose}>
         Close
       </button>
     </div>

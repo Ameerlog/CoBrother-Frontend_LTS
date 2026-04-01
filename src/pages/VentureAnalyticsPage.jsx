@@ -10,23 +10,16 @@ import AppLayout from '../components/layout/AppLayout';
 const COLORS = ['#c8a96e','#6e9ec8','#6ec896','#c86e6e','#9b6ec8','#c8b06e'];
 
 const StatCard = ({ label, value, sub, color = '#c8a96e' }) => (
-  <div style={{
-    padding: '1.5rem', background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12,
-    display: 'flex', flexDirection: 'column', gap: '0.35rem'
-  }}>
-    <div style={{ fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
-    <div style={{ fontSize: '2rem', fontWeight: 700, color, fontFamily: 'JetBrains Mono, monospace' }}>{value}</div>
-    {sub && <div style={{ fontSize: '0.8rem', color: '#666' }}>{sub}</div>}
+  <div className="p-6 bg-white/5 border border-white/10 rounded-xl flex flex-col gap-1.5">
+    <div className="text-xs text-gray-500 uppercase tracking-wider">{label}</div>
+    <div className="text-3xl font-bold font-mono" style={{ color }}>{value}</div>
+    {sub && <div className="text-sm text-gray-600">{sub}</div>}
   </div>
 );
 
 const ChartCard = ({ title, children }) => (
-  <div style={{
-    padding: '1.5rem', background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12,
-  }}>
-    <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#c0c0d0', marginBottom: '1.25rem' }}>{title}</div>
+  <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
+    <div className="text-sm font-semibold text-gray-300 mb-5">{title}</div>
     {children}
   </div>
 );
@@ -34,8 +27,8 @@ const ChartCard = ({ title, children }) => (
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#1a1a24', border: '1px solid #2a2a3a', borderRadius: 8, padding: '0.6rem 0.9rem', fontSize: '0.82rem' }}>
-      <div style={{ color: '#888', marginBottom: '0.25rem' }}>{label}</div>
+    <div className="bg-gray-900 border border-gray-700 rounded-lg px-3.5 py-2.5 text-xs">
+      <div className="text-gray-500 mb-1">{label}</div>
       {payload.map((p, i) => (
         <div key={i} style={{ color: p.color || '#c8a96e' }}>{p.name}: <strong>{p.value}</strong></div>
       ))}
@@ -96,29 +89,27 @@ export default function VentureAnalyticsPage() {
 
   return (
     <AppLayout>
-      <div className="venture-analytics-page" style={{ maxWidth: 1100 }}>
-        <div className="page-header">
+      <div className="max-w-[1100px]">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.25rem', color: '#c8a96e' }}>Venture Analytics</h1>
-            <p style={{ color: '#4b5563', marginTop: '0.3rem', fontWeight: 500 }}>Track performance and applicant insights for your ventures.</p>
+            <h1 className="font-display text-4xl font-bold text-gold m-0">Venture Analytics</h1>
+            <p className="text-gray-600 mt-1 font-medium">Track performance and applicant insights for your ventures.</p>
           </div>
-          <button className="btn-secondary" onClick={() => navigate('/ventures')}>← Back</button>
+          <button className="px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:border-purple hover:bg-purple-50" onClick={() => navigate('/ventures')}>← Back</button>
         </div>
 
         {/* Venture selector */}
         {!fetching && ventures.length > 0 && (
-          <div style={{ marginBottom: '2rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div className="mb-8 flex gap-2 flex-wrap">
             {ventures.map(v => (
               <button
                 key={v.id}
                 onClick={() => setSelected(v.id)}
-                style={{
-                  padding: '0.5rem 1.1rem', borderRadius: 8, fontSize: '0.875rem',
-                  fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s',
-                  background: selected === v.id ? '#c8a96e' : 'rgba(255,255,255,0.04)',
-                  color: selected === v.id ? '#0a0a0f' : '#a0a0b0',
-                  border: selected === v.id ? 'none' : '1px solid rgba(255,255,255,0.08)',
-                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 ${
+                  selected === v.id
+                    ? 'bg-purple-600 text-white border-2 border-purple-600'
+                    : 'bg-white text-purple-600 border-2 border-purple-400 hover:bg-purple-50'
+                }`}
               >
                 {v.brandDetails?.brandName || `Venture #${v.id}`}
               </button>
@@ -127,14 +118,14 @@ export default function VentureAnalyticsPage() {
         )}
 
         {fetching || loading ? (
-          <div className="page-loading"><div className="spinner" /></div>
+          <div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" /></div>
         ) : error ? (
-          <div className="form-error">{error}</div>
+          <div className="p-4 bg-red-100 border border-red-200 rounded-lg text-sm text-red-600">{error}</div>
         ) : !analytics ? null : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="flex flex-col gap-6">
 
             {/* Stat cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard label="Total Views" value={analytics.totalViews} sub="All time" />
               <StatCard label="Applications" value={analytics.totalApplications} sub="All time" color="#6ec896" />
               <StatCard label="Conversion Rate" value={`${analytics.conversionRate}%`} sub="Views → Applications" color="#6e9ec8" />
@@ -156,10 +147,10 @@ export default function VentureAnalyticsPage() {
             </ChartCard>
 
             {/* Two column: industry + role */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ChartCard title="🏭 Viewer Industries">
                 {industryData.length === 0 ? (
-                  <div style={{ color: '#666', fontSize: '0.85rem', textAlign: 'center', padding: '2rem' }}>No data yet</div>
+                  <div className="text-gray-600 text-sm text-center py-8">No data yet</div>
                 ) : (
                   <ResponsiveContainer width="100%" height={220}>
                     <PieChart>
@@ -174,7 +165,7 @@ export default function VentureAnalyticsPage() {
 
               <ChartCard title="👤 Viewer Roles">
                 {roleData.length === 0 ? (
-                  <div style={{ color: '#666', fontSize: '0.85rem', textAlign: 'center', padding: '2rem' }}>No data yet</div>
+                  <div className="text-gray-600 text-sm text-center py-8">No data yet</div>
                 ) : (
                   <ResponsiveContainer width="100%" height={220}>
                     <BarChart data={roleData} layout="vertical">
@@ -192,7 +183,7 @@ export default function VentureAnalyticsPage() {
             {/* Applicant skills */}
             <ChartCard title="🛠 Top Applicant Skills">
               {skillsData.length === 0 ? (
-                <div style={{ color: '#666', fontSize: '0.85rem', textAlign: 'center', padding: '2rem' }}>No applicants yet</div>
+                <div className="text-gray-600 text-sm text-center py-8">No applicants yet</div>
               ) : (
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={skillsData}>
@@ -211,16 +202,16 @@ export default function VentureAnalyticsPage() {
             {/* Application status */}
             <ChartCard title="📋 Application Status Breakdown">
               {statusData.length === 0 ? (
-                <div style={{ color: '#666', fontSize: '0.85rem', textAlign: 'center', padding: '2rem' }}>No applications yet</div>
+                <div className="text-gray-600 text-sm text-center py-8">No applications yet</div>
               ) : (
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <div className="flex gap-4 flex-wrap">
                   {statusData.map((s, i) => {
                     const meta = { PENDING: { color: '#c8a96e', bg: 'rgba(200,169,110,0.12)' }, APPROVED: { color: '#6ec896', bg: 'rgba(110,200,150,0.12)' }, REJECTED: { color: '#c86e6e', bg: 'rgba(200,110,110,0.12)' } };
                     const m = meta[s.name] || { color: '#c8a96e', bg: 'rgba(200,169,110,0.12)' };
                     return (
-                      <div key={i} style={{ padding: '1rem 1.5rem', background: m.bg, borderRadius: 10, minWidth: 120, textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 700, color: m.color, fontFamily: 'monospace' }}>{s.value}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '0.25rem' }}>{s.name}</div>
+                      <div key={i} className="px-6 py-4 rounded-[10px] min-w-[120px] text-center" style={{ background: m.bg }}>
+                        <div className="text-[1.75rem] font-bold font-mono" style={{ color: m.color }}>{s.value}</div>
+                        <div className="text-sm text-gray-500 mt-1">{s.name}</div>
                       </div>
                     );
                   })}
@@ -232,11 +223,11 @@ export default function VentureAnalyticsPage() {
         )}
 
         {!fetching && ventures.length === 0 && (
-          <div className="empty-state">
-            <div className="empty-icon">📊</div>
-            <h3>No ventures listed yet</h3>
-            <p>List a venture to start tracking analytics.</p>
-            <button className="btn-primary" onClick={() => navigate('/ventures/new')}>List a Venture</button>
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">📊</div>
+            <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">No ventures listed yet</h3>
+            <p className="text-gray-600 mb-6">List a venture to start tracking analytics.</p>
+            <button className="px-5 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold transition-all duration-200 hover:bg-purple-50" onClick={() => navigate('/ventures/new')}>List a Venture</button>
           </div>
         )}
       </div>

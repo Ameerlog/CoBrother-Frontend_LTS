@@ -49,6 +49,9 @@ export default function Home() {
     // Set body class for Home page styling
     document.body.classList.add('home-page-body');
     
+    // Enable smooth scrolling
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
     // Handle scroll to show/hide navbar glow
     const handleScroll = () => {
       if (navRef.current) {
@@ -65,6 +68,7 @@ export default function Home() {
     return () => {
       // Clean up body class when component unmounts
       document.body.classList.remove('home-page-body');
+      document.documentElement.style.scrollBehavior = 'auto';
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
@@ -121,7 +125,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="home-page">
+    <div className="bg-white">
       <TopNavbar />
       <HomeNavbar
         navRef={navRef}
@@ -133,21 +137,17 @@ export default function Home() {
       <HeroGlow />
       <ExploreSection />
 
-      {/* Hero Section */}
-      {/* <section className="home-hero">
-      </section> */}
-
       {/* Feature Cards */}
-      <section className="home-features">
-        <div className="home-features-container">
-          <div className="home-features-grid">
+      <section className="py-20 px-8 bg-gray-50 max-md:py-12 max-md:px-4">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-md:gap-4">
             {features.map((feature, index) => (
-              <div key={index} className="home-feature-card">
-                <div className="home-feature-icon">{feature.icon}</div>
-                <h3 className="home-feature-title">{getTranslation(language, feature.titleKey)}</h3>
-                <p className="home-feature-description">{getTranslation(language, feature.descKey)}</p>
+              <div key={index} className="p-8 bg-white border border-gray-200 rounded-[20px] shadow-sm flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-purple max-md:p-6">
+                <div className="w-16 h-16 flex items-center justify-center text-purple mb-5 max-md:w-14 max-md:h-14 max-md:mb-4">{feature.icon}</div>
+                <h3 className="font-display text-xl font-bold text-gray-900 mb-3 max-md:text-lg max-md:mb-2">{getTranslation(language, feature.titleKey)}</h3>
+                <p className="text-sm text-gray-600 mb-6 flex-1 leading-relaxed max-md:text-xs max-md:mb-4">{getTranslation(language, feature.descKey)}</p>
                 <button
-                  className="home-feature-btn"
+                  className="px-6 py-2.5 bg-purple border border-purple text-white rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-dark hover:shadow-lg w-full max-md:py-2 max-md:text-xs active:scale-95"
                   onClick={() => navigate(feature.link)}
                 >
                   {getTranslation(language, 'exploreBtn')}
