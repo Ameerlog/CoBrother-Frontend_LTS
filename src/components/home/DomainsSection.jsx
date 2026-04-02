@@ -10,7 +10,10 @@ export default function DomainsSection() {
       try {
         setLoading(true);
         const response = await publicAPI.getDomains();
-        setDomains(response.data || []);
+        const allDomains = response.data || [];
+        // Only show AVAILABLE domains on homepage
+        const availableDomains = allDomains.filter(d => d.domainStatus === 'AVAILABLE');
+        setDomains(availableDomains);
       } catch (error) {
         console.error('Failed to fetch domains:', error);
       } finally {

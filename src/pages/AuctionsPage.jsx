@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auctionAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
+import AuctionIcon from '../assets/Auction.png';
 
 // Live countdown per card
 function useCountdown(endTime) {
@@ -94,7 +95,7 @@ export default function AuctionsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-6xl mb-4">🔨</div>
+            <img src={AuctionIcon} alt="Auction" className="w-16 h-16 object-contain mx-auto mb-4" />
             <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">
               {filter === 'all'
                 ? 'No live auctions right now'

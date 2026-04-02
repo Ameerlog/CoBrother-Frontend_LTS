@@ -87,8 +87,7 @@ export default function CoCreationPage() {
       <div>
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              <img src={TechnologyIcon} alt="Technology" className="w-10 h-10 object-contain" />
+            <div className="mb-1">
               <h1 className="font-display text-3xl font-bold text-gray-900 m-0">Technology</h1>
             </div>
             <p className="text-gray-600">Buy and sell software products built by the community.</p>
@@ -415,7 +414,7 @@ function SoftwareForm({ onSaved, onCancel }) {
         </div>
 
         <label className="flex items-start gap-3 cursor-pointer">
-          <input type="checkbox" className="mt-0.5" checked={form.agreement.terms}
+          <input type="checkbox" className="w-4 h-4 mt-0.5 cursor-pointer accent-indigo-600 rounded border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0" checked={form.agreement.terms}
             onChange={e => setForm(f => ({ ...f, agreement: { terms: e.target.checked } }))}
             required />
           <span className="text-sm text-gray-700">I confirm this software is ready for sale and agree to the Terms & Conditions.</span>

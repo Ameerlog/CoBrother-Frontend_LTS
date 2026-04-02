@@ -3,6 +3,7 @@ import { adminAPI } from '../api/services';
 import AppLayout from '../components/layout/AppLayout';
 import VentureIcon from '../assets/Coventure_logo.png';
 import DomainsIcon from '../assets/CoBranding.png';
+import EnquireIcon from '../assets/Enquire.png';
 import TechnologyIcon from '../assets/CoCreation.png';
 import AuctionIcon from '../assets/Auction.png';
 
@@ -89,7 +90,7 @@ export default function AdminDashboardPage() {
   const tabs = [
     { id: 'coventures',         label: 'CoVentures', icon: VentureIcon       },
     { id: 'domains',            label: 'Domains', icon: DomainsIcon           },
-    { id: 'domain-enquiries',   label: 'Domain Enquiries', icon: null },
+    { id: 'domain-enquiries',   label: 'Domain Enquiries', icon: EnquireIcon },
     { id: 'cocreations',        label: 'CoCreations', icon: TechnologyIcon       },
     { id: 'requests',           label: 'CoBrother Requests', icon: null},
     { id: 'auctions', label: 'Auctions', icon: AuctionIcon },

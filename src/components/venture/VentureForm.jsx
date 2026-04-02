@@ -206,7 +206,7 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
               }))
             }
             required
-            className="mt-0.5 w-4 h-4 cursor-pointer"
+            className="w-4 h-4 mt-0.5 cursor-pointer accent-indigo-600 rounded border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0"
           />
           <span>I agree to the Terms & Conditions and confirm the information provided is accurate.</span>
         </label>

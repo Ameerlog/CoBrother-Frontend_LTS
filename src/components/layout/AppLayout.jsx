@@ -136,7 +136,7 @@ export default function AppLayout({ children }) {
           {mobileOpen ? <X size={22} strokeWidth={2.5} color="#111827" /> : <Menu size={22} strokeWidth={2.5} color="#111827" />}
         </button>
 
-        <Link to="/dashboard" className="flex items-center gap-0 no-underline flex-shrink-0">
+        <Link to="/" className="flex items-center gap-0 no-underline flex-shrink-0">
           <img src={coBrotherLogo} alt="CoBrother" className="w-[140px] h-[42px] object-contain max-md:w-[110px] max-md:h-[34px]" />
         </Link>
 

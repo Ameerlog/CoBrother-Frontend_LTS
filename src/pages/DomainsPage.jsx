@@ -60,7 +60,12 @@ export default function DomainsPage() {
   useEffect(() => {
     setLoading(true);
     domainAPI.getAll()
-      .then(({ data }) => setAllDomains(Array.isArray(data) ? data : (data?.data ?? [])))
+      .then(({ data }) => {
+        const domains = Array.isArray(data) ? data : (data?.data ?? []);
+        // Only show AVAILABLE domains on public listing
+        const availableDomains = domains.filter(d => d.domainStatus === 'AVAILABLE');
+        setAllDomains(availableDomains);
+      })
       .catch(() => setAllDomains([]))
       .finally(() => setLoading(false));
   }, []);
@@ -76,7 +81,11 @@ export default function DomainsPage() {
 
   const refreshDomains = () =>
     domainAPI.getAll()
-      .then(({ data }) => setAllDomains(Array.isArray(data) ? data : (data?.data ?? [])));
+      .then(({ data }) => {
+        const domains = Array.isArray(data) ? data : (data?.data ?? []);
+        const availableDomains = domains.filter(d => d.domainStatus === 'AVAILABLE');
+        setAllDomains(availableDomains);
+      });
 
   return (
     <AppLayout>
@@ -482,22 +491,24 @@ function DomainForm({ onSaved, onCancel }) {
 
         <div className="grid grid-cols-2 gap-4">
           {!isAuction && (
-            <div className="flex flex-col gap-1.5">
-              <label className={labelCls}>Asking Price (₹) <span className="text-red-500">*</span></label>
-              <input className={inputCls} type="number" min="0" value={form.askingPrice}
-                onChange={e => setForm(f => ({ ...f, askingPrice: e.target.value }))}
-                placeholder="e.g. 50000" required={!isAuction} />
-            </div>
+            <>
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>Asking Price (₹) <span className="text-red-500">*</span></label>
+                <input className={inputCls} type="number" min="0" value={form.askingPrice}
+                  onChange={e => setForm(f => ({ ...f, askingPrice: e.target.value }))}
+                  placeholder="e.g. 50000" required={!isAuction} />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>Pricing Type <span className="text-red-500">*</span></label>
+                <select className={inputCls} value={form.pricingDemand}
+                  onChange={e => setForm(f => ({ ...f, pricingDemand: e.target.value }))} required={!isAuction}>
+                  <option value="">Select pricing type</option>
+                  <option value="FIXED">Fixed Price</option>
+                  <option value="NEGOTIABLE">Negotiable</option>
+                </select>
+              </div>
+            </>
           )}
-          <div className="flex flex-col gap-1.5">
-            <label className={labelCls}>Pricing Type <span className="text-red-500">*</span></label>
-            <select className={inputCls} value={form.pricingDemand}
-              onChange={e => setForm(f => ({ ...f, pricingDemand: e.target.value }))} required>
-              <option value="">Select pricing type</option>
-              <option value="FIXED">Fixed Price</option>
-              <option value="NEGOTIABLE">Negotiable</option>
-            </select>
-          </div>
         </div>
 
         {isAuction && (
@@ -547,7 +558,7 @@ function DomainForm({ onSaved, onCancel }) {
         </div>
 
         <label className="flex items-start gap-3 cursor-pointer">
-          <input type="checkbox" className="mt-0.5" checked={form.agreement.terms}
+          <input type="checkbox" className="w-4 h-4 mt-0.5 cursor-pointer accent-indigo-600 rounded border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0" checked={form.agreement.terms}
             onChange={e => setForm(f => ({ ...f, agreement: { terms: e.target.checked } }))}
             required />
           <span className="text-sm text-gray-700">I confirm I own this domain and agree to the Terms & Conditions.</span>
