@@ -25,7 +25,19 @@ export default function EditVenturePage() {
   const handleSubmit = async (form, imageFile) => {
     setLoading(true); setError('');
     try {
-        await ventureAPI.update(id, form);
+        // Clean form data - only send editable fields
+        const cleanData = {
+          brandDetails: form.brandDetails,
+          contactInfo: form.contactInfo,
+          agreement: form.agreement,
+          status: form.status,
+          stage: form.stage,
+          lookingFor: form.lookingFor,
+          currentProblem: form.currentProblem,
+        };
+        
+        console.log('Sending update payload:', cleanData);
+        await ventureAPI.update(id, cleanData);
 
         if (imageFile) {
             await ventureAPI.uploadImage(id, imageFile);

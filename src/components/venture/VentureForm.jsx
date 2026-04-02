@@ -91,6 +91,7 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
+    console.log('VentureForm submitting:', { form, imageFile });
     onSubmit(form, imageFile);
   };
 
