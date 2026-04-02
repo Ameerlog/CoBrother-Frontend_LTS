@@ -192,7 +192,6 @@ export default function VenturesPage() {
       {detailTarget && (
         <VentureDetailModal
           venture={detailTarget}
-          isOwner={detailTarget.listedBy?.id === user?.id}
           onClose={() => { setDetailTarget(null); refreshVentures(); }}
           onApply={() => { setApplyTarget(detailTarget); setDetailTarget(null); }}
           onEdit={() => { navigate(`/ventures/${detailTarget.id}/edit`); setDetailTarget(null); }}
@@ -227,7 +226,7 @@ function VentureCard({ venture, isOwner, onView, onApply, onEdit, onDelete,
       <div className="flex flex-col flex-1">
         <div className="flex items-start gap-3 mb-4">
           {b.ventureImageUrl
-            ? <img src={b.ventureImageUrl} alt={b.brandName} className="w-12 h-12 rounded-[10px] object-cover flex-shrink-0" />
+            ? <img src={b.ventureImageUrl} alt={b.brandName} className="w-12 h-12 rounded-[10px] object-cover" />
             : <div className="w-12 h-12 rounded-[10px] bg-indigo-50 border border-indigo-200 flex items-center justify-center font-display text-xl font-bold text-indigo-600 flex-shrink-0">{b.brandName?.[0] || '?'}</div>
           }
           <div className="flex-1 min-w-0">
@@ -235,7 +234,7 @@ function VentureCard({ venture, isOwner, onView, onApply, onEdit, onDelete,
               <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded">{b.industry?.replace(/_/g, ' ')}</span>
               <span className="px-2 py-0.5 bg-purple-50 text-purple-600 text-xs font-semibold rounded">{TYPE_LABELS[b.ventureType] || b.ventureType}</span>
             </div>
-            {venture.canEdit && <div className="inline-block px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded">Owner</div>}
+            {(venture.canEdit ?? isOwner) && <div className="inline-block px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded">Owner</div>}
           </div>
         </div>
         <h3 className="font-display text-lg font-bold text-gray-900 mb-2">{b.brandName}</h3>
@@ -254,7 +253,7 @@ function VentureCard({ venture, isOwner, onView, onApply, onEdit, onDelete,
       </div>
 
       <div className="flex gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
-        {venture.canEdit ? (
+        {(venture.canEdit ?? isOwner) ? (
           <>
             <button className="px-3 py-1.5 bg-white border-2 border-purple-400 text-purple-600 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50" onClick={onEdit}>Edit</button>
             <button className="px-3 py-1.5 bg-red-500 border border-red-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600" onClick={onDelete}>Delete</button>
@@ -275,6 +274,7 @@ function VentureCard({ venture, isOwner, onView, onApply, onEdit, onDelete,
 
 // ─── Venture Detail Modal ─────────────────────────────────────────────────────
 function VentureDetailModal({ venture, onClose, onApply, onEdit, onDelete }) {
+  const { user } = useAuth();
   const [detail, setDetail]   = useState(null);
   const [loading, setLoading] = useState(true);
   const hasFetched            = useRef(false);
@@ -425,7 +425,7 @@ function VentureDetailModal({ venture, onClose, onApply, onEdit, onDelete }) {
 
             {/* Actions */}
             <div className="relative z-10 px-8 pb-8 flex gap-3 flex-wrap">
-              {venture.canEdit ? (
+              {(venture.canEdit ?? ((detail || venture).listedBy?.id === user?.id)) ? (
                 <>
                   <button className="px-5 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50" onClick={onEdit}>✏ Edit</button>
                   <button className="px-5 py-2 bg-red-500 border border-red-500 text-white rounded-[10px] text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600" onClick={onDelete}>Delete</button>
