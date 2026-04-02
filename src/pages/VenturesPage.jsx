@@ -235,7 +235,7 @@ function VentureCard({ venture, isOwner, onView, onApply, onEdit, onDelete,
               <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded">{b.industry?.replace(/_/g, ' ')}</span>
               <span className="px-2 py-0.5 bg-purple-50 text-purple-600 text-xs font-semibold rounded">{TYPE_LABELS[b.ventureType] || b.ventureType}</span>
             </div>
-            {isOwner && <div className="inline-block px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded">Owner</div>}
+            {venture.canEdit && <div className="inline-block px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded">Owner</div>}
           </div>
         </div>
         <h3 className="font-display text-lg font-bold text-gray-900 mb-2">{b.brandName}</h3>
@@ -254,7 +254,7 @@ function VentureCard({ venture, isOwner, onView, onApply, onEdit, onDelete,
       </div>
 
       <div className="flex gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
-        {isOwner ? (
+        {venture.canEdit ? (
           <>
             <button className="px-3 py-1.5 bg-white border-2 border-purple-400 text-purple-600 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50" onClick={onEdit}>Edit</button>
             <button className="px-3 py-1.5 bg-red-500 border border-red-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600" onClick={onDelete}>Delete</button>
@@ -274,7 +274,7 @@ function VentureCard({ venture, isOwner, onView, onApply, onEdit, onDelete,
 }
 
 // ─── Venture Detail Modal ─────────────────────────────────────────────────────
-function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDelete }) {
+function VentureDetailModal({ venture, onClose, onApply, onEdit, onDelete }) {
   const [detail, setDetail]   = useState(null);
   const [loading, setLoading] = useState(true);
   const hasFetched            = useRef(false);
@@ -425,7 +425,7 @@ function VentureDetailModal({ venture, isOwner, onClose, onApply, onEdit, onDele
 
             {/* Actions */}
             <div className="relative z-10 px-8 pb-8 flex gap-3 flex-wrap">
-              {isOwner ? (
+              {venture.canEdit ? (
                 <>
                   <button className="px-5 py-2 bg-white border-2 border-purple-400 text-purple-600 rounded-full text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-purple-50" onClick={onEdit}>✏ Edit</button>
                   <button className="px-5 py-2 bg-red-500 border border-red-500 text-white rounded-[10px] text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600" onClick={onDelete}>Delete</button>
