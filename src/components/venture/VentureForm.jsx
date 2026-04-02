@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const INDUSTRIES = ['SAAS', 'ECOMMERCE', 'SERVICES', 'AI_AUTOMATION', 'FINTECH', 'OTHER'];
 const VENTURE_TYPES = [
@@ -36,6 +36,8 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
   const [imageFile, setImageFile]       = useState(null);
   const [imagePreview, setImagePreview] = useState(form.brandDetails?.ventureImageUrl || null);
   const [imageUploading, setImageUploading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const formRef = useRef(null);
 
   const setBrand = (key, value) =>
     setForm((f) => ({ ...f, brandDetails: { ...f.brandDetails, [key]: value } }));
@@ -52,26 +54,54 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
     setImagePreview(URL.createObjectURL(file));
   };
 
+  const validate = () => {
+    const errs = {};
+    const b = form.brandDetails;
+    const c = form.contactInfo;
+    if (!b.brandName.trim()) errs.brandName = 'Brand name is required';
+    if (!b.industry) errs.industry = 'Please select an industry';
+    if (!b.description.trim()) errs.description = 'Description is required';
+    if (b.website && !b.website.startsWith('https://')) errs.website = 'Website must start with https://';
+    if (!b.ventureType) errs.ventureType = 'Please select a venture type';
+    if (!c.email.trim()) errs.email = 'Contact email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)) errs.email = 'Please enter a valid email address';
+    if (!form.stage) errs.stage = 'Please select a current stage';
+    if (!form.lookingFor.trim()) errs.lookingFor = 'Please specify what you are looking for';
+    if (!form.agreement.terms) errs.terms = 'You must agree to the Terms & Conditions';
+    setFieldErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      setTimeout(() => {
+        const el = formRef.current?.querySelector('.field-error-msg');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!validate()) return;
     onSubmit(form, imageFile);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-0">
+    <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col gap-0">
       <section className="p-7 bg-white border border-gray-200 rounded-[14px] shadow-sm mb-5 flex flex-col gap-4">
         <h3 className="font-display text-xl font-medium text-gray-900 mb-1">Brand Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">Brand Name <span className="text-red-400">*</span></label>
-            <input value={form.brandDetails.brandName} onChange={(e) => setBrand('brandName', e.target.value)} placeholder="e.g. LaunchPad" required className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]" />
+            <input value={form.brandDetails.brandName} onChange={(e) => setBrand('brandName', e.target.value)} placeholder="e.g. LaunchPad" className={`w-full px-4 py-2.5 bg-white border ${fieldErrors.brandName ? 'border-red-400' : 'border-gray-300'} rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]`} />
+            {fieldErrors.brandName && <p className="field-error-msg text-xs text-red-500 mt-1">{fieldErrors.brandName}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">Industry <span className="text-red-400">*</span></label>
-            <select value={form.brandDetails.industry} onChange={(e) => setBrand('industry', e.target.value)} required className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm outline-none transition-all duration-200 cursor-pointer focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]">
+            <select value={form.brandDetails.industry} onChange={(e) => setBrand('industry', e.target.value)} className={`w-full px-4 py-2.5 bg-white border ${fieldErrors.industry ? 'border-red-400' : 'border-gray-300'} rounded-[10px] text-gray-900 text-sm outline-none transition-all duration-200 cursor-pointer focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]`}>
               <option value="">Select industry</option>
               {INDUSTRIES.map((i) => <option key={i} value={i}>{i.replace('_', ' ')}</option>)}
             </select>
+            {fieldErrors.industry && <p className="field-error-msg text-xs text-red-500 mt-1">{fieldErrors.industry}</p>}
           </div>
         </div>
 
@@ -82,15 +112,16 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
             onChange={(e) => setBrand('description', e.target.value)}
             placeholder="Describe your venture..."
             rows={4}
-            required
-            className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 resize-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
+            className={`w-full px-4 py-2.5 bg-white border ${fieldErrors.description ? 'border-red-400' : 'border-gray-300'} rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 resize-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]`}
           />
+          {fieldErrors.description && <p className="field-error-msg text-xs text-red-500 mt-1">{fieldErrors.description}</p>}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Website</label>
-            <input value={form.brandDetails.website} onChange={(e) => setBrand('website', e.target.value)} placeholder="https://..." type="url" className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]" />
+            <label className="text-sm font-medium text-gray-700">Website <span className="text-gray-400 text-xs">(must start with https://)</span></label>
+            <input value={form.brandDetails.website} onChange={(e) => setBrand('website', e.target.value)} placeholder="https://yourwebsite.com" className={`w-full px-4 py-2.5 bg-white border ${fieldErrors.website ? 'border-red-400' : 'border-gray-300'} rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]`} />
+            {fieldErrors.website && <p className="field-error-msg text-xs text-red-500 mt-1">{fieldErrors.website}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">Deal Value (₹)</label>
@@ -101,10 +132,11 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">Venture Type <span className="text-red-400">*</span></label>
-            <select value={form.brandDetails.ventureType} onChange={(e) => setBrand('ventureType', e.target.value)} required className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm outline-none transition-all duration-200 cursor-pointer focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]">
+            <select value={form.brandDetails.ventureType} onChange={(e) => setBrand('ventureType', e.target.value)} className={`w-full px-4 py-2.5 bg-white border ${fieldErrors.ventureType ? 'border-red-400' : 'border-gray-300'} rounded-[10px] text-gray-900 text-sm outline-none transition-all duration-200 cursor-pointer focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]`}>
               <option value="">Select type</option>
               {VENTURE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
+            {fieldErrors.ventureType && <p className="field-error-msg text-xs text-red-500 mt-1">{fieldErrors.ventureType}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">Venture Reference Image</label>
@@ -148,7 +180,8 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">Contact Email <span className="text-red-400">*</span></label>
-            <input type="email" value={form.contactInfo.email} onChange={(e) => setContact('email', e.target.value)} placeholder="contact@venture.com" required className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]" />
+            <input type="email" value={form.contactInfo.email} onChange={(e) => setContact('email', e.target.value)} placeholder="contact@venture.com" className={`w-full px-4 py-2.5 bg-white border ${fieldErrors.email ? 'border-red-400' : 'border-gray-300'} rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]`} />
+            {fieldErrors.email && <p className="field-error-msg text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">Phone Number</label>
@@ -164,10 +197,11 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">Current Stage <span className="text-red-400">*</span></label>
-          <select value={form.stage} onChange={e => setField('stage', e.target.value)} required className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm outline-none transition-all duration-200 cursor-pointer focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]">
+          <select value={form.stage} onChange={e => setField('stage', e.target.value)} className={`w-full px-4 py-2.5 bg-white border ${fieldErrors.stage ? 'border-red-400' : 'border-gray-300'} rounded-[10px] text-gray-900 text-sm outline-none transition-all duration-200 cursor-pointer focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]`}>
             <option value="">Select stage</option>
             {STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
+          {fieldErrors.stage && <p className="field-error-msg text-xs text-red-500 mt-1">{fieldErrors.stage}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -176,9 +210,9 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
             value={form.lookingFor}
             onChange={e => setField('lookingFor', e.target.value)}
             placeholder="e.g. Marketing co-founder, Angel investor, Tech lead"
-            required
-            className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
+            className={`w-full px-4 py-2.5 bg-white border ${fieldErrors.lookingFor ? 'border-red-400' : 'border-gray-300'} rounded-[10px] text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all duration-200 focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]`}
           />
+          {fieldErrors.lookingFor && <p className="field-error-msg text-xs text-red-500 mt-1">{fieldErrors.lookingFor}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -205,14 +239,19 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
                 agreement: { ...f.agreement, terms: e.target.checked }
               }))
             }
-            required
             className="w-4 h-4 mt-0.5 cursor-pointer accent-indigo-600 rounded border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0"
           />
           <span>I agree to the Terms & Conditions and confirm the information provided is accurate.</span>
         </label>
+        {fieldErrors.terms && <p className="field-error-msg text-xs text-red-500 mt-1">{fieldErrors.terms}</p>}
       </section>
 
-      {error && <div className="px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-[10px] text-red-400 text-sm mb-4">{error}</div>}
+      {Object.keys(fieldErrors).length > 0 && (
+        <div className="px-4 py-3 bg-red-50 border border-red-300 rounded-[10px] text-red-600 text-sm mb-4 font-medium">
+          ⚠ Please fix the {Object.keys(fieldErrors).length} highlighted field{Object.keys(fieldErrors).length > 1 ? 's' : ''} above before submitting.
+        </div>
+      )}
+      {error && <div className="px-4 py-3 bg-red-50 border border-red-300 rounded-[10px] text-red-600 text-sm mb-4">{error}</div>}
 
       <button type="submit" className="min-h-[46px] px-6 py-3 rounded-full text-sm font-semibold bg-blue-600 border border-blue-600 text-white cursor-pointer transition-all duration-200 hover:bg-blue-700 hover:border-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" disabled={loading}>
         {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : submitLabel}
