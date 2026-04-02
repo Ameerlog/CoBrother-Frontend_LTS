@@ -48,7 +48,7 @@ export default function VenturesPage() {
   } = useFilterSort(
     filterTab === 'mine'
       ? allVentures.filter(v => v.listedBy?.id === user?.id)
-      : allVentures,
+      : allVentures.filter(v => !v.takenDown),
     {
       searchFields:  ['brandDetails.brandName', 'brandDetails.description'],
       priceField:    'brandDetails.dealValue',
