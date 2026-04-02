@@ -75,9 +75,18 @@ export default function DomainsPage() {
   const handleDelete = async () => {
     try {
       await domainAPI.delete(deleteTarget);
-      setAllDomains(d => d.filter(x => x.id !== deleteTarget));
+      await refreshDomains();
     } catch (e) {
-      alert(e.response?.data?.error || 'Failed to remove listing.');
+      const status = e.response?.status;
+      const message = e.response?.data?.error;
+      if (status === 403) {
+        alert(message || 'You are not authorized to delete this domain listing.');
+      } else if (status === 404) {
+        alert(message || 'This domain was not found or may already be deleted.');
+        await refreshDomains();
+      } else {
+        alert(message || 'Failed to remove listing. Please try again.');
+      }
     } finally { setDeleteTarget(null); }
   };
 

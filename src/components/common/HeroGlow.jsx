@@ -26,7 +26,7 @@ export default function HeroGlow() {
             Trade Auction and bid with cobrother
           </p>
           <button 
-            className="bg-white text-[#232F3E] border-2 border-[#232F3E] py-3.5 px-7 rounded-md text-base font-semibold cursor-pointer transition-all duration-200 self-start max-md:self-stretch max-md:text-center font-body hover:bg-[#232F3E] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
+            className="bg-white text-[#232F3E] border-2 border-[#232F3E] py-3.5 px-7 rounded-full text-base font-semibold cursor-pointer transition-all duration-200 self-start max-md:self-stretch max-md:text-center font-body hover:bg-[#232F3E] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
             onClick={() => navigate('/login')}
           >
             Create a Free Account

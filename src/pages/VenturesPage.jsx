@@ -79,9 +79,18 @@ export default function VenturesPage() {
   const handleDelete = async () => {
     try {
       await ventureAPI.delete(deleteTarget);
-      setAllVentures(v => v.filter(x => x.id !== deleteTarget));
+      await refreshVentures();
     } catch (err) {
-      alert(err.response?.data?.error || 'Delete failed.');
+      const status = err.response?.status;
+      const message = err.response?.data?.error;
+      if (status === 403) {
+        alert(message || 'You are not authorized to delete this venture.');
+      } else if (status === 404) {
+        alert(message || 'This venture was not found or may already be deleted.');
+        await refreshVentures();
+      } else {
+        alert(message || 'Failed to delete venture. Please try again.');
+      }
     } finally {
       setDeleteTarget(null);
     }
