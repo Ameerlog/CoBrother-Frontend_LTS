@@ -40,9 +40,11 @@ export default function DomainsPage() {
 
   const { toggle: toggleLike, get: getLike } = useLikes('DOMAIN', allDomains);
 
-  const visibleDomains = filterTab === 'mine'
-    ? allDomains.filter(d => d.listedBy?.id === user?.id)
-    : allDomains.filter(d => !d.takenDown);
+ const visibleDomains = filterTab === 'mine'
+  ? allDomains.filter(d => d.listedBy?.id === user?.id)
+  : allDomains.filter(d =>
+      d.domainStatus === "AVAILABLE" && !d.takenDown
+    );
 
   const {
     paginated, totalCount,

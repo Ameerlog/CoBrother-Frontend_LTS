@@ -50,7 +50,7 @@ export default function CoCreationPage() {
   } = useFilterSort(
     filterTab === 'mine'
       ? allSoftware.filter(s => s.listedBy?.id === user?.id)
-      : allSoftware,
+      : allSoftware.filter(s => s.softwareStatus === 'AVAILABLE' && !s.takenDown),
     {
       searchFields:  ['name', 'description', 'techStack'],
       priceField:    'price',
