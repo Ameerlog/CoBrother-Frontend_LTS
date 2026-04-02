@@ -6,7 +6,7 @@ import searchIcon from '../assets/Cobrother_Profile.png';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  20setSearchQuery] = useState('');
 
   const handleSearch = (e) => {
     e.preventDefault();
