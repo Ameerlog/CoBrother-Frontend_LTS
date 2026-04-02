@@ -32,7 +32,16 @@ const EMPTY = {
 
 
 export default function VentureForm({ initialData, onSubmit, loading, error, submitLabel = 'Submit' }) {
-  const [form, setForm] = useState(() => initialData || EMPTY);
+  const [form, setForm] = useState(() => {
+    if (!initialData) return EMPTY;
+    return {
+      ...EMPTY,
+      ...initialData,
+      brandDetails: { ...EMPTY.brandDetails, ...(initialData.brandDetails || {}) },
+      contactInfo: { ...EMPTY.contactInfo, ...(initialData.contactInfo || {}) },
+      agreement: { ...EMPTY.agreement, ...(initialData.agreement || {}) },
+    };
+  });
   const [imageFile, setImageFile]       = useState(null);
   const [imagePreview, setImagePreview] = useState(form.brandDetails?.ventureImageUrl || null);
   const [imageUploading, setImageUploading] = useState(false);
@@ -58,16 +67,16 @@ export default function VentureForm({ initialData, onSubmit, loading, error, sub
     const errs = {};
     const b = form.brandDetails;
     const c = form.contactInfo;
-    if (!b.brandName.trim()) errs.brandName = 'Brand name is required';
+    if (!(b.brandName || '').trim()) errs.brandName = 'Brand name is required';
     if (!b.industry) errs.industry = 'Please select an industry';
-    if (!b.description.trim()) errs.description = 'Description is required';
+    if (!(b.description || '').trim()) errs.description = 'Description is required';
     if (b.website && !b.website.startsWith('https://')) errs.website = 'Website must start with https://';
     if (!b.ventureType) errs.ventureType = 'Please select a venture type';
-    if (!c.email.trim()) errs.email = 'Contact email is required';
+    if (!(c.email || '').trim()) errs.email = 'Contact email is required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)) errs.email = 'Please enter a valid email address';
     if (!form.stage) errs.stage = 'Please select a current stage';
-    if (!form.lookingFor.trim()) errs.lookingFor = 'Please specify what you are looking for';
-    if (!form.agreement.terms) errs.terms = 'You must agree to the Terms & Conditions';
+    if (!(form.lookingFor || '').trim()) errs.lookingFor = 'Please specify what you are looking for';
+    if (!form.agreement?.terms) errs.terms = 'You must agree to the Terms & Conditions';
     setFieldErrors(errs);
     if (Object.keys(errs).length > 0) {
       setTimeout(() => {

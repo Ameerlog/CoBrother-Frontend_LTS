@@ -14,7 +14,10 @@ export default function EditVenturePage() {
 
   useEffect(() => {
     ventureAPI.get(id)
-      .then(({ data }) => setVenture(data))
+      .then(({ data }) => {
+        const venture = data?.data ?? data;
+        setVenture(venture);
+      })
       .catch(() => navigate('/ventures'))
       .finally(() => setFetching(false));
   }, [id]);
@@ -30,7 +33,8 @@ export default function EditVenturePage() {
 
         navigate('/ventures');
       } catch (err) {
-          setError(err.response?.data?.error || 'Failed to update venture.');
+          console.error('Venture update failed:', err);
+          setError(err.response?.data?.error || err.message || 'Failed to update venture.');
       } finally { setLoading(false); }
   };
 
