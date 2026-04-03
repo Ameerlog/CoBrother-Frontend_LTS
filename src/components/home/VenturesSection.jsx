@@ -71,7 +71,7 @@ export default function VenturesSection() {
         <h3 className="font-display text-[1.75rem] font-bold text-gray-900 mb-6">
           CoVentures
         </h3>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {ventures.slice(0, 8).map((venture) => {
             const b = venture.brandDetails || {};
@@ -86,10 +86,10 @@ export default function VenturesSection() {
                 <div className="flex flex-col flex-1">
                   <div className="flex items-start gap-3 mb-4">
                     {b.ventureImageUrl ? (
-                      <img 
-                        src={b.ventureImageUrl} 
-                        alt={b.brandName} 
-                        className="w-12 h-12 rounded-[10px] object-cover flex-shrink-0" 
+                      <img
+                        src={b.ventureImageUrl}
+                        alt={b.brandName}
+                        className="w-12 h-12 rounded-[10px] object-cover flex-shrink-0"
                       />
                     ) : (
                       <div className="w-12 h-12 rounded-[10px] bg-indigo-50 border border-indigo-200 flex items-center justify-center font-display text-xl font-bold text-indigo-600 flex-shrink-0">

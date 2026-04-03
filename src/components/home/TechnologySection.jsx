@@ -3,8 +3,8 @@ import { publicAPI } from '../../api/services';
 
 const STATUS_COLORS = {
   AVAILABLE: { color: '#6ec896', bg: 'rgba(110,200,150,0.1)', border: 'rgba(110,200,150,0.3)' },
-  PENDING:   { color: '#c8a96e', bg: 'rgba(200,169,110,0.1)', border: 'rgba(200,169,110,0.3)' },
-  SOLD:      { color: '#c86e6e', bg: 'rgba(200,110,110,0.1)', border: 'rgba(200,110,110,0.3)' },
+  PENDING: { color: '#c8a96e', bg: 'rgba(200,169,110,0.1)', border: 'rgba(200,169,110,0.3)' },
+  SOLD: { color: '#c86e6e', bg: 'rgba(200,110,110,0.1)', border: 'rgba(200,110,110,0.3)' },
 };
 
 export default function TechnologySection() {
@@ -70,7 +70,7 @@ export default function TechnologySection() {
         <h3 className="font-display text-[1.75rem] font-bold text-gray-900 mb-6">
           Technology & Software
         </h3>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {softwares.slice(0, 8).map((item) => {
             const s = STATUS_COLORS[item.softwareStatus] || STATUS_COLORS.AVAILABLE;
@@ -109,8 +109,8 @@ export default function TechnologySection() {
                 </p>
 
                 <div className="flex items-center gap-2 mb-2">
-                  <span 
-                    className="px-2.5 py-1 rounded-md text-xs font-semibold" 
+                  <span
+                    className="px-2.5 py-1 rounded-md text-xs font-semibold"
                     style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}
                   >
                     {item.softwareStatus}
