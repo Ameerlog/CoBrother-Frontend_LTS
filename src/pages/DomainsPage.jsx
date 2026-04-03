@@ -68,8 +68,13 @@ export default function DomainsPage() {
         ? domains
         : domains.filter(d => d.domainStatus === 'AVAILABLE'));
     })
+<<<<<<< HEAD
       .catch(() => setAllDomains([]))
       .finally(() => setLoading(false));
+=======
+    .catch(() => setAllDomains([]))
+    .finally(() => setLoading(false));
+>>>>>>> ccb880983aa72dbe35b4783830b4f1f3fc9b3d23
   }, [filterTab]);
 
   useEffect(() => {
