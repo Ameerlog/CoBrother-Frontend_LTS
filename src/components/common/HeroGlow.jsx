@@ -20,17 +20,10 @@ export default function HeroGlow() {
         {/* Main Section */}
         <div className="flex flex-col gap-5">
           <h2 className="font-display text-[2.5rem] max-md:text-[22px] font-bold text-gray-900 m-0 leading-tight">
-<<<<<<< HEAD
             Don't Just Start, Dissrupt.
           </h2>
           <p className="text-xl max-md:text-sm text-gray-700 m-0 leading-relaxed max-w-[600px]">
             Discover A Brand Name And Get Ventured In Auctions with CoBrother Community
-=======
-           Don't Just Start, Dissrupt. 
-          </h2>
-          <p className="text-xl max-md:text-sm text-gray-700 m-0 leading-relaxed max-w-[600px]">
-            Discover A Brand Name And Get Ventured In Auctions with CoBrother Community 
->>>>>>> ccb880983aa72dbe35b4783830b4f1f3fc9b3d23
           </p>
           <button
             className="bg-white text-[#232F3E] border-2 border-[#232F3E] py-3.5 px-7 rounded-full text-base font-semibold cursor-pointer transition-all duration-200 self-start max-md:self-stretch max-md:text-center font-body hover:bg-[#232F3E] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
