@@ -61,16 +61,28 @@ export default function DomainsPage() {
 
   useEffect(() => {
     setLoading(true);
-    domainAPI.getAll()
+    const req = filterTab === 'mine' ? domainAPI.getMyListings() : domainAPI.getAll();
+    req.then(({ data }) => {
+      const domains = Array.isArray(data) ? data : (data?.data ?? []);
+      setAllDomains(filterTab === 'mine'
+        ? domains
+        : domains.filter(d => d.domainStatus === 'AVAILABLE'));
+    })
+    .catch(() => setAllDomains([]))
+    .finally(() => setLoading(false));
+  }, [filterTab]);
+
+  useEffect(() => {
+    if (filterTab !== 'mine') return;
+    setLoading(true);
+    domainAPI.getMyListings()
       .then(({ data }) => {
         const domains = Array.isArray(data) ? data : (data?.data ?? []);
-        // Only show AVAILABLE domains on public listing
-        const availableDomains = domains.filter(d => d.domainStatus === 'AVAILABLE');
-        setAllDomains(availableDomains);
+        setAllDomains(domains);
       })
       .catch(() => setAllDomains([]))
       .finally(() => setLoading(false));
-  }, []);
+  }, [filterTab]);
 
   const handleDelete = async () => {
     try {
@@ -90,13 +102,15 @@ export default function DomainsPage() {
     } finally { setDeleteTarget(null); }
   };
 
-  const refreshDomains = () =>
-    domainAPI.getAll()
-      .then(({ data }) => {
-        const domains = Array.isArray(data) ? data : (data?.data ?? []);
-        const availableDomains = domains.filter(d => d.domainStatus === 'AVAILABLE');
-        setAllDomains(availableDomains);
-      });
+  const refreshDomains = () => {
+    const req = filterTab === 'mine' ? domainAPI.getMyListings() : domainAPI.getAll();
+    return req.then(({ data }) => {
+      const domains = Array.isArray(data) ? data : (data?.data ?? []);
+      setAllDomains(filterTab === 'mine'
+        ? domains
+        : domains.filter(d => d.domainStatus === 'AVAILABLE'));
+    });
+  };
 
   return (
     <AppLayout>
