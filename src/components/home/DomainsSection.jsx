@@ -27,7 +27,7 @@ export default function DomainsSection() {
     const token = localStorage.getItem('token');
     if (!token) {
       localStorage.setItem('redirectAfterLogin', `/domains/${domainId}`);
-      window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/google`;
+      window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/google`;
     } else {
       window.location.href = `/domains/${domainId}`;
     }

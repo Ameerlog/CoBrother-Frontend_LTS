@@ -30,7 +30,7 @@ export default function TechnologySection() {
     const token = localStorage.getItem('token');
     if (!token) {
       localStorage.setItem('redirectAfterLogin', `/cocreation/${softwareId}`);
-      window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/google`;
+      window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/google`;
     } else {
       window.location.href = `/cocreation/${softwareId}`;
     }

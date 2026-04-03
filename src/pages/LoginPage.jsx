@@ -85,9 +85,8 @@ export default function LoginPage() {
     } finally { setBusy(false); }
   };
 
-  // ── Google OAuth ──────────────────────────────────────────────────────────
   const handleGoogleLogin = () => {
-    const apiUrl = import.meta.env.VITE_API_URL || "https://api.cobrother.com";
+    const apiUrl = import.meta.env.VITE_API_URL;
     window.location.href = `${apiUrl}/oauth2/authorization/google`;
   };
 

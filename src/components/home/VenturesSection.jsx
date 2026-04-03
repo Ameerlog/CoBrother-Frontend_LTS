@@ -31,7 +31,7 @@ export default function VenturesSection() {
     const token = localStorage.getItem('token');
     if (!token) {
       localStorage.setItem('redirectAfterLogin', `/ventures/${ventureId}`);
-      window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/google`;
+      window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/google`;
     } else {
       window.location.href = `/ventures/${ventureId}`;
     }

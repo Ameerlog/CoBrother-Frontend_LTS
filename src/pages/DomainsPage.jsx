@@ -13,36 +13,36 @@ import SkeletonCard from '../components/common/Skeleton';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 
 const DOMAIN_PRICING_OPTIONS = [
-  { value: 'FIXED',      label: 'Fixed Price' },
-  { value: 'NEGOTIABLE', label: 'Negotiable'  },
+  { value: 'FIXED', label: 'Fixed Price' },
+  { value: 'NEGOTIABLE', label: 'Negotiable' },
 ];
 
 const STATUS_COLORS = {
   AVAILABLE: { color: '#6ec896', bg: 'rgba(110,200,150,0.1)', border: 'rgba(110,200,150,0.3)' },
-  PENDING:   { color: '#c8a96e', bg: 'rgba(200,169,110,0.1)', border: 'rgba(200,169,110,0.3)' },
-  SOLD:      { color: '#c86e6e', bg: 'rgba(200,110,110,0.1)', border: 'rgba(200,110,110,0.3)' },
+  PENDING: { color: '#c8a96e', bg: 'rgba(200,169,110,0.1)', border: 'rgba(200,169,110,0.3)' },
+  SOLD: { color: '#c86e6e', bg: 'rgba(200,110,110,0.1)', border: 'rgba(200,110,110,0.3)' },
 };
 
 export default function DomainsPage() {
-  const { user }  = useAuth();
-  const navigate  = useNavigate();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const [allDomains, setAllDomains]         = useState([]);
-  const [loading, setLoading]               = useState(true);
-  const [showForm, setShowForm]             = useState(false);
-  const [buyTarget, setBuyTarget]           = useState(null);
-  const [successDomain, setSuccessDomain]   = useState(null);
-  const [detailTarget, setDetailTarget]     = useState(null);
-  const [deleteTarget, setDeleteTarget]     = useState(null);
-  const [enquireTarget, setEnquireTarget]   = useState(null);
+  const [allDomains, setAllDomains] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [buyTarget, setBuyTarget] = useState(null);
+  const [successDomain, setSuccessDomain] = useState(null);
+  const [detailTarget, setDetailTarget] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [enquireTarget, setEnquireTarget] = useState(null);
   const [enquireSuccess, setEnquireSuccess] = useState(false);
-  const [filterTab, setFilterTab]           = useState('all');
+  const [filterTab, setFilterTab] = useState('all');
 
   const { toggle: toggleLike, get: getLike } = useLikes('DOMAIN', allDomains);
 
- const visibleDomains = filterTab === 'mine'
-  ? allDomains.filter(d => d.listedBy?.id === user?.id)
-  : allDomains.filter(d =>
+  const visibleDomains = filterTab === 'mine'
+    ? allDomains.filter(d => d.listedBy?.id === user?.id)
+    : allDomains.filter(d =>
       d.domainStatus === "AVAILABLE" && !d.takenDown
     );
 
@@ -53,24 +53,36 @@ export default function DomainsPage() {
     clearAll, activeFilterCount,
     page, totalPages, setPage,
   } = useFilterSort(visibleDomains, {
-    searchFields:  ['domainName', 'domainExtension'],
-    priceField:    'askingPrice',
+    searchFields: ['domainName', 'domainExtension'],
+    priceField: 'askingPrice',
     categoryField: 'pricingDemand',
-    dateField:     'createdAt',
+    dateField: 'createdAt',
   }, 20);
 
   useEffect(() => {
     setLoading(true);
-    domainAPI.getAll()
+    const req = filterTab === 'mine' ? domainAPI.getMyListings() : domainAPI.getAll();
+    req.then(({ data }) => {
+      const domains = Array.isArray(data) ? data : (data?.data ?? []);
+      setAllDomains(filterTab === 'mine'
+        ? domains
+        : domains.filter(d => d.domainStatus === 'AVAILABLE'));
+    })
+      .catch(() => setAllDomains([]))
+      .finally(() => setLoading(false));
+  }, [filterTab]);
+
+  useEffect(() => {
+    if (filterTab !== 'mine') return;
+    setLoading(true);
+    domainAPI.getMyListings()
       .then(({ data }) => {
         const domains = Array.isArray(data) ? data : (data?.data ?? []);
-        // Only show AVAILABLE domains on public listing
-        const availableDomains = domains.filter(d => d.domainStatus === 'AVAILABLE');
-        setAllDomains(availableDomains);
+        setAllDomains(domains);
       })
       .catch(() => setAllDomains([]))
       .finally(() => setLoading(false));
-  }, []);
+  }, [filterTab]);
 
   const handleDelete = async () => {
     try {
@@ -90,13 +102,15 @@ export default function DomainsPage() {
     } finally { setDeleteTarget(null); }
   };
 
-  const refreshDomains = () =>
-    domainAPI.getAll()
-      .then(({ data }) => {
-        const domains = Array.isArray(data) ? data : (data?.data ?? []);
-        const availableDomains = domains.filter(d => d.domainStatus === 'AVAILABLE');
-        setAllDomains(availableDomains);
-      });
+  const refreshDomains = () => {
+    const req = filterTab === 'mine' ? domainAPI.getMyListings() : domainAPI.getAll();
+    return req.then(({ data }) => {
+      const domains = Array.isArray(data) ? data : (data?.data ?? []);
+      setAllDomains(filterTab === 'mine'
+        ? domains
+        : domains.filter(d => d.domainStatus === 'AVAILABLE'));
+    });
+  };
 
   return (
     <AppLayout>
@@ -133,13 +147,13 @@ export default function DomainsPage() {
         )}
 
         <FilterBar
-          search={search}           onSearch={handleSearch}
-          category={category}       onCategory={handleCategory}
+          search={search} onSearch={handleSearch}
+          category={category} onCategory={handleCategory}
           categoryOptions={DOMAIN_PRICING_OPTIONS}
-          minPrice={minPrice}       onMinPrice={handleMinPrice}
-          maxPrice={maxPrice}       onMaxPrice={handleMaxPrice}
-          sortBy={sortBy}           onSort={handleSort}
-          onClear={clearAll}        activeFilterCount={activeFilterCount}
+          minPrice={minPrice} onMinPrice={handleMinPrice}
+          maxPrice={maxPrice} onMaxPrice={handleMaxPrice}
+          sortBy={sortBy} onSort={handleSort}
+          onClear={clearAll} activeFilterCount={activeFilterCount}
           placeholder="Search domains by name or extension…"
           theme="light"
         />
@@ -159,8 +173,8 @@ export default function DomainsPage() {
             <div className="text-6xl mb-4">◇</div>
             <h3 className="font-display text-2xl font-bold text-gray-900 mb-2">
               {activeFilterCount > 0 ? 'No domains match your filters' :
-               filterTab === 'mine' ? 'You have no active listings' :
-               'No domains listed yet'}
+                filterTab === 'mine' ? 'You have no active listings' :
+                  'No domains listed yet'}
             </h3>
             <p className="text-gray-600 mb-6">
               {activeFilterCount > 0
@@ -170,8 +184,8 @@ export default function DomainsPage() {
             {activeFilterCount > 0
               ? <button className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white border-2 border-gray-300 text-gray-700 font-semibold text-sm rounded-full cursor-pointer transition-all hover:border-indigo-400 hover:bg-indigo-50" onClick={clearAll}>Clear Filters</button>
               : <button className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white font-semibold text-sm rounded-[10px] border-none cursor-pointer transition-colors hover:bg-indigo-700" onClick={() => setShowForm(true)}>
-                  List a Domain
-                </button>
+                List a Domain
+              </button>
             }
           </div>
         ) : (
@@ -268,11 +282,11 @@ export default function DomainsPage() {
 
 // ─── Domain Card ──────────────────────────────────────────────────────────────
 function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onViewAuction,
-                       onDelete, likeState, onLike }) {
-  const s           = STATUS_COLORS[domain.domainStatus] || STATUS_COLORS.AVAILABLE;
-  const isAuction   = domain.saleType === 'AUCTION';
+  onDelete, likeState, onLike }) {
+  const s = STATUS_COLORS[domain.domainStatus] || STATUS_COLORS.AVAILABLE;
+  const isAuction = domain.saleType === 'AUCTION';
   const isHighValue = !isAuction && domain.askingPrice >= 500000;
-  const auction     = domain.auction;
+  const auction = domain.auction;
   const auctionLive = auction?.status === 'ACTIVE' || auction?.status === 'EXTENDED';
   const domainInitials = (domain.domainName || '')
     .replace(/[^a-zA-Z0-9]/g, '')
@@ -318,9 +332,9 @@ function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onViewAuction,
               <span className="px-2 py-0.5 rounded text-[0.68rem] font-bold text-purple-600 bg-purple-50 border border-purple-200">
                 🔨 Auction
               </span>
-              {auction?.status === 'ACTIVE'   && <span className="text-[0.68rem] text-green-500 font-bold">🟢 Live</span>}
+              {auction?.status === 'ACTIVE' && <span className="text-[0.68rem] text-green-500 font-bold">🟢 Live</span>}
               {auction?.status === 'EXTENDED' && <span className="text-[0.68rem] text-amber-500 font-bold">⚡ Extended</span>}
-              {auction?.status === 'DRAFT'    && <span className="text-[0.68rem] text-gray-500">⏳ Draft</span>}
+              {auction?.status === 'DRAFT' && <span className="text-[0.68rem] text-gray-500">⏳ Draft</span>}
             </>
           )}
         </div>
@@ -373,9 +387,9 @@ function DomainCard({ domain, isOwner, onView, onBuy, onEnquire, onViewAuction,
             </button>
           ) : (
             <span className="text-[0.8rem] text-gray-500 font-medium">
-              {auction?.status === 'DRAFT'  ? 'Coming Soon' :
-               auction?.status === 'ENDED'  ? 'Auction Ended' :
-               auction?.status === 'UNSOLD' ? 'Unsold' : 'Closed'}
+              {auction?.status === 'DRAFT' ? 'Coming Soon' :
+                auction?.status === 'ENDED' ? 'Auction Ended' :
+                  auction?.status === 'UNSOLD' ? 'Unsold' : 'Closed'}
             </span>
           )
         ) : domain.domainStatus === 'AVAILABLE' ? (
@@ -411,7 +425,7 @@ function DomainForm({ onSaved, onCancel }) {
     agreement: { terms: false },
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
 
   const setContact = (k, v) =>
     setForm(f => ({ ...f, contactInfo: { ...f.contactInfo, [k]: v } }));
@@ -425,18 +439,18 @@ function DomainForm({ onSaved, onCancel }) {
     setLoading(true); setError('');
     try {
       const { data: domain } = await domainAPI.create({
-        domainName:      form.domainName,
+        domainName: form.domainName,
         domainExtension: form.domainExtension,
-        askingPrice:     form.saleType === 'AUCTION' ? 0 : parseFloat(form.askingPrice),
-        pricingDemand:   form.pricingDemand,
-        saleType:        form.saleType,
-        contactInfo:     form.contactInfo,
-        agreement:       form.agreement,
+        askingPrice: form.saleType === 'AUCTION' ? 0 : parseFloat(form.askingPrice),
+        pricingDemand: form.pricingDemand,
+        saleType: form.saleType,
+        contactInfo: form.contactInfo,
+        agreement: form.agreement,
       });
       if (form.saleType === 'AUCTION' && domain.id) {
         await auctionAPI.create(domain.id, {
           minBidPrice: parseFloat(form.minBidPrice),
-          duration:    form.auctionDuration,
+          duration: form.auctionDuration,
         });
       }
       onSaved(domain);
@@ -461,7 +475,7 @@ function DomainForm({ onSaved, onCancel }) {
             value={form.domainName + form.domainExtension}
             onChange={e => {
               const full = e.target.value;
-              const dot  = full.indexOf('.');
+              const dot = full.indexOf('.');
               if (dot !== -1) {
                 setForm(f => ({ ...f, domainName: full.slice(0, dot), domainExtension: full.slice(dot) }));
               } else {
@@ -480,18 +494,16 @@ function DomainForm({ onSaved, onCancel }) {
           <div className="grid grid-cols-2 gap-3 mt-1.5">
             {[
               { value: 'ONE_TIME', label: '🛒 One-Time Sale', desc: 'Set a fixed price. Buyer pays and gets the domain.' },
-              { value: 'AUCTION',  label: '🔨 Auction',       desc: 'Bidders compete. Highest bid wins after your chosen duration.' },
+              { value: 'AUCTION', label: '🔨 Auction', desc: 'Bidders compete. Highest bid wins after your chosen duration.' },
             ].map(opt => (
               <div key={opt.value}
                 onClick={() => setForm(f => ({ ...f, saleType: opt.value }))}
-                className={`p-3.5 rounded-lg cursor-pointer border-2 transition-all duration-150 ${
-                  form.saleType === opt.value 
-                    ? 'border-purple-600 bg-purple-50' 
+                className={`p-3.5 rounded-lg cursor-pointer border-2 transition-all duration-150 ${form.saleType === opt.value
+                    ? 'border-purple-600 bg-purple-50'
                     : 'border-gray-200 bg-white'
-                }`}>
-                <div className={`font-semibold text-sm mb-1 ${
-                  form.saleType === opt.value ? 'text-purple-600' : 'text-gray-600'
-                }`}>
+                  }`}>
+                <div className={`font-semibold text-sm mb-1 ${form.saleType === opt.value ? 'text-purple-600' : 'text-gray-600'
+                  }`}>
                   {opt.label}
                 </div>
                 <div className="text-xs text-gray-500 leading-snug">{opt.desc}</div>
@@ -592,7 +604,7 @@ function DomainForm({ onSaved, onCancel }) {
 // ─── Buy Domain Modal ─────────────────────────────────────────────────────────
 function BuyDomainModal({ domain, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
 
   const handleBuy = async () => {
     setLoading(true); setError('');
@@ -606,7 +618,7 @@ function BuyDomainModal({ domain, onClose, onSuccess }) {
           try {
             await domainAPI.verifyPayment(domain.id, {
               razorpayPaymentId: response.razorpay_payment_id,
-              razorpayOrderId:   response.razorpay_order_id,
+              razorpayOrderId: response.razorpay_order_id,
               razorpaySignature: response.razorpay_signature,
             });
             onSuccess({ ...domain, domainStatus: 'SOLD', paymentStatus: 'COMPLETED' });
@@ -679,10 +691,10 @@ function PurchaseSuccessModal({ domain, onClose }) {
 
 // ─── Domain Detail Modal ──────────────────────────────────────────────────────
 function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
-                              onViewAuction, likeState, onLike }) {
-  const [detail, setDetail]   = useState(null);
+  onViewAuction, likeState, onLike }) {
+  const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
-  const hasFetched            = useRef(false);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
     if (hasFetched.current) return;
@@ -693,12 +705,12 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
       .finally(() => setLoading(false));
   }, [domain.id]);
 
-  const d           = detail || domain;
-  const c           = d.contactInfo || {};
-  const s           = STATUS_COLORS[d.domainStatus] || STATUS_COLORS.AVAILABLE;
-  const isAuction   = d.saleType === 'AUCTION';
+  const d = detail || domain;
+  const c = d.contactInfo || {};
+  const s = STATUS_COLORS[d.domainStatus] || STATUS_COLORS.AVAILABLE;
+  const isAuction = d.saleType === 'AUCTION';
   const isHighValue = !isAuction && d.askingPrice >= 500000;
-  const auction     = d.auction;
+  const auction = d.auction;
   const auctionLive = auction?.status === 'ACTIVE' || auction?.status === 'EXTENDED';
 
   return (
@@ -762,10 +774,10 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
               <Section title="Auction Info">
                 <div className="grid grid-cols-2 gap-3">
                   <DetailItem label="Status"
-                    value={auction.status === 'ACTIVE'   ? '🟢 Live' :
-                           auction.status === 'EXTENDED' ? '⚡ Extended' :
-                           auction.status === 'DRAFT'    ? '⏳ Pending Verification' :
-                           auction.status} />
+                    value={auction.status === 'ACTIVE' ? '🟢 Live' :
+                      auction.status === 'EXTENDED' ? '⚡ Extended' :
+                        auction.status === 'DRAFT' ? '⏳ Pending Verification' :
+                          auction.status} />
                   <DetailItem label="Duration" value={auction.duration?.replace(/_/g, ' ')} />
                   {auction.endTime && (
                     <DetailItem label="Ends"
@@ -793,7 +805,7 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
             {(c.email || c.phoneNumber) && (
               <Section title="Contact">
                 <div className="grid grid-cols-2 gap-3">
-                  {c.email       && <DetailItem label="Email" value={c.email} />}
+                  {c.email && <DetailItem label="Email" value={c.email} />}
                   {c.phoneNumber && <DetailItem label="Phone" value={c.phoneNumber} />}
                 </div>
               </Section>
@@ -835,7 +847,7 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
                 ) : null
               )}
               <LikeButton liked={likeState?.liked} count={likeState?.count}
-                          onToggle={onLike} size="md" />
+                onToggle={onLike} size="md" />
               <button className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-transparent text-gray-500 font-semibold text-sm rounded-[10px] border border-gray-200 cursor-pointer transition-colors hover:bg-gray-100" onClick={onClose}>Close</button>
             </div>
           </>
@@ -849,12 +861,12 @@ function DomainDetailModal({ domain, isOwner, onClose, onBuy, onEnquire,
 function DomainEnquiryModal({ domain, user, onClose, onSuccess }) {
   const [form, setForm] = useState({
     fullName: `${user?.firstname || ''} ${user?.lastname || ''}`.trim(),
-    email:    user?.email || '',
-    phone:    user?.phoneNumber || '',
-    message:  '',
+    email: user?.email || '',
+    phone: user?.phoneNumber || '',
+    message: '',
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -863,9 +875,9 @@ function DomainEnquiryModal({ domain, user, onClose, onSuccess }) {
       // Correct signature: (domainId, { fullName, email, phone, message })
       await domainEnquiryAPI.submit(domain.id, {
         fullName: form.fullName,
-        email:    form.email,
-        phone:    form.phone,
-        message:  form.message,
+        email: form.email,
+        phone: form.phone,
+        message: form.message,
       });
       onSuccess();
     } catch (err) {
