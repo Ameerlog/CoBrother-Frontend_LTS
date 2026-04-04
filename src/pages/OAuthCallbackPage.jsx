@@ -45,8 +45,17 @@ export default function OAuthCallbackPage() {
     refreshUser()
       .then((fetchedUser) => {
         const isComplete = fetchedUser?.profileComplete ?? profileCompleteParam;
-        console.log('[OAuth] profileComplete:', isComplete, 'user:', fetchedUser?.email);
-        navigate(isComplete ? '/dashboard' : '/complete-profile', { replace: true });
+        const role = fetchedUser?.role;
+        console.log('[OAuth] profileComplete:', isComplete, 'role:', role, 'user:', fetchedUser?.email);
+
+        // Route based on role first, then profile completion
+        if (role === 'ADMIN') {
+          navigate('/admin', { replace: true });
+        } else if (role === 'COBROTHER') {
+          navigate('/cobrother', { replace: true });
+        } else {
+          navigate(isComplete ? '/dashboard' : '/complete-profile', { replace: true });
+        }
       })
       .catch((err) => {
         console.error('[OAuth] refreshUser failed:', err);
